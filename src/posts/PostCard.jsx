@@ -26,7 +26,6 @@ export default function PostCard({ post }) {
         const { count: lCount } = await supabase.from('likes').select('id', { count: 'exact', head: true }).eq('post_id', post.id);
         const { count: cCount } = await supabase.from('comments').select('id', { count: 'exact', head: true }).eq('post_id', post.id);
         if (isMounted) { setLikesCount(lCount || 0); setCommentsCount(cCount || 0); }
-
         if (user) {
             const { data } = await supabase.from('likes').select('id').eq('user_id', user.id).eq('post_id', post.id).maybeSingle();
             if (isMounted && data) setIsLiked(true);
@@ -36,18 +35,7 @@ export default function PostCard({ post }) {
     return () => { isMounted = false; };
   }, [post.id, user]);
 
-  const handleLike = async (e) => {
-    e.stopPropagation();
-    if (!requireAuth()) return;
-    haptic.impactMedium();
-    const wasLiked = isLiked;
-    setIsLiked(!wasLiked);
-    setLikesCount(prev => wasLiked ? prev - 1 : prev + 1);
-
-    if (wasLiked) await supabase.from('likes').delete().eq('user_id', user.id).eq('post_id', post.id);
-    else await supabase.from('likes').insert({ user_id: user.id, post_id: post.id });
-  };
-
+  const handleLike = async (e) => { e.stopPropagation(); if (!requireAuth()) return; haptic.impactMedium(); const was = isLiked; setIsLiked(!was); setLikesCount(p => was ? p-1 : p+1); if(was) await supabase.from('likes').delete().eq('user_id', user.id).eq('post_id', post.id); else await supabase.from('likes').insert({ user_id: user.id, post_id: post.id }); };
   const handleEcho = (e) => { e.stopPropagation(); haptic.tap(); if (!requireAuth()) return; setView('echo', post); };
   const handleShare = async (e) => { e.stopPropagation(); haptic.tap(); const url = `${window.location.origin}/?post=${post.id}`; if (navigator.share) await navigator.share({ title: 'Aalap', url }); else { await navigator.clipboard.writeText(url); toast.success('Link copied'); } };
   const handleBookmark = (e) => { e.stopPropagation(); if (!requireAuth()) return; toggleBookmark(post); };
@@ -60,21 +48,37 @@ export default function PostCard({ post }) {
   return (
     <div className="notepad-card">
       <div className="card-click-area" onClick={openReader}>
+          {/* HEADER */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <div onClick={openAuthor} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', zIndex: 10 }}>
               <Avatar url={author.avatar_url} size={32} />
               <div>
+                {/* FORCE COLOR VISIBILITY */}
                 <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text)' }}>{author.display_name || 'নামবিহীন'}</div>
                 <div style={{ fontSize: '11px', color: 'var(--text-sec)' }}>{new Date(post.created_at).toLocaleDateString()}</div>
               </div>
             </div>
             <span className="meta-badge">{categoryLabel}</span>
           </div>
-          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', fontWeight: 800, margin: '0 0 10px', lineHeight: '1.3', color: 'var(--text)' }}>{post.title}</h3>
-          <p style={{ fontFamily: 'var(--font-serif)', fontSize: '17px', lineHeight: '1.7', color: 'var(--text-sec)', margin: '0 0 15px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.body}</p>
+          
+          {/* TITLE & BODY - FORCE COLORS */}
+          <h3 style={{ 
+            fontFamily: 'var(--font-serif)', fontSize: '22px', fontWeight: 800, 
+            margin: '0 0 10px', lineHeight: '1.3', color: 'var(--text)' 
+          }}>
+            {post.title}
+          </h3>
+          <p style={{ 
+            fontFamily: 'var(--font-serif)', fontSize: '17px', lineHeight: '1.7', 
+            color: 'var(--text-sec)', margin: '0 0 15px', 
+            display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' 
+          }}>
+            {post.body}
+          </p>
       </div>
 
-      <div style={{ padding: '10px 24px 20px 24px', marginTop: 'auto', borderTop: '1px dashed var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--card)' }}>
+      {/* FOOTER */}
+      <div style={{ padding: '10px 20px 16px 20px', marginTop: 'auto', borderTop: '1px dashed var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '20px' }}>
             <button onClick={handleLike} className="haptic-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--danger)' : 'var(--text-sec)', fontSize: '13px', fontWeight: 600 }}>
                 <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} /> {likesCount}

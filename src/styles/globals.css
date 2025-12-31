@@ -1,41 +1,49 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap');
 
 :root {
+  /* FONT SETTINGS */
   --font-serif: "Noto Serif Bengali", serif;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* FORCE DARK THEME DEFAULTS (Safety Net) */
+  --bg: #050505; 
+  --card: #121212; 
+  --text: #e0e0e0;         /* Bright Grey/White */
+  --text-sec: #a0a0a0;     /* Light Grey */
+  --border: #2a2a2a; 
+  --glass: rgba(20, 20, 20, 0.95); 
+  --accent: #FF5A4D; 
+  --surface-2: #222222; 
+  --badge-bg: #333333; 
+  --danger: #ff4d4d;
 }
 
-/* THEMES */
+/* EXPLICIT NIGHT THEME */
+body.theme-night { 
+  --bg: #050505; --card: #121212; --text: #e0e0e0; --text-sec: #a0a0a0; 
+  --border: #2a2a2a; --glass: rgba(20, 20, 20, 0.95); --accent: #FF5A4D; 
+  --surface-2: #222; --badge-bg: #333; --danger: #ff4d4d;
+}
+
+/* EXPLICIT PAPER THEME */
 body.theme-paper { 
-  --bg: #F9F8F4; --card: #ffffff; --text: #2D2D2D; --text-sec: #666666; 
+  --bg: #F9F8F4; --card: #ffffff; --text: #1a1a1a; --text-sec: #555555; 
   --border: #E8E6DF; --glass: rgba(255, 255, 255, 0.95); --accent: #D94436; 
   --surface-2: #F2F0E9; --badge-bg: #F4F2ED; --danger: #e02424;
 }
-body.theme-night { 
-  --bg: #0A0A0A; --card: #181818; --text: #EAEAEA; --text-sec: #888888; 
-  --border: #2A2A2A; --glass: rgba(20, 20, 20, 0.95); --accent: #FF5A4D; 
-  --surface-2: #222; --badge-bg: #222; --danger: #ff4d4d;
-}
 
-/* RESET */
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* GLOBAL RESET */
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
 html, body { 
   margin: 0; padding: 0; width: 100%; min-height: 100%; 
-  background: var(--bg); color: var(--text); font-family: var(--font-sans); 
-}
-
-/* TEXTURE (Background Only) */
-body::before {
-  content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: -1; mix-blend-mode: multiply;
+  background-color: var(--bg); 
+  color: var(--text); 
+  font-family: var(--font-sans);
 }
 
 /* LAYOUT STRUCTURE */
-.main-layout {
-  display: flex;
-  min-height: 100vh;
-}
+.main-layout { display: flex; min-height: 100vh; }
 
 /* SIDEBAR (Desktop) */
 @media (min-width: 769px) {
@@ -62,23 +70,20 @@ body::before {
 }
 
 /* CONTENT AREA */
-.main-content {
-  flex: 1;
-  padding: 40px 20px;
-  position: relative;
-  z-index: 1;
-}
+.main-content { flex: 1; padding: 40px 20px; position: relative; z-index: 1; }
 
 /* CARD STYLES */
 .notepad-card {
-  background: var(--card); border-radius: 16px; 
+  background-color: var(--card); /* Explicit Background */
   border: 1px solid var(--border); 
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  border-radius: 12px;
   margin-bottom: 24px;
   display: flex; flex-direction: column;
-  transition: transform 0.2s ease;
+  position: relative;
+  /* Ensure text color inherits correctly */
+  color: var(--text); 
 }
-.card-click-area { cursor: pointer; padding: 24px 24px 10px 24px; flex: 1; }
+.card-click-area { cursor: pointer; padding: 20px 20px 10px 20px; flex: 1; }
 .card-click-area:active { background: var(--surface-2); }
 
 /* UTILS */
