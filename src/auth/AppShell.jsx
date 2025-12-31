@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useStore } from '../data/store';
+import { supabase } from '../data/supabaseClient';
 import Feed from '../posts/Feed';
 import Studio from '../posts/Studio';
 import Reader from '../posts/Reader';
@@ -17,16 +18,48 @@ import { Sun, Moon } from 'lucide-react';
 export default function AppShell() {
   const { view, viewData, activeTab, setTab, setView, theme, toggleTheme } = useStore();
 
+  // DEEP LINKING & INITIAL LOAD
   useEffect(() => {
     if (theme === 'paper') document.body.classList.add('theme-paper');
-    const handlePopState = (e) => { if(e.state?.view) { setView(e.state.view, e.state.viewData); if(e.state.tab) setTab(e.state.tab); } else setView('main'); };
+    
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get('post');
+    if (postId) {
+        supabase.from('posts').select(`*, profiles(*)`).eq('id', postId).single().then(({data}) => {
+            if (data) setView('reader', data);
+        });
+    }
+
+    const handlePopState = (e) => {
+        if (e.state?.view) {
+            setView(e.state.view, e.state.viewData);
+            if (e.state.tab) setTab(e.state.tab);
+        } else {
+            setView('main');
+        }
+    };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // UPDATE URL ON VIEW CHANGE
+  useEffect(() => {
+    if (view === 'reader' && viewData?.id) {
+        const newUrl = `${window.location.origin}${window.location.pathname}?post=${viewData.id}`;
+        if (window.location.href !== newUrl) {
+            window.history.pushState({ view, viewData, tab: activeTab }, '', newUrl);
+        }
+    } else if (view === 'main') {
+        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+        if (window.location.href !== cleanUrl) {
+            window.history.pushState({ view, viewData: null, tab: activeTab }, '', cleanUrl);
+        }
+    }
+  }, [view, viewData, activeTab]);
+
   return (
     <div className="main-layout">
-      <Toaster position="top-center" toastOptions={{ style: { background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-light)' } }} />
+      <Toaster position="top-center" toastOptions={{ style: { background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-light)', fontFamily: 'var(--font-serif)' } }} />
       <SideNav activeTab={activeTab} setTab={setTab} />
       
       <main className="main-content">
@@ -37,16 +70,16 @@ export default function AppShell() {
            </button>
         </div>
 
-        {view === 'main' ? (
-           <>
-              {activeTab === 'home' && <Feed type="community" />}
-              {activeTab === 'bookmarks' && <Feed type="bookmarks" />}
-              {activeTab === 'write' && <Studio />}
-              {activeTab === 'notifications' && <Notifications />}
-              {activeTab === 'profile' && <Profile />}
-           </>
-        ) : (
-           <div style={{ position: 'relative', zIndex: 10 }}>
+        <div style={{ display: view === 'main' ? 'block' : 'none' }}>
+            {activeTab === 'home' && <Feed type="community" />}
+            {activeTab === 'bookmarks' && <Feed type="bookmarks" />}
+            {activeTab === 'write' && <Studio />}
+            {activeTab === 'notifications' && <Notifications />}
+            {activeTab === 'profile' && <Profile />}
+        </div>
+
+        {view !== 'main' && (
+           <div style={{ position: 'relative', zIndex: 100 }}>
               {view === 'studio' && <Studio />}
               {view === 'reader' && <Reader post={viewData} />}
               {view === 'author' && <AuthorProfile authorId={viewData} />}
@@ -56,7 +89,7 @@ export default function AppShell() {
         )}
       </main>
       
-      {view === 'echo' && <EchoChamber post={viewData} onClose={() => window.history.back()} />}
+      {view === 'echo' && <EchoChamber post={viewData} onClose={() => setView('reader', viewData)} />}
       <BottomNav activeTab={activeTab} setTab={setTab} />
     </div>
   );

@@ -6,7 +6,7 @@ import Avatar from '../components/Avatar';
 import toast from 'react-hot-toast';
 
 export default function Reader({ post }) {
-  const { setView, user, toggleBookmark, bookmarks, setTab } = useStore();
+  const { setView, user, toggleBookmark, bookmarks } = useStore();
   const author = post.profiles || {};
   
   const [likes, setLikes] = useState(0);
@@ -25,45 +25,34 @@ export default function Reader({ post }) {
       else await supabase.from('likes').insert({ user_id: user.id, post_id: post.id });
   };
 
-  const handleBookmark = () => {
-      if(!user) { toast.error('Login to save'); return; }
-      toggleBookmark(post);
+  const handleShare = () => {
+    const shareUrl = `${window.location.origin}${window.location.pathname}?post=${post.id}`;
+    navigator.clipboard.writeText(shareUrl);
+    toast.success('Sharing link copied!');
   };
 
   return (
-    <div style={{ minHeight: '100vh', padding: 20 }}>
-      {/* Top Bar */}
-      <div style={{ position:'sticky', top:0, background:'var(--bg-body)', zIndex:10, paddingBottom:20, display:'flex', alignItems:'center', gap:15 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-body)', position: 'relative' }}>
+      <div style={{ position:'sticky', top:0, background:'var(--bg-body)', zIndex:10, padding:'20px', display:'flex', alignItems:'center', gap:15, borderBottom: '1px solid var(--border-light)' }}>
         <button onClick={() => setView('main')} className="btn-icon"><ArrowLeft /></button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Avatar url={author.avatar_url} size={32} />
-            <span style={{ fontWeight: 700, fontSize: 14, fontFamily: 'var(--font-sans)' }}>{author.display_name}</span>
+            <span style={{ fontWeight: 700, fontSize: 14 }}>{author.display_name}</span>
         </div>
       </div>
 
-      {/* Content */}
-      <div style={{ maxWidth: 680, margin: '0 auto', paddingBottom: 100 }}>
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 20px 120px 20px' }}>
           <h1 style={{ fontSize: 32, marginBottom: 24, lineHeight: 1.3 }}>{post.title}</h1>
-          <div style={{ fontSize: 19, lineHeight: 1.9, whiteSpace: 'pre-wrap', color: 'var(--text-main)', opacity: 0.9 }}>{post.body}</div>
+          <div style={{ fontSize: 19, lineHeight: 1.9, whiteSpace: 'pre-wrap', color: 'var(--text-main)' }}>{post.body}</div>
       </div>
 
-      {/* FLOATING ACTION BAR (The Fix) */}
-      <div className="reader-actions">
+      <div className="reader-actions" style={{ background: 'var(--bg-nav)', border: '1px solid var(--border-strong)', backdropFilter: 'blur(10px)' }}>
           <button onClick={handleLike} className="btn-icon" style={{color: isLiked ? 'var(--danger)' : 'var(--text-main)'}}>
              <Heart size={24} fill={isLiked ? "currentColor" : "none"} /> <span style={{fontSize:14, fontWeight:600}}>{likes}</span>
           </button>
-          
-          <button onClick={() => setView('echo', post)} className="btn-icon" style={{color: 'var(--text-main)'}}>
-             <MessageCircle size={24} />
-          </button>
-
-          <button onClick={handleBookmark} className="btn-icon" style={{color: isSaved ? 'var(--text-main)' : 'var(--text-muted)'}}>
-             <Bookmark size={24} fill={isSaved ? "currentColor" : "none"} />
-          </button>
-          
-          <button onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success('Copied'); }} className="btn-icon" style={{color: 'var(--text-muted)'}}>
-             <Share2 size={24} />
-          </button>
+          <button onClick={() => setView('echo', post)} className="btn-icon" style={{color: 'var(--text-main)'}}><MessageCircle size={24} /></button>
+          <button onClick={() => toggleBookmark(post)} className="btn-icon" style={{color: isSaved ? 'var(--text-main)' : 'var(--text-muted)'}}><Bookmark size={24} fill={isSaved ? "currentColor" : "none"} /></button>
+          <button onClick={handleShare} className="btn-icon" style={{color: 'var(--text-muted)'}}><Share2 size={24} /></button>
       </div>
     </div>
   );
