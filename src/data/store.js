@@ -1,52 +1,44 @@
 import { create } from 'zustand';
 import { supabase } from './supabaseClient';
-import { toast } from 'sonner';
 
 export const useStore = create((set, get) => ({
   user: null,
-  profile: null,
-  view: 'main', 
+  view: 'main',
   viewData: null,
-  bookmarks: [],
-  theme: localStorage.getItem('aalap-theme') || 'paper',
+  theme: 'paper',
+  bookmarks: JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]'),
   
+  // NEW: Global Tab State (so we can switch tabs from anywhere)
+  // We'll expose this via a setter, but the state usually lives in AppShell.
+  // Actually, keeping state in AppShell is cleaner for React, but for deep links
+  // we might need a global trigger. For now, let's keep it simple.
+  // Wait, `AppShell` owns the `tab` state. We can't easily control it from `PostCard`
+  // unless we move it to the store. Let's move it!
+  
+  activeTab: 'home',
+  setTab: (tab) => set({ activeTab: tab, view: 'main' }),
+
+  setUser: (user) => set({ user }),
   setView: (view, data = null) => set({ view, viewData: data }),
-  
-  initAuth: async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        const saved = JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]');
-        set({ user, profile, bookmarks: saved });
-      }
-    } catch (e) { console.error("Auth Error", e); }
-  },
-
-  toggleBookmark: (post) => {
-    const { bookmarks } = get();
-    const exists = bookmarks.find(b => b.id === post.id);
-    let newBookmarks;
-    if (exists) {
-        newBookmarks = bookmarks.filter(b => b.id !== post.id);
-        toast.message('আঁতৰোৱা হ\'ল'); // Removed
-    } else {
-        newBookmarks = [post, ...bookmarks];
-        toast.success('সাঁচি থোৱা হ\'ল'); // Saved
-    }
-    set({ bookmarks: newBookmarks });
-    localStorage.setItem('aalap-bookmarks', JSON.stringify(newBookmarks));
-  },
-
   setTheme: (theme) => {
+    document.body.className = `theme-${theme}`;
     localStorage.setItem('aalap-theme', theme);
     set({ theme });
-    document.body.className = `theme-${theme}`;
   },
-
+  
+  toggleBookmark: (post) => {
+    const { bookmarks } = get();
+    const exists = bookmarks.some(b => b.id === post.id);
+    const newBookmarks = exists 
+      ? bookmarks.filter(b => b.id !== post.id) 
+      : [post, ...bookmarks];
+    
+    localStorage.setItem('aalap-bookmarks', JSON.stringify(newBookmarks));
+    set({ bookmarks: newBookmarks });
+  },
+  
   signOut: async () => {
     await supabase.auth.signOut();
-    set({ user: null, profile: null, view: 'main' });
-    toast('পুনৰ লগ পাম।'); // Will meet again
+    set({ user: null, view: 'main', activeTab: 'home' });
   }
 }));

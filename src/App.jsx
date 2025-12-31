@@ -1,27 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useStore } from './data/store';
 import { supabase } from './data/supabaseClient';
-import AuthScreen from './auth/AuthScreen';
 import AppShell from './auth/AppShell';
-import './styles/globals.css';
-
-// V5.0 FONT LOADING
-import '@fontsource/inter/400.css';
-import '@fontsource/inter/600.css';
-import '@fontsource/noto-serif-bengali/400.css';
-import '@fontsource/noto-serif-bengali/700.css';
-import '@fontsource/noto-serif-bengali/900.css';
 
 export default function App() {
-  const { initAuth, theme, setTheme } = useStore();
-  const [session, setSession] = useState(null);
+  const { setUser, setTheme } = useStore();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); if (session) initAuth(); });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setSession(session); if (session) initAuth(); });
-    setTheme(theme);
-    return () => subscription.unsubscribe();
-  }, []);
+    // 1. Check Session on Load
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+    });
 
-  return session ? <AppShell /> : <AuthScreen />;
+    // 2. Listen for Auth Changes (Login/Logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    // 3. Theme System
+    const savedTheme = localStorage.getItem('aalap-theme') || 'paper';
+    document.body.className = `theme-${savedTheme}`;
+    setTheme(savedTheme);
+
+    return () => subscription.unsubscribe();
+  }, [setUser, setTheme]);
+
+  // ALWAYS render the AppShell (The Shell will handle guests)
+  return <AppShell />;
 }
