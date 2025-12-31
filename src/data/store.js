@@ -13,7 +13,6 @@ export const useStore = create((set, get) => ({
   setView: (view, data = null) => set({ view, viewData: data }),
   setTab: (tab) => set({ activeTab: tab, view: 'main' }),
   
-  // DIRECT TOGGLE ACTION
   toggleTheme: () => {
     const current = get().theme;
     const next = current === 'night' ? 'paper' : 'night';
