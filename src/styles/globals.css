@@ -1,51 +1,83 @@
+/* ========================================================================
+   AALAP DESIGN SYSTEM: LEVEL 999
+   ======================================================================== */
+
 :root {
-  /* NIGHT THEME (Default) */
-  --bg-body: #09090b;       /* Zinc-950 */
-  --bg-nav: #000000;
-  --bg-card: #18181b;       /* Zinc-900 */
-  --bg-input: #27272a;      /* Zinc-800 */
-  --text-main: #f4f4f5;     /* Zinc-100 */
-  --text-muted: #a1a1aa;    /* Zinc-400 */
+  /* --- NIGHT THEME (DEFAULT) --- */
+  --bg-body: #050505;          /* Deepest Black */
+  --bg-nav: #000000;           /* Pure Black */
+  --bg-card: #121212;          /* Subtle Grey */
+  --bg-input: #1A1A1A;
+  
+  --text-main: #EAEAEA;        /* Off White */
+  --text-muted: #888888;       /* Grey Text */
+  
   --border-light: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  
   --btn-soft: rgba(255, 255, 255, 0.1);
   --btn-hover: rgba(255, 255, 255, 0.15);
-  --danger: #ef4444;
+  
+  --accent: #FFFFFF;
+  --danger: #FF453A;
+  
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.2);
+  --shadow-float: 0 10px 40px rgba(0,0,0,0.5);
+  
+  --font-serif: "Noto Serif Bengali", serif;
+  --font-sans: "Inter", sans-serif;
 }
 
+/* --- PAPER THEME (WARM) --- */
 .theme-paper {
-  /* PAPER THEME (Warm & Clean) */
-  --bg-body: #FDFCF8;       /* Warm White */
-  --bg-nav: #F7F5F0;        /* Light Cream */
-  --bg-card: #FFFFFF;
-  --bg-input: #F0F0F0;
-  --text-main: #18181b;     /* Zinc-900 */
-  --text-muted: #71717a;    /* Zinc-500 */
+  --bg-body: #F9F8F4;          /* Warm Cream */
+  --bg-nav: #F2F0E9;           /* Darker Cream */
+  --bg-card: #FFFFFF;          /* Pure White */
+  --bg-input: #EBE8E0;
+  
+  --text-main: #2A2A2A;        /* Charcoal */
+  --text-muted: #71717a;       /* Zinc 500 */
+  
   --border-light: rgba(0, 0, 0, 0.06);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  
   --btn-soft: rgba(0, 0, 0, 0.05);
   --btn-hover: rgba(0, 0, 0, 0.08);
-  --danger: #dc2626;
+  
+  --accent: #000000;
+  --danger: #DC2626;
+  
+  --shadow-card: 0 2px 10px rgba(0,0,0,0.03);
+  --shadow-float: 0 8px 30px rgba(0,0,0,0.08);
 }
 
+/* --- RESET & BASE --- */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body, #root { 
+
+html, body, #root {
   margin: 0; padding: 0; width: 100%; min-height: 100vh;
-  background-color: var(--bg-body); color: var(--text-main);
-  font-family: "Noto Serif Bengali", serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  font-family: var(--font-serif);
+  transition: background-color 0.4s ease, color 0.4s ease;
+  overflow-x: hidden;
 }
 
-/* LAYOUT */
+/* --- LAYOUT ARCHITECTURE --- */
 .app-wrapper { width: 100%; min-height: 100vh; position: relative; }
 
-/* DESKTOP SIDEBAR */
+/* DESKTOP NAV */
 @media (min-width: 769px) {
   .side-nav {
     position: fixed; top: 0; left: 0; bottom: 0; width: 280px;
     background: var(--bg-nav); border-right: 1px solid var(--border-light);
     padding: 40px 30px; z-index: 100;
     display: flex; flex-direction: column;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
   }
-  .main-container { margin-left: 280px; padding: 40px; max-width: 800px; }
+  .main-container { 
+    margin-left: 280px; padding: 40px; max-width: 850px; 
+  }
   .bottom-nav, .mobile-header { display: none !important; }
 }
 
@@ -56,62 +88,74 @@ html, body, #root {
     position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
     background: var(--bg-nav); border-top: 1px solid var(--border-light);
     display: flex; justify-content: space-around; align-items: center; z-index: 1000;
-    backdrop-filter: blur(20px);
+    transition: background-color 0.4s ease;
   }
-  .main-container { padding: 20px 20px 100px 20px; }
+  .main-container { padding: 20px 20px 120px 20px; }
+  
   .mobile-header { 
-    position: sticky; top: 0; background: var(--bg-nav); z-index: 50;
-    padding: 15px 20px; display: flex; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+    background: var(--bg-body);
+    padding: 15px 20px; display: flex; justify-content: space-between; alignItems: center;
     border-bottom: 1px solid var(--border-light);
-    align-items: center;
+    transition: background-color 0.4s ease;
   }
 }
+
+/* --- COMPONENTS --- */
 
 /* CARDS */
 .story-card {
-  background: var(--bg-card); border: 1px solid var(--border-light);
-  border-radius: 16px; margin-bottom: 24px; overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-  transition: transform 0.2s ease;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 16px; margin-bottom: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: background-color 0.4s ease, border-color 0.4s ease, transform 0.2s;
 }
 .story-card:active { transform: scale(0.995); }
 
-/* UI ELEMENTS */
-button { cursor: pointer; border: none; background: none; color: inherit; font-family: "Inter", sans-serif; transition: all 0.2s; }
+/* BUTTONS */
+button { cursor: pointer; border: none; background: none; color: inherit; font-family: var(--font-sans); transition: all 0.2s; }
 
-/* Soft Buttons (Profile, Edit, Etc) */
+.btn-icon { 
+  padding: 8px; display: flex; align-items: center; gap: 8px; 
+  color: var(--text-muted); border-radius: 8px; 
+}
+.btn-icon:hover { color: var(--text-main); background: var(--btn-soft); }
+.btn-icon:active { transform: scale(0.9); }
+
 .btn-soft {
   background: var(--btn-soft); color: var(--text-main);
   padding: 10px 20px; border-radius: 30px; font-weight: 500; font-size: 14px;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
+  display: flex; align-items: center; gap: 8px;
 }
 .btn-soft:hover { background: var(--btn-hover); }
 
-/* Nav Buttons */
-.nav-btn {
+/* NAVIGATION ITEMS */
+.nav-item {
   display: flex; align-items: center; gap: 15px; padding: 12px 16px; width: 100%;
   border-radius: 12px; color: var(--text-muted); font-weight: 500; font-size: 16px;
 }
-.nav-btn:hover { background: var(--btn-soft); color: var(--text-main); }
-.nav-btn-active { background: var(--btn-soft); color: var(--text-main); font-weight: 600; }
+.nav-item:hover { background: var(--btn-soft); color: var(--text-main); }
+.nav-item.active { background: var(--btn-soft); color: var(--text-main); font-weight: 600; }
 
-/* Icon Buttons */
-.btn-icon { padding: 8px; display: flex; align-items: center; gap: 6px; color: var(--text-muted); }
-.btn-icon:hover { color: var(--text-main); }
-
-/* Inputs */
+/* INPUTS */
 .glass-input {
   background: var(--bg-input); border: 1px solid var(--border-light);
   color: var(--text-main); padding: 14px; border-radius: 12px;
-  width: 100%; outline: none; font-size: 16px;
+  width: 100%; outline: none; font-size: 16px; font-family: var(--font-serif);
+  transition: border-color 0.2s;
 }
 .glass-input:focus { border-color: var(--text-muted); }
 
-/* Reader Bar */
+/* READER FLOATING BAR */
 .reader-bar {
-  position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
+  position: fixed; left: 50%; transform: translateX(-50%);
   background: var(--bg-nav); border: 1px solid var(--border-light);
-  padding: 8px 30px; border-radius: 40px; display: flex; gap: 25px; z-index: 1100;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  padding: 8px 30px; border-radius: 40px; display: flex; gap: 25px; 
+  align-items: center; z-index: 1100; box-shadow: var(--shadow-float);
+  transition: background-color 0.4s ease;
 }
+/* Mobile: Above Bottom Nav. Desktop: Near Bottom */
+@media (max-width: 768px) { .reader-bar { bottom: 85px; } }
 @media (min-width: 769px) { .reader-bar { bottom: 40px; } }

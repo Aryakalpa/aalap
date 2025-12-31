@@ -1,15 +1,15 @@
-import { Home, Bookmark, PenTool, Bell, Sun, Moon, LogIn } from 'lucide-react';
+import { Home, Bookmark, PenTool, Bell, Sun, Moon } from 'lucide-react';
 import { useStore } from '../data/store';
 import Avatar from './Avatar';
 import nameLogo from '../assets/namelogo.png';
 
 export function SideNav() {
   const { user, activeTab, setTab, theme, toggleTheme } = useStore();
-  const menu = [
-    { id: 'home', icon: Home, label: 'নীড়' },
-    { id: 'bookmarks', icon: Bookmark, label: 'সংৰক্ষিত' },
-    { id: 'write', icon: PenTool, label: 'লিখক' },
-    { id: 'notifications', icon: Bell, label: 'জাননী' }
+  const items = [
+    { id: 'home', icon: Home, label: 'নীড় (Home)' },
+    { id: 'bookmarks', icon: Bookmark, label: 'সংৰক্ষিত (Saved)' },
+    { id: 'write', icon: PenTool, label: 'লিখক (Write)' },
+    { id: 'notifications', icon: Bell, label: 'জাননী (Notifs)' },
   ];
 
   return (
@@ -22,14 +22,14 @@ export function SideNav() {
       </div>
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-        {menu.map(i => (
-          <button key={i.id} onClick={() => setTab(i.id)} className={`nav-btn ${activeTab === i.id ? 'nav-btn-active' : ''}`}>
+        {items.map(i => (
+          <button key={i.id} onClick={() => setTab(i.id)} className={`nav-item ${activeTab === i.id ? 'active' : ''}`}>
             <i.icon size={20} /> {i.label}
           </button>
         ))}
       </div>
       
-      <button onClick={() => setTab('profile')} className="nav-btn" style={{ marginTop: 'auto', background: 'var(--btn-soft)' }}>
+      <button onClick={() => setTab('profile')} className="nav-item" style={{ marginTop: 'auto', background: 'var(--btn-soft)' }}>
         <Avatar url={user?.user_metadata?.avatar_url} size={32} />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.2 }}>
            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-main)' }}>

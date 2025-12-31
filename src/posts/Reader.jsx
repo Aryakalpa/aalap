@@ -38,7 +38,7 @@ export default function Reader({ post }) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-body)', position: 'relative' }}>
-      <div style={{ position:'sticky', top:0, background:'var(--bg-body)', zIndex:10, padding:'20px', display:'flex', alignItems:'center', gap:15, borderBottom: '1px solid var(--border-light)' }}>
+      <div style={{ position:'sticky', top:0, background:'var(--bg-body)', zIndex:10, paddingBottom:20, display:'flex', alignItems:'center', gap:15, borderBottom: '1px solid var(--border-light)' }}>
         <button onClick={() => setView('main')} className="btn-icon"><ArrowLeft /></button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Avatar url={author.avatar_url} size={32} />
@@ -46,12 +46,12 @@ export default function Reader({ post }) {
         </div>
       </div>
 
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 20px 150px 20px' }}>
+      <div style={{ maxWidth: 700, margin: '0 auto', padding: '40px 0 150px 0' }}>
           <h1 style={{ fontSize: 32, marginBottom: 24, lineHeight: 1.3 }}>{post.title}</h1>
           <div style={{ fontSize: 19, lineHeight: 1.9, whiteSpace: 'pre-wrap', color: 'var(--text-main)' }}>{post.body}</div>
       </div>
 
-      <div className="reader-actions">
+      <div className="reader-bar">
           <button onClick={handleLike} className="btn-icon" style={{color: isLiked ? 'var(--danger)' : 'var(--text-main)'}}>
              <Heart size={24} fill={isLiked ? "currentColor" : "none"} /> <span style={{fontSize:14, fontWeight:600}}>{likes}</span>
           </button>
