@@ -18,10 +18,11 @@ import { Sun, Moon } from 'lucide-react';
 export default function AppShell() {
   const { view, viewData, activeTab, setTab, setView, theme, toggleTheme } = useStore();
 
-  // DEEP LINKING & INITIAL LOAD
+  // PHASE 22 ROUTING LOGIC
   useEffect(() => {
     if (theme === 'paper') document.body.classList.add('theme-paper');
     
+    // Deep Linking
     const params = new URLSearchParams(window.location.search);
     const postId = params.get('post');
     if (postId) {
@@ -30,10 +31,11 @@ export default function AppShell() {
         });
     }
 
+    // Back Button Handling
     const handlePopState = (e) => {
         if (e.state?.view) {
             setView(e.state.view, e.state.viewData);
-            if (e.state.tab) setTab(e.state.tab);
+            if(e.state.tab) setTab(e.state.tab);
         } else {
             setView('main');
         }
@@ -42,44 +44,39 @@ export default function AppShell() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // UPDATE URL ON VIEW CHANGE
+  // Update URL on View Change
   useEffect(() => {
-    if (view === 'reader' && viewData?.id) {
-        const newUrl = `${window.location.origin}${window.location.pathname}?post=${viewData.id}`;
-        if (window.location.href !== newUrl) {
-            window.history.pushState({ view, viewData, tab: activeTab }, '', newUrl);
-        }
-    } else if (view === 'main') {
-        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
-        if (window.location.href !== cleanUrl) {
-            window.history.pushState({ view, viewData: null, tab: activeTab }, '', cleanUrl);
-        }
-    }
-  }, [view, viewData, activeTab]);
+     if (view === 'reader' && viewData?.id) {
+         const url = `${window.location.pathname}?post=${viewData.id}`;
+         if(window.location.search !== `?post=${viewData.id}`) window.history.pushState({view, viewData, tab: activeTab}, '', url);
+     } else if (view === 'main') {
+         if(window.location.search) window.history.pushState({view, viewData: null, tab: activeTab}, '', window.location.pathname);
+     }
+  }, [view, viewData]);
 
   return (
     <div className="main-layout">
-      <Toaster position="top-center" toastOptions={{ style: { background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-light)', fontFamily: 'var(--font-serif)' } }} />
+      <Toaster position="top-center" toastOptions={{ style: { background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-light)' } }} />
       <SideNav activeTab={activeTab} setTab={setTab} />
       
       <main className="main-content">
         <div className="mobile-header">
-           <img src={nameLogo} alt="Aalap" style={{ height: 28, filter: theme === 'night' ? 'invert(1)' : 'none' }} />
-           <button onClick={toggleTheme} className="theme-toggle">
-              {theme === 'night' ? <Sun size={18} /> : <Moon size={18} />}
+           <img src={nameLogo} alt="Logo" style={{ height: 26, filter: theme === 'night' ? 'invert(1)' : 'none' }} />
+           <button onClick={toggleTheme} style={{ padding: 8 }}>
+              {theme === 'night' ? <Sun size={20} /> : <Moon size={20} />}
            </button>
         </div>
 
         <div style={{ display: view === 'main' ? 'block' : 'none' }}>
-            {activeTab === 'home' && <Feed type="community" />}
-            {activeTab === 'bookmarks' && <Feed type="bookmarks" />}
-            {activeTab === 'write' && <Studio />}
-            {activeTab === 'notifications' && <Notifications />}
-            {activeTab === 'profile' && <Profile />}
+           {activeTab === 'home' && <Feed type="community" />}
+           {activeTab === 'bookmarks' && <Feed type="bookmarks" />}
+           {activeTab === 'write' && <Studio />}
+           {activeTab === 'notifications' && <Notifications />}
+           {activeTab === 'profile' && <Profile />}
         </div>
 
         {view !== 'main' && (
-           <div style={{ position: 'relative', zIndex: 100 }}>
+           <div style={{ position: 'relative', zIndex: 50 }}>
               {view === 'studio' && <Studio />}
               {view === 'reader' && <Reader post={viewData} />}
               {view === 'author' && <AuthorProfile authorId={viewData} />}

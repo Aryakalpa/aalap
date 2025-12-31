@@ -7,32 +7,33 @@ export const useStore = create((set, get) => ({
   viewData: null,
   activeTab: 'home',
   theme: localStorage.getItem('aalap-theme') || 'night',
-  bookmarks: JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]'),
+  // CRASH GUARD: Default to empty array if local storage fails
+  bookmarks: (() => {
+    try { return JSON.parse(localStorage.getItem('aalap-bookmarks')) || []; } 
+    catch { return []; }
+  })(),
 
   setUser: (user) => set({ user }),
   setView: (view, data = null) => set({ view, viewData: data }),
   setTab: (tab) => set({ activeTab: tab, view: 'main' }),
   
   toggleTheme: () => {
-    const current = get().theme;
-    const next = current === 'night' ? 'paper' : 'night';
+    const next = get().theme === 'night' ? 'paper' : 'night';
     if (next === 'paper') document.body.classList.add('theme-paper');
     else document.body.classList.remove('theme-paper');
     localStorage.setItem('aalap-theme', next);
     set({ theme: next });
   },
 
-  setTheme: (theme) => {
-    if (theme === 'paper') document.body.classList.add('theme-paper');
-    else document.body.classList.remove('theme-paper');
-    localStorage.setItem('aalap-theme', theme);
-    set({ theme });
-  },
-
   toggleBookmark: (post) => {
     const { bookmarks } = get();
-    const exists = bookmarks.some(b => b.id === post.id);
-    let newBookmarks = exists ? bookmarks.filter(b => b.id !== post.id) : [post, ...bookmarks];
+    // CRASH GUARD: Defensive checks
+    const safeBookmarks = Array.isArray(bookmarks) ? bookmarks : [];
+    const exists = safeBookmarks.some(b => b && b.id === post.id);
+    const newBookmarks = exists 
+       ? safeBookmarks.filter(b => b.id !== post.id) 
+       : [post, ...safeBookmarks];
+    
     localStorage.setItem('aalap-bookmarks', JSON.stringify(newBookmarks));
     set({ bookmarks: newBookmarks });
   },

@@ -16,7 +16,7 @@ export default function EchoChamber({ post, onClose }) {
   }, [post.id]);
 
   const send = async () => {
-    if(!user) { toast.error('Login required'); setTab('profile'); return; }
+    if(!user) { toast.error('লগ-ইন কৰক'); setTab('profile'); return; }
     if(!text.trim()) return;
     const { error } = await supabase.from('comments').insert({ post_id: post.id, user_id: user.id, body: text });
     if(!error) { 
@@ -30,7 +30,7 @@ export default function EchoChamber({ post, onClose }) {
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 2000, display: 'flex', alignItems: 'flex-end' }}>
       <div style={{ width: '100%', height: '85vh', background: 'var(--bg-body)', borderTopLeftRadius: 24, borderTopRightRadius: 24, display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: 20, borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-           <h3 style={{ margin: 0 }}>Echoes ({comments.length})</h3>
+           <h3 style={{ margin: 0 }}>মন্তব্য ({comments.length})</h3>
            <button onClick={onClose} className="btn-icon"><X /></button>
         </div>
         
@@ -46,12 +46,9 @@ export default function EchoChamber({ post, onClose }) {
            ))}
         </div>
 
-        <div style={{ padding: '20px 20px 40px 20px', borderTop: '1px solid var(--border-light)', display: 'flex', gap: 10 }}>
-           <input 
-              value={text} onChange={e => setText(e.target.value)} 
-              className="glass-input" placeholder="আপোনাৰ মতামত লিখক..." 
-           />
-           <button onClick={send} className="btn-icon" style={{ background: 'var(--text-main)', color: 'var(--bg-body)', borderRadius: '50%', width: 50, height: 50, padding: 0 }}><Send size={20} /></button>
+        <div style={{ padding: '20px', borderTop: '1px solid var(--border-light)', display: 'flex', gap: 10 }}>
+           <input value={text} onChange={e => setText(e.target.value)} className="glass-input" placeholder="লিখক..." />
+           <button onClick={send} className="btn-icon" style={{ background: 'var(--text-main)', color: 'var(--bg-body)', borderRadius: '50%', width: 50, height: 50, padding: 0, justifyContent: 'center' }}><Send size={20} /></button>
         </div>
       </div>
     </div>
