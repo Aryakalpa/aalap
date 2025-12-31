@@ -3,6 +3,7 @@ import { supabase } from '../data/supabaseClient';
 import { useStore } from '../data/store';
 import PostCard from './PostCard';
 import Skeleton from '../components/Skeleton';
+import { motion } from 'framer-motion';
 
 export default function Feed({ type = 'community' }) {
   const { user, bookmarks } = useStore();
@@ -31,14 +32,41 @@ export default function Feed({ type = 'community' }) {
     return () => { supabase.removeChannel(sub); };
   }, [type, bookmarks]);
 
-  if (loading && posts.length === 0) return <div style={{ paddingTop: '20px' }}>{[1,2,3].map(i => <div key={i} className="soul-card" style={{ height: '200px' }}><Skeleton width="100%" height="100%" /></div>)}</div>;
+  // ANIMATION VARIANTS
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 } // The Waterfall Effect
+    }
+  };
 
-  if (posts.length === 0) return <div style={{ textAlign: 'center', paddingTop: '100px', color: 'var(--text-sec)', fontFamily: 'var(--font-serif)', fontSize: '20px' }}>{type === 'bookmarks' ? 'আপোনাৰ সংগ্ৰহ শূন্য।' : 'এতিয়াও নিস্তব্ধ।'}</div>; // Collection empty / Still silent
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 20 } }
+  };
+
+  if (loading && posts.length === 0) return (
+    <div style={{ paddingTop: '20px' }}>
+        {[1,2,3].map(i => <div key={i} className="notepad-card" style={{ height: '200px' }}><Skeleton width="100%" height="100%" /></div>)}
+    </div>
+  );
+
+  if (posts.length === 0) return <div style={{ textAlign: 'center', paddingTop: '100px', color: 'var(--text-sec)', fontFamily: 'var(--font-serif)', fontSize: '20px' }}>{type === 'bookmarks' ? 'আপোনাৰ সংগ্ৰহ শূন্য।' : 'এতিয়াও নিস্তব্ধ।'}</div>;
 
   return (
-    <div style={{ paddingBottom: '100px' }}>
-        {posts.map(p => <PostCard key={p.id} post={p} />)}
-        {type === 'community' && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-sec)', fontSize: '14px', fontFamily: 'var(--font-serif)' }}>আৰু একো নাই</div>} {/* No more content */}
-    </div>
+    <motion.div 
+        variants={container}
+        initial="hidden"
+        animate="show"
+        style={{ paddingBottom: '100px' }}
+    >
+        {posts.map(p => (
+            <motion.div key={p.id} variants={item}>
+                <PostCard post={p} />
+            </motion.div>
+        ))}
+        {type === 'community' && <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-sec)', fontSize: '14px', fontFamily: 'var(--font-serif)', opacity: 0.5 }}>আৰু একো নাই</div>}
+    </motion.div>
   );
 }

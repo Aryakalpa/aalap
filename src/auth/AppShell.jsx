@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../data/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import Feed from '../posts/Feed';
@@ -7,21 +7,28 @@ import Reader from '../posts/Reader';
 import Profile from '../profile/Profile';
 import AuthorProfile from '../profile/AuthorProfile';
 import EditProfile from '../profile/EditProfile';
-import SettingsScreen from '../profile/SettingsScreen'; // NEW
-import PrivacyScreen from '../profile/PrivacyScreen';   // NEW
+import SettingsScreen from '../profile/SettingsScreen';
+import PrivacyScreen from '../profile/PrivacyScreen';
 import SearchScreen from '../components/SearchScreen';
 import { SideNav, BottomNav } from '../components/Navigation';
 import GrainOverlay from '../components/GrainOverlay';
 import UpdatePrompt from '../components/UpdatePrompt';
+import SplashScreen from '../components/SplashScreen';
 import { Toaster } from 'sonner';
 import nameLogo from '../assets/namelogo.png';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 
 export default function AppShell() {
   const { view, viewData, theme } = useStore();
   const [tab, setTab] = useState('home');
-
-  const transition = { type: 'spring', stiffness: 350, damping: 30 };
+  const [loading, setLoading] = useState(true);
   
+  // ZEN MODE: Detect scroll direction to hide Nav
+  const scrollDir = useScrollDirection(); 
+  const showNav = view === 'main' && (scrollDir === 'up' || !scrollDir);
+
+  if (loading) return <SplashScreen onComplete={() => setLoading(false)} />;
+
   return (
     <div className="main-layout">
       <GrainOverlay />
@@ -32,7 +39,15 @@ export default function AppShell() {
       
       <AnimatePresence mode='wait'>
         {view !== 'main' && (
-          <motion.div key={view} initial={{ opacity: 0, y: 50, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 50, scale: 0.95 }} transition={transition} className="app-stage" style={{ background: 'var(--bg)', zIndex: 200 }}>
+          <motion.div 
+            key={view} 
+            initial={{ opacity: 0, y: 40, scale: 0.98 }} 
+            animate={{ opacity: 1, y: 0, scale: 1 }} 
+            exit={{ opacity: 0, y: 20, scale: 0.98 }} 
+            transition={{ type: "spring", stiffness: 300, damping: 30 }} 
+            className="app-stage" 
+            style={{ background: 'var(--bg)', zIndex: 200 }}
+          >
             {view === 'studio' && <Studio />}
             {view === 'reader' && <Reader post={viewData} />}
             {view === 'search' && <SearchScreen />}
@@ -44,10 +59,23 @@ export default function AppShell() {
         )}
 
         {view === 'main' && (
-          <motion.main key={tab} initial={{ opacity: 0, filter: 'blur(10px)' }} animate={{ opacity: 1, filter: 'blur(0px)' }} exit={{ opacity: 0, filter: 'blur(10px)' }} transition={{ duration: 0.4 }} className="app-stage main-content">
-             <div className="mobile-only" style={{ marginBottom: '30px', paddingTop: '10px', display: 'flex', justifyContent: 'center' }}>
+          <motion.main 
+            key={tab} 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            transition={{ duration: 0.3 }} 
+            className="app-stage main-content"
+          >
+             <motion.div 
+                className="mobile-only" 
+                animate={{ y: showNav ? 0 : -100, opacity: showNav ? 1 : 0 }}
+                transition={{ duration: 0.4 }}
+                style={{ marginBottom: '30px', paddingTop: '10px', display: 'flex', justifyContent: 'center', position: 'sticky', top: 0, zIndex: 40, pointerEvents: showNav ? 'auto' : 'none' }}
+             >
                <img src={nameLogo} alt="Aalap" style={{ height: '35px', filter: theme === 'night' ? 'invert(1)' : 'none', transition: 'filter 0.3s ease' }} />
-             </div>
+             </motion.div>
+             
              {tab === 'home' && <Feed type="community" />}
              {tab === 'bookmarks' && <Feed type="bookmarks" />}
              {tab === 'search' && <Feed type="community" />} 
@@ -55,7 +83,15 @@ export default function AppShell() {
           </motion.main>
         )}
       </AnimatePresence>
-      <BottomNav activeTab={tab} setTab={setTab} />
+
+      {/* ZEN MODE BOTTOM NAV */}
+      <motion.div
+        animate={{ y: showNav ? 0 : 100, opacity: showNav ? 1 : 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, pointerEvents: showNav ? 'auto' : 'none' }}
+      >
+        <BottomNav activeTab={tab} setTab={setTab} />
+      </motion.div>
     </div>
   );
 }
