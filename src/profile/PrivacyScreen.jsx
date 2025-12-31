@@ -7,7 +7,10 @@ export default function PrivacyScreen() {
   return (
     <div className="main-content" style={{ maxWidth: '600px', margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
-        <button onClick={() => setView('profile')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-sec)' }}><ArrowLeft size={24} /></button>
+        {/* CHANGED: setView('profile') -> setView('main') */}
+        <button onClick={() => setView('main')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-sec)' }}>
+            <ArrowLeft size={24} />
+        </button>
         <h2 style={{ fontSize: '22px', fontWeight: 700, margin: 0, fontFamily: 'var(--font-serif)' }}>গোপনীয়তা নীতি</h2>
       </div>
 
