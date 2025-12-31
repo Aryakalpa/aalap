@@ -6,56 +6,32 @@ import PostCard from './PostCard';
 export default function Feed({ type }) {
   const { user, setTab } = useStore();
   const [posts, setPosts] = useState([]);
-  const [status, setStatus] = useState('INIT'); // INIT, LOADING, ERROR, EMPTY, SUCCESS
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (type === 'bookmarks' && !user) {
-        setStatus('GUEST');
-        return;
-    }
-
+    // Force fetch for guest or user
     const fetchPosts = async () => {
-      setStatus('LOADING');
+      setLoading(true);
       try {
-          if (type === 'bookmarks') {
-             const local = JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]');
-             setPosts(local);
-             setStatus(local.length ? 'SUCCESS' : 'EMPTY');
-          } else {
-             const { data, error } = await supabase
-                .from('posts')
-                .select(`*, profiles(*)`)
-                .order('created_at', { ascending: false });
-             
-             if (error) throw error;
-             setPosts(data || []);
-             setStatus(data && data.length > 0 ? 'SUCCESS' : 'EMPTY');
-          }
+          // Ignore bookmarks logic for now. Just fetch posts.
+          const { data, error } = await supabase.from('posts').select(`*`);
+          if (error) console.error(error);
+          setPosts(data || []);
       } catch (err) {
-          console.error("DEVIL ERROR:", err);
-          setStatus('ERROR');
+          console.error(err);
+      } finally {
+          setLoading(false);
       }
     };
-
     fetchPosts();
-  }, [type, user]);
-
-  // RENDER STATES (Explicit Returns)
-  if (status === 'LOADING') return <div style={{padding: 20, color: 'orange'}}>LOADING DATA...</div>;
-  if (status === 'ERROR') return <div style={{padding: 20, color: 'red'}}>DATABASE ERROR. CHECK CONSOLE.</div>;
-  if (status === 'EMPTY') return <div style={{padding: 20, color: 'gray'}}>NO STORIES FOUND.</div>;
-  
-  if (status === 'GUEST') {
-      return (
-          <div style={{ textAlign: 'center', padding: 40, border: '1px solid #333', marginTop: 20 }}>
-              <h3>Login Required</h3>
-              <button onClick={() => setTab('profile')} style={{ padding: '10px 20px', marginTop: 10 }}>Login</button>
-          </div>
-      );
-  }
+  }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ padding: '20px', background: 'red', minHeight: '100vh' }}>
+      <h1 style={{ color: 'white' }}>DEBUG FEED</h1>
+      <p style={{ color: 'white' }}>Status: {loading ? "Loading..." : "Done"}</p>
+      <p style={{ color: 'white' }}>Count: {posts.length}</p>
+      
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
