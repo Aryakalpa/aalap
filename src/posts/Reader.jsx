@@ -19,33 +19,36 @@ export default function Reader({ post }) {
         text: `Read "${post.title}" by ${author.display_name} on Aalap.\n\n`,
         url: window.location.href 
     };
-
     try {
-        if (navigator.share) {
-            await navigator.share(shareData);
-        } else {
+        if (navigator.share) await navigator.share(shareData);
+        else {
             await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
             toast.success('লিংক কপি কৰা হ\'ল');
         }
-    } catch (err) {
-        console.error('Share failed:', err);
-    }
+    } catch (err) { console.error(err); }
+  };
+
+  const handleLike = () => {
+    haptic.impactMedium();
+    toast.success('আপুনি ভাল পালে!', { icon: '❤️' });
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: '100px' }}>
-      {/* HEADER */}
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: '100px', userSelect: 'none' }}>
+      
+      {/* HEADER - High Z-Index, Explicit Pointer Events */}
       <div style={{ 
-        position: 'sticky', top: 0, zIndex: 50, 
+        position: 'sticky', top: 0, zIndex: 999, 
         padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        background: 'var(--glass)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border)'
+        background: 'var(--glass)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border)',
+        pointerEvents: 'auto' 
       }}>
-        <button onClick={() => setView('main')} className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)' }}>
+        <button onClick={() => setView('main')} className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)', padding: '10px' }}>
           <ArrowLeft size={24} />
         </button>
-        <div style={{ display: 'flex', gap: '20px' }}>
-            <button className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)' }}><Type size={20} /></button>
-            <button onClick={handleShare} className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)' }}><Share2 size={20} /></button>
+        <div style={{ display: 'flex', gap: '15px' }}>
+            <button className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)', padding: '10px' }}><Type size={20} /></button>
+            <button onClick={handleShare} className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)', padding: '10px' }}><Share2 size={20} /></button>
         </div>
       </div>
 
@@ -66,15 +69,20 @@ export default function Reader({ post }) {
             </div>
         </div>
 
-        <div style={{ 
-            fontFamily: 'var(--font-serif)', fontSize: '19px', lineHeight: '1.8', 
-            color: 'var(--text)', whiteSpace: 'pre-wrap'
-        }}>
+        <div style={{ fontFamily: 'var(--font-serif)', fontSize: '19px', lineHeight: '1.8', color: 'var(--text)', whiteSpace: 'pre-wrap' }}>
             {post.body}
         </div>
 
+        {/* BOTTOM LIKE BUTTON */}
         <div style={{ marginTop: '50px', paddingTop: '30px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
-            <button className="haptic-btn" style={{ background: 'var(--surface-2)', border: 'none', padding: '12px 24px', borderRadius: '30px', display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 600, color: 'var(--text)' }}>
+            <button 
+                onClick={handleLike} 
+                className="haptic-btn" 
+                style={{ 
+                    background: 'var(--surface-2)', border: 'none', padding: '12px 24px', borderRadius: '30px', 
+                    display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 600, color: 'var(--text)',
+                    pointerEvents: 'auto', cursor: 'pointer' 
+                }}>
                 <Heart size={20} /> ভাল লাগিল
             </button>
         </div>

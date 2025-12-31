@@ -11,47 +11,33 @@ import SettingsScreen from '../profile/SettingsScreen';
 import PrivacyScreen from '../profile/PrivacyScreen';
 import Notifications from '../profile/Notifications';
 import { SideNav, BottomNav } from '../components/Navigation';
-import GrainOverlay from '../components/GrainOverlay';
 import UpdatePrompt from '../components/UpdatePrompt';
 import SplashScreen from '../components/SplashScreen';
-import { Toaster } from 'sonner';
+import { Toaster } from 'react-hot-toast'; // Using react-hot-toast for reliability
 import nameLogo from '../assets/namelogo.png';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 
 export default function AppShell() {
-  const { view, viewData, setView, theme } = useStore(); // Need setView here
+  const { view, viewData, setView, theme } = useStore();
   const [tab, setTab] = useState('home');
   const [loading, setLoading] = useState(true);
   const scrollDir = useScrollDirection(); 
   const showNav = view === 'main' && (scrollDir === 'up' || !scrollDir);
 
-  // --- NAVIGATION HISTORY FIX ---
+  // History Navigation Logic
   useEffect(() => {
-    // 1. When we enter a non-main view, push a history state
-    if (view !== 'main') {
-        window.history.pushState({ view: view }, '');
-    }
-
-    // 2. Listen for the "Back" swipe/button
-    const handlePopState = (event) => {
-        // If we are not on main, force app to go back to main
-        // This prevents the app from closing entirely
-        if (view !== 'main') {
-            setView('main'); 
-        }
-    };
-
+    if (view !== 'main') { window.history.pushState({ view: view }, ''); }
+    const handlePopState = () => { if (view !== 'main') setView('main'); };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [view, setView]);
-  // -----------------------------
 
   if (loading) return <SplashScreen onComplete={() => setLoading(false)} />;
 
   return (
     <div className="main-layout">
-      <GrainOverlay />
-      <Toaster position="top-center" toastOptions={{ style: { background: 'var(--card)', color: 'var(--text)', border: '1px solid var(--border)', fontFamily: 'var(--font-sans)' } }} />
+      {/* TOASTER ELEVATED TO Z-INDEX 99999 */}
+      <Toaster position="top-center" containerStyle={{ zIndex: 99999 }} toastOptions={{ style: { background: 'var(--text)', color: 'var(--bg)', fontFamily: 'var(--font-sans)' } }} />
       <UpdatePrompt /> 
       <SideNav activeTab={tab} setTab={setTab} />
       
