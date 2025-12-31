@@ -11,6 +11,7 @@ import EditProfile from '../profile/EditProfile';
 import SettingsScreen from '../profile/SettingsScreen';
 import PrivacyScreen from '../profile/PrivacyScreen';
 import Notifications from '../profile/Notifications';
+import EchoChamber from '../posts/EchoChamber'; // NEW
 import { SideNav, BottomNav } from '../components/Navigation';
 import UpdatePrompt from '../components/UpdatePrompt';
 import SplashScreen from '../components/SplashScreen';
@@ -25,61 +26,42 @@ export default function AppShell() {
   const scrollDir = useScrollDirection(); 
   const showNav = view === 'main' && (scrollDir === 'up' || !scrollDir);
 
-  // --- DEEP LINK HANDLER ---
   useEffect(() => {
     const handleDeepLink = async () => {
         const params = new URLSearchParams(window.location.search);
         const postId = params.get('post');
-        
         if (postId) {
-            // Fetch the specific post
             const { data } = await supabase.from('posts').select(`*, profiles(*)`).eq('id', postId).single();
-            if (data) {
-                setLoading(false); // Skip splash to show content immediately
-                setView('reader', data);
-            }
+            if (data) { setLoading(false); setView('reader', data); }
         }
     };
     handleDeepLink();
   }, [setView]);
 
-  // History Navigation
   useEffect(() => {
-    if (view !== 'main') { 
-        // We already pushed state in PostCard, so we just handle Back here
-    } else {
-        // Clear URL params when going back to home
-        if (window.location.search) {
-             window.history.pushState({}, '', window.location.pathname);
-        }
-    }
-
-    const handlePopState = () => { 
-        if (view !== 'main') {
-             setView('main'); 
-             // Clean URL
-             window.history.pushState({}, '', window.location.pathname);
-        }
-    };
+    if (view !== 'main' && view !== 'echo') { 
+        // Logic for history navigation
+    } 
+    const handlePopState = () => { if (view !== 'main') { setView('main'); window.history.pushState({}, '', window.location.pathname); } };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [view, setView]);
-
 
   if (loading) return <SplashScreen onComplete={() => setLoading(false)} />;
 
   return (
     <div className="main-layout">
-      <Toaster position="top-center" containerStyle={{ zIndex: 99999 }} toastOptions={{ style: { background: 'var(--text)', color: 'var(--bg)', fontFamily: 'var(--font-sans)' } }} />
+      <Toaster position="top-center" containerStyle={{ zIndex: 99999 }} />
       <UpdatePrompt /> 
       <SideNav activeTab={tab} setTab={setTab} />
       
       <AnimatePresence mode='wait'>
-        {view !== 'main' && (
+        {/* MODAL VIEWS */}
+        {view !== 'main' && view !== 'echo' && (
           <motion.div 
             key={view} 
-            initial={{ opacity: 0, y: 40, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.98 }} 
-            transition={{ type: "spring", stiffness: 300, damping: 30 }} className="app-stage" style={{ background: 'var(--bg)', zIndex: 200 }}
+            initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} 
+            className="app-stage" style={{ background: 'var(--bg)', zIndex: 200 }}
           >
             {view === 'studio' && <Studio />}
             {view === 'reader' && <Reader post={viewData} />}
@@ -90,12 +72,12 @@ export default function AppShell() {
           </motion.div>
         )}
 
+        {/* MAIN FEED */}
         {view === 'main' && (
           <motion.main key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="app-stage main-content">
              <motion.div className="mobile-only" animate={{ y: showNav ? 0 : -100, opacity: showNav ? 1 : 0 }} transition={{ duration: 0.4 }} style={{ marginBottom: '30px', paddingTop: '10px', display: 'flex', justifyContent: 'center', position: 'sticky', top: 0, zIndex: 40 }}>
                <img src={nameLogo} alt="Aalap" style={{ height: '35px', filter: theme === 'night' ? 'invert(1)' : 'none', transition: 'filter 0.3s ease' }} />
              </motion.div>
-             
              {tab === 'home' && <Feed type="community" />}
              {tab === 'bookmarks' && <Feed type="bookmarks" />}
              {tab === 'notifications' && <Notifications />} 
@@ -103,6 +85,14 @@ export default function AppShell() {
           </motion.main>
         )}
       </AnimatePresence>
+
+      {/* ECHO CHAMBER OVERLAY */}
+      <AnimatePresence>
+        {view === 'echo' && (
+             <EchoChamber post={viewData} onClose={() => setView('main')} />
+        )}
+      </AnimatePresence>
+
       <motion.div animate={{ y: showNav ? 0 : 100, opacity: showNav ? 1 : 0 }} transition={{ duration: 0.4 }} style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100, pointerEvents: showNav ? 'auto' : 'none' }}>
         <BottomNav activeTab={tab} setTab={setTab} />
       </motion.div>
