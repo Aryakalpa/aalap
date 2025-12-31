@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../data/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import Feed from '../posts/Feed';
@@ -9,7 +9,7 @@ import AuthorProfile from '../profile/AuthorProfile';
 import EditProfile from '../profile/EditProfile';
 import SettingsScreen from '../profile/SettingsScreen';
 import PrivacyScreen from '../profile/PrivacyScreen';
-import Notifications from '../profile/Notifications'; // NEW
+import Notifications from '../profile/Notifications';
 import { SideNav, BottomNav } from '../components/Navigation';
 import GrainOverlay from '../components/GrainOverlay';
 import UpdatePrompt from '../components/UpdatePrompt';
@@ -19,11 +19,32 @@ import nameLogo from '../assets/namelogo.png';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 
 export default function AppShell() {
-  const { view, viewData, theme } = useStore();
+  const { view, viewData, setView, theme } = useStore(); // Need setView here
   const [tab, setTab] = useState('home');
   const [loading, setLoading] = useState(true);
   const scrollDir = useScrollDirection(); 
   const showNav = view === 'main' && (scrollDir === 'up' || !scrollDir);
+
+  // --- NAVIGATION HISTORY FIX ---
+  useEffect(() => {
+    // 1. When we enter a non-main view, push a history state
+    if (view !== 'main') {
+        window.history.pushState({ view: view }, '');
+    }
+
+    // 2. Listen for the "Back" swipe/button
+    const handlePopState = (event) => {
+        // If we are not on main, force app to go back to main
+        // This prevents the app from closing entirely
+        if (view !== 'main') {
+            setView('main'); 
+        }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [view, setView]);
+  // -----------------------------
 
   if (loading) return <SplashScreen onComplete={() => setLoading(false)} />;
 

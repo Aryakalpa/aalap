@@ -1,74 +1,84 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, Share, Loader2 } from 'lucide-react';
+import { ArrowLeft, Heart, Share2, Type } from 'lucide-react';
 import { useStore } from '../data/store';
-import { supabase } from '../data/supabaseClient';
+import { useHaptic } from '../hooks/useHaptic';
 import Avatar from '../components/Avatar';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 export default function Reader({ post }) {
-  const { setView, user } = useStore();
-  const [isLiked, setIsLiked] = useState(false);
-  const [likes, setLikes] = useState(post.likes_count || 0);
+  const { setView } = useStore();
+  const haptic = useHaptic();
 
-  useEffect(() => {
-    if(user) supabase.from('likes').select('*').eq('user_id', user.id).eq('post_id', post.id).then(({data}) => setIsLiked(data.length > 0));
-  }, [user]);
-
-  const toggleLike = async () => {
-    if(!user) return toast.error('প্ৰশংসা কৰিবলৈ লগ-ইন কৰক'); // Sign in to appreciate
-    const nextState = !isLiked;
-    setIsLiked(nextState);
-    setLikes(prev => nextState ? prev + 1 : prev - 1);
-    
-    if(nextState) await supabase.from('likes').insert({ user_id: user.id, post_id: post.id });
-    else await supabase.from('likes').delete().eq('user_id', user.id).eq('post_id', post.id);
-  };
-
-  if(!post) return null;
+  if (!post) return null;
   const author = post.profiles || {};
 
+  const handleShare = async () => {
+    haptic.tap();
+    const shareData = {
+        title: `Aalap: ${post.title}`,
+        text: `Read "${post.title}" by ${author.display_name} on Aalap.\n\n`,
+        url: window.location.href 
+    };
+
+    try {
+        if (navigator.share) {
+            await navigator.share(shareData);
+        } else {
+            await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
+            toast.success('লিংক কপি কৰা হ\'ল');
+        }
+    } catch (err) {
+        console.error('Share failed:', err);
+    }
+  };
+
   return (
-    <div className="main-content" style={{ maxWidth: '720px', margin: '0 auto', paddingBottom: '120px' }}>
-      <button onClick={() => setView('main')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-sec)', marginBottom: '30px' }}><ArrowLeft size={24} /></button>
-      
-      <article className="fade-in">
-        {/* FLUID TYPOGRAPHY FOR TITLE */}
-        <h1 style={{ 
-            fontFamily: 'var(--font-serif)', 
-            fontSize: 'clamp(2rem, 5vw, 3.5rem)', // Scales from 32px to 56px
-            fontWeight: 900, lineHeight: 1.1, marginBottom: '16px', letterSpacing: '-1px' 
-        }}>
-            {post.title}
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: '100px' }}>
+      {/* HEADER */}
+      <div style={{ 
+        position: 'sticky', top: 0, zIndex: 50, 
+        padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        background: 'var(--glass)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border)'
+      }}>
+        <button onClick={() => setView('main')} className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)' }}>
+          <ArrowLeft size={24} />
+        </button>
+        <div style={{ display: 'flex', gap: '20px' }}>
+            <button className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)' }}><Type size={20} /></button>
+            <button onClick={handleShare} className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)' }}><Share2 size={20} /></button>
+        </div>
+      </div>
+
+      {/* CONTENT */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+        style={{ maxWidth: '680px', margin: '0 auto', padding: '30px 20px' }}
+      >
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px', fontWeight: 900, lineHeight: '1.2', marginBottom: '20px', color: 'var(--text)' }}>
+          {post.title}
         </h1>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px', borderBottom: '1px solid var(--border)', paddingBottom: '25px' }}>
-           <Avatar url={author.avatar_url} size={40} />
-           <div>
-             <div style={{ fontWeight: 700, fontSize: '15px' }}>{author.display_name || 'নামবিহীন'}</div>
-             <div style={{ color: 'var(--text-sec)', fontSize: '13px' }}>{new Date(post.created_at).toLocaleDateString()}</div>
-           </div>
+        <div onClick={() => setView('author', post.author_id)} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px', cursor: 'pointer' }}>
+            <Avatar url={author.avatar_url} size={40} />
+            <div>
+                <div style={{ fontSize: '15px', fontWeight: 700 }}>{author.display_name || 'নামবিহীন'}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-sec)' }}>{new Date(post.created_at).toLocaleDateString()}</div>
+            </div>
         </div>
-        
-        {/* FLUID TYPOGRAPHY FOR BODY */}
-        <div style={{ 
-            fontFamily: 'var(--font-serif)', 
-            fontSize: 'clamp(18px, 2vw, 21px)', // Scales text for mobile
-            lineHeight: 1.8, color: 'var(--text)' 
-        }}>
-          {post.body.split('\n').map((p, i) => <p key={i} style={{ marginBottom: '24px' }}>{p}</p>)}
-        </div>
-      </article>
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', marginTop: '60px' }}>
-         <button onClick={toggleLike} className="haptic-btn" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--danger)' : 'var(--text-sec)' }}>
-            <Heart size={32} fill={isLiked ? 'currentColor' : 'none'} strokeWidth={1.5} />
-            <span style={{ fontSize: '12px', fontWeight: 700 }}>{likes}</span>
-         </button>
-         <button onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success('লিংক কপি কৰা হ\'ল'); }} className="haptic-btn" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: 'var(--text-sec)' }}>
-            <Share size={32} strokeWidth={1.5} />
-            <span style={{ fontSize: '12px', fontWeight: 700 }}>শ্বেয়াৰ</span>
-         </button>
-      </div>
+        <div style={{ 
+            fontFamily: 'var(--font-serif)', fontSize: '19px', lineHeight: '1.8', 
+            color: 'var(--text)', whiteSpace: 'pre-wrap'
+        }}>
+            {post.body}
+        </div>
+
+        <div style={{ marginTop: '50px', paddingTop: '30px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+            <button className="haptic-btn" style={{ background: 'var(--surface-2)', border: 'none', padding: '12px 24px', borderRadius: '30px', display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 600, color: 'var(--text)' }}>
+                <Heart size={20} /> ভাল লাগিল
+            </button>
+        </div>
+      </motion.div>
     </div>
   );
 }
