@@ -1,4 +1,4 @@
-import { Heart, Bookmark } from 'lucide-react';
+import { Heart, Bookmark, Clock, BookOpen } from 'lucide-react';
 import { useStore } from '../data/store';
 import { useHaptic } from '../hooks/useHaptic';
 import Avatar from '../components/Avatar';
@@ -10,40 +10,56 @@ export default function PostCard({ post }) {
   
   const author = post.profiles || {};
   const isSaved = bookmarks.some(b => b.id === post.id);
+  
+  // Calculate read time
+  const wordCount = post.body ? post.body.trim().split(/\s+/).length : 0;
+  const readTime = Math.ceil(wordCount / 200);
+
+  // Determine label based on category (mock logic for now)
+  const categoryLabel = post.category === 'poem' ? 'কবিতা' : 'গল্প';
 
   return (
-    // CHANGED TO 'notepad-card' CLASS
     <div className="notepad-card" onClick={() => { haptic.tap(); setView('reader', post); }}>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+      {/* HEADER: Author & Category */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <div onClick={(e) => { e.stopPropagation(); setView('author', post.author_id); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', zIndex: 2 }}>
-          <Avatar url={author.avatar_url} size={36} />
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text)' }}>{author.display_name || 'নামবিহীন'}</div>
-            <div style={{ fontSize: '11px', color: 'var(--text-sec)' }}>{new Date(post.created_at).toLocaleDateString()}</div>
+          <Avatar url={author.avatar_url} size={32} />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text)', lineHeight: '1.2' }}>{author.display_name || 'নামবিহীন'}</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-sec)' }}>{new Date(post.created_at).toLocaleDateString()}</span>
           </div>
         </div>
+        <span className="meta-badge">{categoryLabel}</span>
       </div>
       
-      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', fontWeight: 800, margin: '0 0 10px', lineHeight: '1.3' }}>{post.title}</h3>
+      {/* BODY: Title & Snippet */}
+      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', fontWeight: 800, margin: '0 0 10px', lineHeight: '1.3', color: 'var(--text)' }}>
+        {post.title}
+      </h3>
       
       <p style={{ 
-        fontFamily: 'var(--font-serif)', 
-        fontSize: '17px', 
-        lineHeight: '1.8', 
-        color: 'var(--text-sec)', 
-        margin: '0 0 20px', 
+        fontFamily: 'var(--font-serif)', fontSize: '17px', lineHeight: '1.7', 
+        color: 'var(--text-sec)', margin: '0 0 20px', 
         display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' 
       }}>
         {post.body}
       </p>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px dashed var(--border)', paddingTop: '15px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-sec)', fontSize: '13px', fontWeight: 600 }}>
-            <Heart size={16} /> {post.likes_count || 0}
+      {/* FOOTER: Stats & Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: '15px', marginTop: '5px' }}>
+        <div style={{ display: 'flex', gap: '15px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-sec)', fontSize: '12px', fontWeight: 600 }}>
+                <Heart size={16} /> {post.likes_count || 0}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-sec)', fontSize: '12px', fontWeight: 600 }}>
+                <Clock size={16} /> {readTime} min
+            </div>
         </div>
-        <button onClick={(e) => { e.stopPropagation(); haptic.impactLight(); toggleBookmark(post); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: isSaved ? 'var(--accent)' : 'var(--text-sec)' }}>
-            <Bookmark size={18} fill={isSaved ? 'currentColor' : 'none'} />
+        
+        <button onClick={(e) => { e.stopPropagation(); haptic.impactLight(); toggleBookmark(post); }} 
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: isSaved ? 'var(--accent)' : 'var(--text-sec)', padding: '5px' }}>
+            <Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} strokeWidth={isSaved ? 0 : 2} />
         </button>
       </div>
     </div>

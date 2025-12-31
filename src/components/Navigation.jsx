@@ -1,12 +1,11 @@
 import { Home, Edit3, User, Search, Bookmark } from 'lucide-react';
 import { useStore } from '../data/store';
 import { useHaptic } from '../hooks/useHaptic';
-import nameLogo from '../assets/namelogo.png'; // IMPORT LOGO
+import nameLogo from '../assets/namelogo.png';
 
 export const SideNav = ({ activeTab, setTab }) => {
   const { signOut, setView, theme } = useStore();
   const haptic = useHaptic();
-
   const handleTab = (id) => { haptic.tap(); setTab(id); };
 
   const menu = [
@@ -18,37 +17,23 @@ export const SideNav = ({ activeTab, setTab }) => {
 
   return (
     <nav className="side-nav">
-      {/* BRAND LOGO */}
-      <img 
-        src={nameLogo} 
-        alt="Aalap" 
-        style={{ 
-            height: '45px', 
-            objectFit: 'contain', 
-            marginBottom: '40px', 
-            alignSelf: 'flex-start',
-            filter: theme === 'night' ? 'invert(1)' : 'none', // Auto-invert for dark mode
-            transition: 'filter 0.3s ease'
-        }} 
-      />
-
+      <img src={nameLogo} alt="Aalap" style={{ height: '40px', objectFit: 'contain', marginBottom: '40px', alignSelf: 'flex-start', filter: theme === 'night' ? 'invert(1)' : 'none', opacity: 0.9 }} />
       <div style={{ flex: 1 }}>
         {menu.map(item => (
           <button key={item.id} onClick={() => item.action ? item.action() : handleTab(item.id)} className="haptic-btn"
             style={{ 
-              display: 'flex', alignItems: 'center', gap: '15px', width: '100%', padding: '14px 20px', marginBottom: '8px', borderRadius: '18px', cursor: 'pointer',
-              background: activeTab === item.id ? 'var(--card)' : 'transparent',
-              border: activeTab === item.id ? '1px solid var(--border)' : 'none',
+              display: 'flex', alignItems: 'center', gap: '15px', width: '100%', padding: '12px 16px', marginBottom: '8px', borderRadius: '12px', cursor: 'pointer',
+              background: activeTab === item.id ? 'var(--badge-bg)' : 'transparent',
+              border: 'none',
               color: activeTab === item.id ? 'var(--accent)' : 'var(--text-sec)',
               fontWeight: activeTab === item.id ? 700 : 500,
-              fontSize: '18px', fontFamily: 'var(--font-serif)',
-              boxShadow: activeTab === item.id ? '0 4px 12px rgba(0,0,0,0.05)' : 'none'
+              fontSize: '17px', fontFamily: 'var(--font-serif)',
             }}>
-            <item.icon size={20} /> {item.label}
+            <item.icon size={20} strokeWidth={2} /> {item.label}
           </button>
         ))}
-        <button onClick={() => { haptic.success(); setView('studio'); }} className="haptic-btn" style={{ marginTop: '30px', width: '100%', padding: '16px', background: 'var(--accent)', color: 'var(--bg)', border: 'none', borderRadius: '20px', fontWeight: 600, display: 'flex', justifyContent: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
-          <Edit3 size={18} /> <span style={{ fontFamily: 'var(--font-serif)', fontSize: '18px' }}>সৃজন</span>
+        <button onClick={() => { haptic.success(); setView('studio'); }} className="haptic-btn" style={{ marginTop: '30px', width: '100%', padding: '14px', background: 'var(--accent)', color: 'var(--bg)', border: 'none', borderRadius: '16px', fontWeight: 600, display: 'flex', justifyContent: 'center', gap: '10px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(0,0,0,0.15)' }}>
+          <Edit3 size={18} /> <span style={{ fontFamily: 'var(--font-serif)', fontSize: '16px' }}>সৃজন</span>
         </button>
       </div>
     </nav>
@@ -60,14 +45,29 @@ export const BottomNav = ({ activeTab, setTab }) => {
   const haptic = useHaptic();
   const handleTab = (id) => { haptic.tap(); setTab(id); };
   
-  const NavItem = ({ id, Icon, isAction, isSearch }) => (
-    <div onClick={() => { if(isAction) setView('studio'); else if(isSearch) setView('search'); else handleTab(id); }} className="haptic-btn" 
-      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '50px', height: '50px', cursor: 'pointer', color: activeTab === id && !isAction && !isSearch ? 'var(--accent)' : 'var(--text-sec)' }}>
-      <div style={{ background: isAction ? 'var(--accent)' : 'transparent', padding: isAction ? '12px' : '0', borderRadius: '50%', color: isAction ? 'var(--bg)' : 'inherit', boxShadow: isAction ? '0 5px 20px rgba(0,0,0,0.2)' : 'none' }}>
-        <Icon size={isAction ? 24 : 26} strokeWidth={activeTab === id ? 2.5 : 2} />
+  // Custom Icon Wrapper for active state animation
+  const NavItem = ({ id, Icon, isAction, isSearch }) => {
+    const isActive = activeTab === id && !isAction && !isSearch;
+    return (
+      <div onClick={() => { if(isAction) setView('studio'); else if(isSearch) setView('search'); else handleTab(id); }} className="haptic-btn" 
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', width: '48px', height: '48px' }}>
+        
+        {/* Active Indicator Dot */}
+        {isActive && <div style={{ position: 'absolute', bottom: '5px', width: '4px', height: '4px', background: 'var(--accent)', borderRadius: '50%' }}></div>}
+        
+        <div style={{ 
+            background: isAction ? 'var(--accent)' : 'transparent', 
+            padding: isAction ? '10px' : '0', borderRadius: '50%', 
+            color: isAction ? 'var(--bg)' : (isActive ? 'var(--accent)' : 'var(--text-sec)'),
+            boxShadow: isAction ? '0 4px 15px rgba(0,0,0,0.2)' : 'none',
+            transform: isAction ? 'translateY(-15px)' : 'none' // Floats the Write button
+        }}>
+          <Icon size={isAction ? 22 : 24} strokeWidth={isActive ? 2.5 : 2} />
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
+
   return (
     <nav className="bottom-nav">
       <NavItem id="home" Icon={Home} />
