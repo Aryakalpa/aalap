@@ -12,40 +12,36 @@ export default function Feed({ type }) {
     if (type === 'bookmarks' && !user) { setLoading(false); return; }
 
     const fetchPosts = async () => {
-      setLoading(true);
       try {
-          if (type === 'bookmarks') {
-             const local = JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]');
-             setPosts(local);
-          } else {
-             const { data, error } = await supabase.from('posts').select(`*, profiles(*)`);
-             if (error) throw error;
-             setPosts(data || []);
-          }
-      } catch (err) { console.error("FEED ERROR:", err); } 
-      finally { setLoading(false); }
+          // Always fetch community posts for now to ensure data shows
+          const { data } = await supabase.from('posts').select(`*, profiles(*)`);
+          setPosts(data || []);
+      } catch (err) {
+          console.error(err);
+      } finally {
+          setLoading(false);
+      }
     };
     fetchPosts();
   }, [type, user]);
 
-  if (loading) return <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-sec)', fontSize: '14px' }}>Loading stories...</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#666' }}>Loading...</div>;
 
   if (type === 'bookmarks' && !user) {
       return (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-sec)' }}>
-              <h3>Login to view bookmarks</h3>
-              <button onClick={() => setTab('profile')} style={{ marginTop: '15px', padding: '10px 24px', background: 'var(--text)', color: 'var(--bg)', border: 'none', borderRadius: '30px', fontWeight: 600, cursor: 'pointer' }}>Go to Login</button>
+          <div style={{ textAlign: 'center', padding: 60, color: '#888' }}>
+              <h3>Login required</h3>
+              <button onClick={() => setTab('profile')} style={{ padding: '10px 20px', background: '#eee', color: '#000', border: 'none', borderRadius: 4, marginTop: 10 }}>Login</button>
           </div>
       );
   }
 
-  if (posts.length === 0) return <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-sec)' }}>No stories found.</div>;
-
   return (
-    <div style={{ paddingBottom: '100px' }}>
+    <div style={{ paddingBottom: 100 }}>
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
+      {posts.length === 0 && <div style={{ padding: 20, color: '#666' }}>No stories.</div>}
     </div>
   );
 }

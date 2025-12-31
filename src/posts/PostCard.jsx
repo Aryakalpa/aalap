@@ -10,7 +10,7 @@ export default function PostCard({ post }) {
   const { user, setView, toggleBookmark, bookmarks, setTab } = useStore();
   const haptic = useHaptic();
   
-  const [likesCount, setLikesCount] = useState(0);
+  const [likesCount, setLikesCount] = useState(post.likes_count || 0); // Init with prop
   const [commentsCount, setCommentsCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const isSaved = bookmarks.some(b => b.id === post.id);
@@ -26,7 +26,6 @@ export default function PostCard({ post }) {
         const { count: lCount } = await supabase.from('likes').select('id', { count: 'exact', head: true }).eq('post_id', post.id);
         const { count: cCount } = await supabase.from('comments').select('id', { count: 'exact', head: true }).eq('post_id', post.id);
         if (isMounted) { setLikesCount(lCount || 0); setCommentsCount(cCount || 0); }
-
         if (user) {
             const { data } = await supabase.from('likes').select('id').eq('user_id', user.id).eq('post_id', post.id).maybeSingle();
             if (isMounted && data) setIsLiked(true);
@@ -47,34 +46,35 @@ export default function PostCard({ post }) {
   const categoryLabel = post.category === 'poem' ? 'কবিতা' : 'গল্প';
 
   return (
-    <div className="notepad-card">
+    <div className="notepad-card" style={{ backgroundColor: '#121212', color: '#eee' }}>
       <div className="card-click-area" onClick={openReader}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <div onClick={openAuthor} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', zIndex: 10 }}>
+            <div onClick={openAuthor} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
               <Avatar url={author.avatar_url} size={32} />
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text)' }}>{author.display_name || 'নামবিহীন'}</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-sec)' }}>{new Date(post.created_at).toLocaleDateString()}</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#fff' }}>{author.display_name || 'Author'}</div>
+                <div style={{ fontSize: '11px', color: '#888' }}>{new Date(post.created_at).toLocaleDateString()}</div>
               </div>
             </div>
             <span className="meta-badge">{categoryLabel}</span>
           </div>
-          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', fontWeight: 800, margin: '0 0 10px', lineHeight: '1.3', color: 'var(--text)' }}>{post.title}</h3>
-          <p style={{ fontFamily: 'var(--font-serif)', fontSize: '17px', lineHeight: '1.7', color: 'var(--text-sec)', margin: '0 0 15px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.body}</p>
+          
+          <h3 style={{ fontSize: '20px', fontWeight: 'bold', margin: '0 0 10px', lineHeight: '1.3', color: '#fff' }}>{post.title}</h3>
+          <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#bbb', margin: '0 0 15px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.body}</p>
       </div>
 
-      <div style={{ padding: '10px 24px 20px 24px', marginTop: 'auto', borderTop: '1px dashed var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--card)' }}>
+      <div style={{ padding: '10px 20px', borderTop: '1px dashed #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '20px' }}>
-            <button onClick={handleLike} className="haptic-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--danger)' : 'var(--text-sec)', fontSize: '13px', fontWeight: 600 }}>
+            <button onClick={handleLike} className="haptic-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? '#ff4d4d' : '#888', fontWeight: 600 }}>
                 <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} /> {likesCount}
             </button>
-            <button onClick={handleEcho} className="haptic-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-sec)', fontSize: '13px', fontWeight: 600 }}>
+            <button onClick={handleEcho} className="haptic-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#888', fontWeight: 600 }}>
                 <MessageCircle size={20} /> {commentsCount > 0 && commentsCount}
             </button>
         </div>
         <div style={{ display: 'flex', gap: '15px' }}>
-            <button onClick={handleShare} className="haptic-btn" style={{ color: 'var(--text-sec)' }}><Share2 size={20} /></button>
-            <button onClick={handleBookmark} className="haptic-btn" style={{ color: isSaved ? 'var(--accent)' : 'var(--text-sec)' }}><Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} /></button>
+            <button onClick={handleShare} className="haptic-btn" style={{ color: '#888' }}><Share2 size={20} /></button>
+            <button onClick={handleBookmark} className="haptic-btn" style={{ color: isSaved ? '#ff5a4d' : '#888' }}><Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} /></button>
         </div>
       </div>
     </div>
