@@ -6,20 +6,21 @@ import PostCard from './PostCard';
 export default function Feed({ type }) {
   const { user, setTab } = useStore();
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState('INIT'); // INIT, LOADING, ERROR, EMPTY, SUCCESS
 
   useEffect(() => {
     if (type === 'bookmarks' && !user) {
-        setLoading(false);
+        setStatus('GUEST');
         return;
     }
 
     const fetchPosts = async () => {
-      setLoading(true);
+      setStatus('LOADING');
       try {
           if (type === 'bookmarks') {
              const local = JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]');
              setPosts(local);
+             setStatus(local.length ? 'SUCCESS' : 'EMPTY');
           } else {
              const { data, error } = await supabase
                 .from('posts')
@@ -28,32 +29,33 @@ export default function Feed({ type }) {
              
              if (error) throw error;
              setPosts(data || []);
+             setStatus(data && data.length > 0 ? 'SUCCESS' : 'EMPTY');
           }
       } catch (err) {
-          console.error("FEED ERROR:", err);
-      } finally {
-          setLoading(false);
+          console.error("DEVIL ERROR:", err);
+          setStatus('ERROR');
       }
     };
 
     fetchPosts();
   }, [type, user]);
 
-  if (loading) return <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-sec)', fontSize: '14px' }}>Loading stories...</div>;
-
-  if (type === 'bookmarks' && !user) {
+  // RENDER STATES (Explicit Returns)
+  if (status === 'LOADING') return <div style={{padding: 20, color: 'orange'}}>LOADING DATA...</div>;
+  if (status === 'ERROR') return <div style={{padding: 20, color: 'red'}}>DATABASE ERROR. CHECK CONSOLE.</div>;
+  if (status === 'EMPTY') return <div style={{padding: 20, color: 'gray'}}>NO STORIES FOUND.</div>;
+  
+  if (status === 'GUEST') {
       return (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-sec)' }}>
-              <h3>Login to view bookmarks</h3>
-              <button onClick={() => setTab('profile')} style={{ marginTop: '15px', padding: '10px 24px', background: 'var(--text)', color: 'var(--bg)', border: 'none', borderRadius: '30px', fontWeight: 600, cursor: 'pointer' }}>Go to Login</button>
+          <div style={{ textAlign: 'center', padding: 40, border: '1px solid #333', marginTop: 20 }}>
+              <h3>Login Required</h3>
+              <button onClick={() => setTab('profile')} style={{ padding: '10px 20px', marginTop: 10 }}>Login</button>
           </div>
       );
   }
 
-  if (posts.length === 0) return <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-sec)' }}>No stories found.</div>;
-
   return (
-    <div style={{ paddingBottom: '100px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
