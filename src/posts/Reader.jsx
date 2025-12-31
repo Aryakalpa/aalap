@@ -18,10 +18,7 @@ export default function Reader({ post }) {
     if(user) supabase.from('likes').select('id').eq('user_id', user.id).eq('post_id', post.id).maybeSingle().then(({data}) => { if(data) setIsLiked(true); });
   }, [post.id, user]);
 
-  const authGuard = () => {
-    if (!user) { toast.error('অনুগ্ৰহ কৰি লগ-ইন কৰক'); setTab('profile'); return false; }
-    return true;
-  };
+  const authGuard = () => { if (!user) { toast.error('অনুগ্ৰহ কৰি লগ-ইন কৰক'); setTab('profile'); return false; } return true; };
 
   const handleLike = async () => {
       if(!authGuard()) return;
@@ -36,10 +33,19 @@ export default function Reader({ post }) {
     else { navigator.clipboard.writeText(url); toast.success('Link Copied'); }
   };
 
+  // SMART BACK: Uses browser history to allow swipe-to-back
+  const goBack = () => {
+     if (window.history.length > 1) {
+         window.history.back();
+     } else {
+         setView('main');
+     }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-body)', position: 'relative' }}>
       <div style={{ position:'sticky', top:0, background:'var(--bg-body)', zIndex:10, paddingBottom:20, display:'flex', alignItems:'center', gap:15, borderBottom: '1px solid var(--border-light)' }}>
-        <button onClick={() => setView('main')} className="btn-icon"><ArrowLeft /></button>
+        <button onClick={goBack} className="btn-icon" style={{ padding: 10 }}><ArrowLeft /></button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Avatar url={author.avatar_url} size={32} />
             <span style={{ fontWeight: 700, fontSize: 14 }}>{author.display_name}</span>

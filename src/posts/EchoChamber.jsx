@@ -5,7 +5,7 @@ import { useStore } from '../data/store';
 import Avatar from '../components/Avatar';
 import toast from 'react-hot-toast';
 
-export default function EchoChamber({ post, onClose }) {
+export default function EchoChamber({ post }) {
   const { user, setTab } = useStore();
   const [comments, setComments] = useState([]);
   const [text, setText] = useState('');
@@ -26,12 +26,17 @@ export default function EchoChamber({ post, onClose }) {
     }
   };
 
+  // SMART CLOSE: Use history back to respect browser stack
+  const close = () => {
+     window.history.back();
+  };
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 2000, display: 'flex', alignItems: 'flex-end' }}>
       <div style={{ width: '100%', height: '85vh', background: 'var(--bg-body)', borderTopLeftRadius: 24, borderTopRightRadius: 24, display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: 20, borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
            <h3 style={{ margin: 0 }}>মন্তব্য ({comments.length})</h3>
-           <button onClick={onClose} className="btn-icon"><X /></button>
+           <button onClick={close} className="btn-icon" style={{ padding: 10 }}><X /></button>
         </div>
         
         <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
@@ -46,7 +51,7 @@ export default function EchoChamber({ post, onClose }) {
            ))}
         </div>
 
-        <div style={{ padding: '20px', borderTop: '1px solid var(--border-light)', display: 'flex', gap: 10 }}>
+        <div style={{ padding: '20px', borderTop: '1px solid var(--border-light)', display: 'flex', gap: 10, paddingBottom: 30 }}>
            <input value={text} onChange={e => setText(e.target.value)} className="glass-input" placeholder="লিখক..." />
            <button onClick={send} className="btn-icon" style={{ background: 'var(--text-main)', color: 'var(--bg-body)', borderRadius: '50%', width: 50, height: 50, padding: 0, justifyContent: 'center' }}><Send size={20} /></button>
         </div>
