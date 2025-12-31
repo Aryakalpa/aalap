@@ -44,12 +44,13 @@ export default function Profile() {
         <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid var(--border)', background: theme === 'night' ? 'var(--accent)' : 'transparent' }}></div>
       </div>
 
+      {/* SETTINGS BUTTONS - WIRED UP */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-         <div className="soul-card haptic-btn" style={{ margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', height: '120px' }}>
+         <div onClick={() => setView('settings')} className="soul-card haptic-btn" style={{ margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', height: '120px' }}>
             <Settings size={28} color="var(--text-sec)" />
             <span style={{ fontSize: '15px', fontWeight: 600, fontFamily: 'var(--font-serif)' }}>ছেটিংছ</span>
          </div>
-         <div className="soul-card haptic-btn" style={{ margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', height: '120px' }}>
+         <div onClick={() => setView('privacy')} className="soul-card haptic-btn" style={{ margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', height: '120px' }}>
             <Shield size={28} color="var(--text-sec)" />
             <span style={{ fontSize: '15px', fontWeight: 600, fontFamily: 'var(--font-serif)' }}>গোপনীয়তা</span>
          </div>
@@ -59,9 +60,8 @@ export default function Profile() {
         <LogOut size={20} /> ওলাই আহক
       </button>
 
-      {/* VERSION STAMP - VISIBLE TO USER */}
       <div style={{ textAlign: 'center', marginTop: '30px', opacity: 0.3, fontSize: '12px', fontFamily: 'var(--font-sans)' }}>
-        Aalap v6.6 (New Core)
+        Aalap v8.0 (Notepad Ed.)
       </div>
     </div>
   );
