@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../data/store';
 import { supabase } from '../data/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,7 +11,7 @@ import EditProfile from '../profile/EditProfile';
 import SettingsScreen from '../profile/SettingsScreen';
 import PrivacyScreen from '../profile/PrivacyScreen';
 import Notifications from '../profile/Notifications';
-import EchoChamber from '../posts/EchoChamber'; // NEW
+import EchoChamber from '../posts/EchoChamber';
 import { SideNav, BottomNav } from '../components/Navigation';
 import UpdatePrompt from '../components/UpdatePrompt';
 import SplashScreen from '../components/SplashScreen';
@@ -26,26 +26,78 @@ export default function AppShell() {
   const scrollDir = useScrollDirection(); 
   const showNav = view === 'main' && (scrollDir === 'up' || !scrollDir);
 
+  // --- THE TIME MACHINE (History Logic) ---
+  const isPopping = useRef(false); // Flag to detect if change came from "Back Button"
+
+  // 1. Initialize History on Mount
+  useEffect(() => {
+    // Set the initial state so we have something to go back TO
+    window.history.replaceState({ view: 'main', tab: 'home' }, '');
+  }, []);
+
+  // 2. Listen for "Back" (Swipe/Hardware Button)
+  useEffect(() => {
+    const handlePopState = (event) => {
+        if (event.state) {
+            isPopping.current = true; // Don't push this change back to history
+            
+            // Restore View
+            if (event.state.view) setView(event.state.view, event.state.viewData);
+            
+            // Restore Tab (If we went back to main)
+            if (event.state.view === 'main' && event.state.tab) {
+                setTab(event.state.tab);
+            }
+        } else {
+            // Fallback if history is empty
+            setView('main');
+        }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [setView, setTab]);
+
+  // 3. Push to History when App State Changes (Forward Navigation)
+  useEffect(() => {
+    if (isPopping.current) {
+        // Reset flag and do nothing (we just came from history)
+        isPopping.current = false;
+        return;
+    }
+
+    // Push new state
+    const state = { view, viewData, tab };
+    
+    // Logic: Avoid duplicate pushes or pushing 'echo' overlay excessively
+    if (view === 'echo') {
+        // For overlays, we push so "Back" closes them
+        window.history.pushState(state, '');
+    } else {
+        window.history.pushState(state, '');
+    }
+
+  }, [view, viewData, tab]);
+  // ----------------------------------------
+
+  // Deep Link Handler
   useEffect(() => {
     const handleDeepLink = async () => {
         const params = new URLSearchParams(window.location.search);
         const postId = params.get('post');
         if (postId) {
             const { data } = await supabase.from('posts').select(`*, profiles(*)`).eq('id', postId).single();
-            if (data) { setLoading(false); setView('reader', data); }
+            if (data) { 
+                setLoading(false); 
+                setView('reader', data); 
+                // Fix history for deep link so "Back" goes Home
+                window.history.replaceState({ view: 'main', tab: 'home' }, '');
+                window.history.pushState({ view: 'reader', viewData: data }, '');
+            }
         }
     };
     handleDeepLink();
   }, [setView]);
-
-  useEffect(() => {
-    if (view !== 'main' && view !== 'echo') { 
-        // Logic for history navigation
-    } 
-    const handlePopState = () => { if (view !== 'main') { setView('main'); window.history.pushState({}, '', window.location.pathname); } };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [view, setView]);
 
   if (loading) return <SplashScreen onComplete={() => setLoading(false)} />;
 
@@ -56,7 +108,6 @@ export default function AppShell() {
       <SideNav activeTab={tab} setTab={setTab} />
       
       <AnimatePresence mode='wait'>
-        {/* MODAL VIEWS */}
         {view !== 'main' && view !== 'echo' && (
           <motion.div 
             key={view} 
@@ -72,7 +123,6 @@ export default function AppShell() {
           </motion.div>
         )}
 
-        {/* MAIN FEED */}
         {view === 'main' && (
           <motion.main key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="app-stage main-content">
              <motion.div className="mobile-only" animate={{ y: showNav ? 0 : -100, opacity: showNav ? 1 : 0 }} transition={{ duration: 0.4 }} style={{ marginBottom: '30px', paddingTop: '10px', display: 'flex', justifyContent: 'center', position: 'sticky', top: 0, zIndex: 40 }}>
@@ -86,10 +136,9 @@ export default function AppShell() {
         )}
       </AnimatePresence>
 
-      {/* ECHO CHAMBER OVERLAY */}
       <AnimatePresence>
         {view === 'echo' && (
-             <EchoChamber post={viewData} onClose={() => setView('main')} />
+             <EchoChamber post={viewData} onClose={() => window.history.back()} />
         )}
       </AnimatePresence>
 
