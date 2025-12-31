@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, Bookmark, Share2, MessageCircle } from 'lucide-react';
+import { Heart, Bookmark, Share2, MessageCircle, Trash2 } from 'lucide-react';
 import { useStore } from '../data/store';
 import { supabase } from '../data/supabaseClient';
 import Avatar from '../components/Avatar';
@@ -10,6 +10,15 @@ export default function PostCard({ post }) {
   const [stats, setStats] = useState({ likes: 0, comments: 0 });
   const [isLiked, setIsLiked] = useState(false);
   const isSaved = Array.isArray(bookmarks) && bookmarks.some(b => b && b.id === post.id);
+  
+  // NEW: Check if current user is the author
+  const isAuthor = user && user.id === post.author_id;
+
+  // NEW: Category Label Helper
+  const getCategoryLabel = (c) => {
+      const map = { 'poem': 'কবিতা', 'story': 'গল্প', 'article': 'প্ৰবন্ধ', 'misc': 'অন্যান্য' };
+      return map[c] || 'লেখা';
+  };
 
   useEffect(() => {
     supabase.from('likes').select('id', {count:'exact',head:true}).eq('post_id', post.id).then(({count}) => setStats(s => ({...s, likes:count||0})));
@@ -26,14 +35,34 @@ export default function PostCard({ post }) {
     else await supabase.from('likes').insert({ user_id: user.id, post_id: post.id });
   };
 
+  const handleDelete = async (e) => {
+      e.stopPropagation();
+      if(!confirm('আপুনি এই লেখাটি মচি পেলাব বিচাৰে নেকি? (Delete?)')) return;
+      
+      const { error } = await supabase.from('posts').delete().eq('id', post.id);
+      if(!error) {
+          toast.success('মচি পেলোৱা হ’ল');
+          // Reload page to reflect changes (Simple approach for patch)
+          window.location.reload(); 
+      } else {
+          toast.error('ভুল হৈছে');
+      }
+  };
+
   return (
-    <div className="notepad-card">
+    <div className="story-card">
       <div onClick={(e) => { e.stopPropagation(); setView('author', post.author_id); }} style={{ padding: '20px 20px 10px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
          <Avatar url={post.profiles?.avatar_url} size={40} />
-         <div>
+         <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 700, fontSize: 15, color:'var(--text-main)' }}>{post.profiles?.display_name || 'Anonymous'}</div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(post.created_at).toLocaleDateString()}</div>
          </div>
+         {/* CATEGORY BADGE */}
+         {post.category && (
+             <span style={{ fontSize: 11, background: 'var(--btn-soft)', padding: '4px 10px', borderRadius: 20, color: 'var(--text-muted)' }}>
+                {getCategoryLabel(post.category)}
+             </span>
+         )}
       </div>
       
       <div onClick={() => setView('reader', post)} style={{ padding: '0 20px 15px', cursor: 'pointer' }}>
@@ -47,6 +76,13 @@ export default function PostCard({ post }) {
             <button onClick={(e) => { e.stopPropagation(); setView('echo', post); }} className="btn-icon"><MessageCircle size={22} /> {stats.comments > 0 && stats.comments}</button>
          </div>
          <div style={{ display: 'flex', gap: 10 }}>
+            {/* DELETE BUTTON (VISIBLE ONLY TO AUTHOR) */}
+            {isAuthor && (
+                <button onClick={handleDelete} className="btn-icon" style={{ color: 'var(--danger)' }} title="Delete Post">
+                    <Trash2 size={20} />
+                </button>
+            )}
+            
             <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(`${window.location.origin}/?post=${post.id}`); toast.success('Copied'); }} className="btn-icon"><Share2 size={22} /></button>
             <button onClick={(e) => { e.stopPropagation(); if(authGuard()) toggleBookmark(post); }} className="btn-icon" style={{color: isSaved ? 'var(--text-main)' : 'var(--text-muted)'}}><Bookmark size={22} fill={isSaved ? "currentColor" : "none"} /></button>
          </div>

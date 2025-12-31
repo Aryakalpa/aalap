@@ -5,11 +5,13 @@ import nameLogo from '../assets/namelogo.png';
 
 export function SideNav() {
   const { user, activeTab, setTab, theme, toggleTheme } = useStore();
+  
+  // UPDATED: Pure Assamese Labels
   const items = [
-    { id: 'home', icon: Home, label: 'নীড় (Home)' },
-    { id: 'bookmarks', icon: Bookmark, label: 'সংৰক্ষিত (Saved)' },
-    { id: 'write', icon: PenTool, label: 'লিখক (Write)' },
-    { id: 'notifications', icon: Bell, label: 'জাননী (Notifs)' },
+    { id: 'home', icon: Home, label: 'মুখ্য পৃষ্ঠা' },
+    { id: 'bookmarks', icon: Bookmark, label: 'সংৰক্ষিত' },
+    { id: 'write', icon: PenTool, label: 'লিখক' },
+    { id: 'notifications', icon: Bell, label: 'জাননী' },
   ];
 
   return (
@@ -36,7 +38,7 @@ export function SideNav() {
               {user ? user.user_metadata?.full_name?.split(' ')[0] : 'অতিথি'}
            </span>
            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {user ? 'View Profile' : 'Login Now'}
+              {user ? 'প্ৰ’ফাইল' : 'লগ-ইন'}
            </span>
         </div>
       </button>

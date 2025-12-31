@@ -8,25 +8,47 @@ export default function Studio() {
   const { user, setTab } = useStore();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  
+  // NEW: Category State with 4 Options
   const [category, setCategory] = useState('story');
+  const categories = [
+    { id: 'story', label: 'গল্প' },
+    { id: 'poem', label: 'কবিতা' },
+    { id: 'article', label: 'প্ৰবন্ধ' },
+    { id: 'misc', label: 'অন্যান্য' }
+  ];
+
   const [loading, setLoading] = useState(false);
 
   if (!user) { setTab('profile'); return null; }
 
   const handlePost = async () => {
-    if (!title.trim() || !body.trim()) return toast.error('খালি ৰাখিব নোৱাৰিব');
+    if (!title.trim() || !body.trim()) return toast.error('শিৰোনাম আৰু মূল কথা লিখিব লাগিব');
     setLoading(true);
-    const { error } = await supabase.from('posts').insert({ title, body, category, author_id: user.id });
-    if (!error) { toast.success('সফলভাৱে প্ৰকাশিত!'); setTab('home'); }
-    else toast.error('ভুল হৈছে');
+    
+    const { error } = await supabase.from('posts').insert({ 
+        title, 
+        body, 
+        category, // Saving the tag
+        author_id: user.id 
+    });
+
+    if (!error) { 
+        toast.success('প্ৰকাশ কৰা হ’ল!'); 
+        setTab('home'); 
+        setTitle(''); 
+        setBody(''); 
+    } else { 
+        toast.error('ভুল হৈছে'); 
+    }
     setLoading(false);
   };
 
   return (
-    <div style={{ padding: 20, height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <button onClick={() => setTab('home')} className="btn-icon"><X size={24} /></button>
-        <button onClick={handlePost} disabled={loading} className="btn-primary" style={{ opacity: loading ? 0.5 : 1 }}>
+        <button onClick={handlePost} disabled={loading} className="btn-soft" style={{ background: 'var(--text-main)', color: 'var(--bg-body)' }}>
             {loading ? '...' : 'প্ৰকাশ কৰক'}
         </button>
       </div>
@@ -34,19 +56,24 @@ export default function Studio() {
       <input 
         value={title} onChange={e => setTitle(e.target.value)}
         placeholder="শিৰোনাম..." 
-        style={{ background: 'transparent', border: 'none', fontSize: 32, fontWeight: 700, fontFamily: 'var(--font-body)', color: 'var(--text-primary)', width: '100%', marginBottom: 20, outline: 'none' }}
+        style={{ background: 'transparent', border: 'none', fontSize: 24, fontWeight: 700, color: 'var(--text-main)', width: '100%', marginBottom: 20, outline: 'none', fontFamily: 'var(--font-serif)' }}
       />
       
-      <div style={{ display: 'flex', gap: 10, marginBottom: 30 }}>
-        {['story', 'poem'].map(c => (
-            <button key={c} onClick={() => setCategory(c)} 
+      {/* TAG SELECTOR */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 20, overflowX: 'auto', paddingBottom: 5 }}>
+        {categories.map(c => (
+            <button 
+                key={c.id} 
+                onClick={() => setCategory(c.id)}
                 style={{ 
-                    padding: '8px 16px', borderRadius: 20, border: '1px solid var(--glass-border)', 
-                    background: category === c ? 'var(--text-primary)' : 'transparent', 
-                    color: category === c ? 'var(--bg-primary)' : 'var(--text-secondary)',
-                    fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
-                }}>
-                {c === 'story' ? 'গল্প' : 'কবিতা'}
+                    padding: '6px 16px', borderRadius: 20, 
+                    border: '1px solid var(--border-light)', 
+                    background: category === c.id ? 'var(--text-main)' : 'transparent', 
+                    color: category === c.id ? 'var(--bg-body)' : 'var(--text-muted)',
+                    fontSize: 14, fontWeight: 500, whiteSpace: 'nowrap'
+                }}
+            >
+                {c.label}
             </button>
         ))}
       </div>
@@ -54,7 +81,7 @@ export default function Studio() {
       <textarea 
         value={body} onChange={e => setBody(e.target.value)}
         placeholder="আপোনাৰ সৃষ্টি লিখক..." 
-        style={{ flex: 1, background: 'transparent', border: 'none', fontSize: 20, lineHeight: 1.8, fontFamily: 'var(--font-body)', color: 'var(--text-primary)', outline: 'none', resize: 'none' }}
+        style={{ flex: 1, background: 'transparent', border: 'none', fontSize: 18, lineHeight: 1.6, color: 'var(--text-main)', outline: 'none', resize: 'none', fontFamily: 'var(--font-serif)' }}
       />
     </div>
   );
