@@ -9,36 +9,43 @@ export default function Feed({ type }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (type === 'bookmarks' && !user) { setLoading(false); return; }
+
     const fetchPosts = async () => {
+      setLoading(true);
       try {
-          // Always fetch community posts for safety for now
-          const { data } = await supabase.from('posts').select(`*, profiles(*)`);
-          setPosts(data || []);
-      } catch (err) {
-          console.error(err);
-      } finally {
-          setLoading(false);
-      }
+          if (type === 'bookmarks') {
+             const local = JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]');
+             setPosts(local);
+          } else {
+             const { data, error } = await supabase.from('posts').select(`*, profiles(*)`);
+             if (error) throw error;
+             setPosts(data || []);
+          }
+      } catch (err) { console.error("FEED ERROR:", err); } 
+      finally { setLoading(false); }
     };
     fetchPosts();
-  }, []);
+  }, [type, user]);
+
+  if (loading) return <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-sec)', fontSize: '14px' }}>Loading stories...</div>;
+
+  if (type === 'bookmarks' && !user) {
+      return (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-sec)' }}>
+              <h3>Login to view bookmarks</h3>
+              <button onClick={() => setTab('profile')} style={{ marginTop: '15px', padding: '10px 24px', background: 'var(--text)', color: 'var(--bg)', border: 'none', borderRadius: '30px', fontWeight: 600, cursor: 'pointer' }}>Go to Login</button>
+          </div>
+      );
+  }
+
+  if (posts.length === 0) return <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-sec)' }}>No stories found.</div>;
 
   return (
-    <div className="feed-container" style={{ display: 'block', width: '100%' }}>
-      {/* HEADER FOR DEBUGGING */}
-      <div style={{ padding: '10px', borderBottom: '1px solid #333', marginBottom: '20px' }}>
-         <h2 style={{ margin: 0, color: 'white' }}>Feed Active</h2>
-         <small style={{ color: 'grey' }}>{loading ? "Loading..." : `${posts.length} Stories`}</small>
-      </div>
-
+    <div style={{ paddingBottom: '100px' }}>
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
-      
-      {/* If empty */}
-      {!loading && posts.length === 0 && (
-         <div style={{ padding: 20, color: 'grey' }}>No stories found.</div>
-      )}
     </div>
   );
 }
