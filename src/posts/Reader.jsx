@@ -11,26 +11,62 @@ export default function Reader({ post }) {
   const { setView, user } = useStore();
   const haptic = useHaptic();
   
-  const [likesCount, setLikesCount] = useState(post.likes_count || 0);
+  // State for Real Counts
+  const [likesCount, setLikesCount] = useState(0);
+  const [commentsCount, setCommentsCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
 
+  // --- MANUAL FETCH LOGIC (Same as PostCard) ---
   useEffect(() => {
-    if (user) {
-        supabase.from('likes').select('id').eq('user_id', user.id).eq('post_id', post.id).maybeSingle()
-        .then(({ data }) => { if(data) setIsLiked(true); });
-    }
-  }, [user, post.id]);
+    let isMounted = true;
+    
+    const loadData = async () => {
+        // 1. Get exact counts directly from tables
+        const { count: lCount } = await supabase.from('likes').select('id', { count: 'exact', head: true }).eq('post_id', post.id);
+        const { count: cCount } = await supabase.from('comments').select('id', { count: 'exact', head: true }).eq('post_id', post.id);
+        
+        if (isMounted) {
+            setLikesCount(lCount || 0);
+            setCommentsCount(cCount || 0);
+        }
+
+        // 2. Check like status
+        if (user) {
+            const { data } = await supabase.from('likes').select('id').eq('user_id', user.id).eq('post_id', post.id).maybeSingle();
+            if (isMounted && data) setIsLiked(true);
+        }
+    };
+
+    loadData();
+
+    // 3. Realtime Updates
+    const sub = supabase.channel(`reader-${post.id}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'likes', filter: `post_id=eq.${post.id}` }, () => {
+             supabase.from('likes').select('id', { count: 'exact', head: true }).eq('post_id', post.id).then(({ count }) => setLikesCount(count || 0));
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'comments', filter: `post_id=eq.${post.id}` }, () => {
+             supabase.from('comments').select('id', { count: 'exact', head: true }).eq('post_id', post.id).then(({ count }) => setCommentsCount(count || 0));
+        })
+        .subscribe();
+
+    return () => { isMounted = false; supabase.removeChannel(sub); };
+  }, [post.id, user]);
 
   const handleLike = async () => {
     if (!user) return toast.error('Login to like');
     haptic.impactMedium();
     
-    const prevLiked = isLiked;
-    setIsLiked(!prevLiked);
-    setLikesCount(prev => prevLiked ? prev - 1 : prev + 1);
+    const wasLiked = isLiked;
+    setIsLiked(!wasLiked);
+    setLikesCount(prev => wasLiked ? prev - 1 : prev + 1);
 
-    if (prevLiked) await supabase.from('likes').delete().eq('user_id', user.id).eq('post_id', post.id);
-    else await supabase.from('likes').insert({ user_id: user.id, post_id: post.id });
+    if (wasLiked) {
+        const { error } = await supabase.from('likes').delete().eq('user_id', user.id).eq('post_id', post.id);
+        if (error) { setIsLiked(true); setLikesCount(prev => prev + 1); }
+    } else {
+        const { error } = await supabase.from('likes').insert({ user_id: user.id, post_id: post.id });
+        if (error && error.code !== '23505') { setIsLiked(false); setLikesCount(prev => prev - 1); }
+    }
   };
 
   const handleShare = async () => {
@@ -51,6 +87,9 @@ export default function Reader({ post }) {
           <ArrowLeft size={24} />
         </button>
         <div style={{ display: 'flex', gap: '15px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontWeight: 600, color: 'var(--text-sec)', marginRight: '5px' }}>
+                <MessageCircle size={16} /> {commentsCount}
+            </div>
             <button onClick={() => setView('echo', post)} className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)', padding: '10px' }}><MessageCircle size={22} /></button>
             <button onClick={handleShare} className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text)', padding: '10px' }}><Share2 size={22} /></button>
         </div>
@@ -73,7 +112,7 @@ export default function Reader({ post }) {
                 <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} /> {likesCount} Likes
             </button>
             <button onClick={() => setView('echo', post)} className="haptic-btn" style={{ background: 'var(--surface-2)', border: 'none', padding: '12px 24px', borderRadius: '30px', display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 600, color: 'var(--text)', pointerEvents: 'auto' }}>
-                <MessageCircle size={20} /> Comments
+                <MessageCircle size={20} /> Comments ({commentsCount})
             </button>
         </div>
       </motion.div>
