@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 export function useScrollDirection() {
   const [scrollDir, setScrollDir] = useState("up");
 
   useEffect(() => {
     let lastScrollY = window.pageYOffset;
-
     const updateScrollDir = () => {
       const scrollY = window.pageYOffset;
       const direction = scrollY > lastScrollY ? "down" : "up";
@@ -14,11 +13,8 @@ export function useScrollDirection() {
       }
       lastScrollY = scrollY > 0 ? scrollY : 0;
     };
-
-    const onScroll = () => window.requestAnimationFrame(updateScrollDir);
-
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("scroll", updateScrollDir);
+    return () => window.removeEventListener("scroll", updateScrollDir);
   }, [scrollDir]);
 
   return scrollDir;

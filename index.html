@@ -2,36 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#f2f0e9" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-    
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <meta name="version" content="6.8.0-force" />
-
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" href="/src/assets/favicon.png" />
-    
-    <title>Aalap | অসমীয়া</title>
-    
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister();
-            console.log('Zombie ServiceWorker Killed.');
-          }
-        });
-      }
-    </script>
-
-    <style>
-      body { background: #f2f0e9; margin: 0; opacity: 0; animation: fadeBody 0.6s ease-out forwards; }
-      @keyframes fadeBody { to { opacity: 1; } }
-      @media (prefers-color-scheme: dark) { body { background: #000000; } }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Aalap</title>
+    <style>body { background: #000; }</style>
   </head>
   <body>
     <div id="root"></div>
