@@ -14,22 +14,29 @@ export default function PostCard({ post }) {
   const categoryLabel = post.category === 'poem' ? 'কবিতা' : 'গল্প';
 
   // --- ACTIONS ---
-  const handleLike = () => {
+  const handleLike = (e) => {
+    e.stopPropagation(); // FORCE STOP BOUNCE
     haptic.impactMedium();
     toast.success('আপুনি ভাল পালে!', { icon: '❤️' });
   };
 
-  const handleEcho = () => {
+  const handleEcho = (e) => {
+    e.stopPropagation();
     haptic.tap();
     toast('মন্তব্য বিভাগ শীঘ্ৰে আহিব', { icon: '💬' });
   };
 
-  const handleShare = async () => {
+  const handleShare = async (e) => {
+    e.stopPropagation();
     haptic.tap();
+    
+    // NEW: GENERATE DEEP LINK
+    const deepLink = `${window.location.origin}/?post=${post.id}`;
+
     const shareData = {
         title: `Aalap: ${post.title}`,
         text: `Read "${post.title}" by ${author.display_name} on Aalap.\n\n`,
-        url: window.location.href 
+        url: deepLink
     };
 
     try {
@@ -44,13 +51,19 @@ export default function PostCard({ post }) {
     }
   };
 
-  const handleBookmark = () => {
+  const handleBookmark = (e) => {
+    e.stopPropagation();
     haptic.impactLight();
     toggleBookmark(post);
   };
 
+  // NEW: OPEN READER AND UPDATE URL
   const openReader = () => {
     haptic.tap();
+    // Update URL without reloading page
+    const newUrl = `${window.location.pathname}?post=${post.id}`;
+    window.history.pushState({ path: newUrl }, '', newUrl);
+    
     setView('reader', post);
   };
 
@@ -62,10 +75,11 @@ export default function PostCard({ post }) {
   return (
     <div className="notepad-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       
-      {/* ZONE A: CONTENT (CLICK TO READ) */}
+      {/* ZONE A: CLICKABLE CONTENT (Apply Bounce Class Here Only) */}
       <div 
+        className="card-click-area"
         onClick={openReader} 
-        style={{ padding: '24px 24px 10px 24px', cursor: 'pointer', flex: 1 }}
+        style={{ padding: '24px 24px 10px 24px', flex: 1 }}
       >
           {/* HEADER */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -79,7 +93,6 @@ export default function PostCard({ post }) {
             <span className="meta-badge">{categoryLabel}</span>
           </div>
           
-          {/* TITLE & BODY */}
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', fontWeight: 800, margin: '0 0 10px', lineHeight: '1.3', color: 'var(--text)' }}>
             {post.title}
           </h3>
@@ -93,33 +106,29 @@ export default function PostCard({ post }) {
           </p>
       </div>
 
-      {/* ZONE B: FOOTER (SAFE ZONE - NO PARENT CLICK) */}
+      {/* ZONE B: FOOTER (SAFE ZONE - NO BOUNCE) */}
       <div style={{ 
           padding: '10px 24px 20px 24px', 
           marginTop: 'auto', 
-          borderTop: '1px dashed var(--border)', /* Visual separation */
+          borderTop: '1px dashed var(--border)', 
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          background: 'var(--card)', /* Ensure it sits on top */
-          zIndex: 5
+          background: 'var(--card)', 
+          position: 'relative', zIndex: 20 /* High Z-index for buttons */
       }}>
         
-        {/* LEFT: Like & Echo */}
         <div style={{ display: 'flex', gap: '20px' }}>
             <button onClick={handleLike} className="haptic-btn" style={{ background: 'none', border: 'none', padding: '8px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-sec)', fontSize: '13px', fontWeight: 600 }}>
                 <Heart size={22} /> {post.likes_count || 0}
             </button>
-
             <button onClick={handleEcho} className="haptic-btn" style={{ background: 'none', border: 'none', padding: '8px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-sec)', fontSize: '13px', fontWeight: 600 }}>
                 <MessageCircle size={22} /> 
             </button>
         </div>
         
-        {/* RIGHT: Share & Save */}
         <div style={{ display: 'flex', gap: '10px' }}>
             <button onClick={handleShare} className="haptic-btn" style={{ background: 'none', border: 'none', color: 'var(--text-sec)', padding: '8px' }}>
                 <Share2 size={22} />
             </button>
-
             <button onClick={handleBookmark} className="haptic-btn" style={{ background: 'none', border: 'none', color: isSaved ? 'var(--accent)' : 'var(--text-sec)', padding: '8px' }}>
                 <Bookmark size={22} fill={isSaved ? 'currentColor' : 'none'} strokeWidth={isSaved ? 0 : 2} />
             </button>

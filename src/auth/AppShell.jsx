@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '../data/store';
+import { supabase } from '../data/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import Feed from '../posts/Feed';
 import Studio from '../posts/Studio';
@@ -13,7 +14,7 @@ import Notifications from '../profile/Notifications';
 import { SideNav, BottomNav } from '../components/Navigation';
 import UpdatePrompt from '../components/UpdatePrompt';
 import SplashScreen from '../components/SplashScreen';
-import { Toaster } from 'react-hot-toast'; // Using react-hot-toast for reliability
+import { Toaster } from 'react-hot-toast';
 import nameLogo from '../assets/namelogo.png';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 
@@ -24,19 +25,51 @@ export default function AppShell() {
   const scrollDir = useScrollDirection(); 
   const showNav = view === 'main' && (scrollDir === 'up' || !scrollDir);
 
-  // History Navigation Logic
+  // --- DEEP LINK HANDLER ---
   useEffect(() => {
-    if (view !== 'main') { window.history.pushState({ view: view }, ''); }
-    const handlePopState = () => { if (view !== 'main') setView('main'); };
+    const handleDeepLink = async () => {
+        const params = new URLSearchParams(window.location.search);
+        const postId = params.get('post');
+        
+        if (postId) {
+            // Fetch the specific post
+            const { data } = await supabase.from('posts').select(`*, profiles(*)`).eq('id', postId).single();
+            if (data) {
+                setLoading(false); // Skip splash to show content immediately
+                setView('reader', data);
+            }
+        }
+    };
+    handleDeepLink();
+  }, [setView]);
+
+  // History Navigation
+  useEffect(() => {
+    if (view !== 'main') { 
+        // We already pushed state in PostCard, so we just handle Back here
+    } else {
+        // Clear URL params when going back to home
+        if (window.location.search) {
+             window.history.pushState({}, '', window.location.pathname);
+        }
+    }
+
+    const handlePopState = () => { 
+        if (view !== 'main') {
+             setView('main'); 
+             // Clean URL
+             window.history.pushState({}, '', window.location.pathname);
+        }
+    };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [view, setView]);
+
 
   if (loading) return <SplashScreen onComplete={() => setLoading(false)} />;
 
   return (
     <div className="main-layout">
-      {/* TOASTER ELEVATED TO Z-INDEX 99999 */}
       <Toaster position="top-center" containerStyle={{ zIndex: 99999 }} toastOptions={{ style: { background: 'var(--text)', color: 'var(--bg)', fontFamily: 'var(--font-sans)' } }} />
       <UpdatePrompt /> 
       <SideNav activeTab={tab} setTab={setTab} />

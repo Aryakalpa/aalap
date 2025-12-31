@@ -16,55 +16,43 @@ body.theme-night {
   --surface-2: #222; --badge-bg: #222;
 }
 
-/* 1. GRAIN TEXTURE - MOVED TO BACKGROUND */
+/* TEXTURE */
 body::before {
   content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none; 
-  z-index: -1; /* CRITICAL FIX: Move behind everything */
-  mix-blend-mode: multiply;
+  pointer-events: none; z-index: -1; mix-blend-mode: multiply;
 }
 
-/* 2. REFINED COPY PROTECTION */
+/* GLOBAL SETTINGS */
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 
-html, body { 
-  margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; 
-  background: var(--bg); color: var(--text); font-family: var(--font-sans); 
-  -webkit-font-smoothing: antialiased;
-}
+/* COPY PROTECTION */
+p, h1, h2, h3, h4, h5, h6, span, div { -webkit-user-select: none; user-select: none; }
+button, a, input, textarea { -webkit-user-select: auto !important; user-select: auto !important; pointer-events: auto !important; touch-action: manipulation; }
 
-/* Only block text selection on content, NOT on buttons */
-p, h1, h2, h3, h4, h5, h6, span, div {
-  -webkit-user-select: none; user-select: none;
-}
-
-/* Force buttons to be selectable/clickable */
-button, a, input, textarea, [role="button"] {
-  -webkit-user-select: auto !important;
-  user-select: auto !important;
-  pointer-events: auto !important; /* CRITICAL FIX */
-  touch-action: manipulation; /* Removes tap delay */
-}
-
-/* 3. LAYOUT */
-.app-stage { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: 140px; }
-.app-stage::-webkit-scrollbar { display: none; }
-
+/* CARD STYLES */
 .notepad-card {
   background: var(--card); border-radius: 16px; 
   border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-  position: relative; transition: transform 0.2s ease;
-  overflow: hidden; /* Contains the zones */
+  position: relative; transition: box-shadow 0.2s ease;
+  overflow: hidden;
 }
-.notepad-card:active { transform: scale(0.99); }
+/* REMOVED: .notepad-card:active { transform: scale(...) } */
+
+/* NEW: Only bounce the clickable content area */
+.card-click-area { transition: transform 0.2s ease; cursor: pointer; }
+.card-click-area:active { transform: scale(0.98); background: rgba(0,0,0,0.02); }
 
 .meta-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: var(--badge-bg); color: var(--text-sec); letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-sans); }
 .studio-input { background: transparent !important; border: none !important; outline: none !important; font-family: var(--font-serif) !important; color: var(--text) !important; width: 100%; resize: none; }
-.haptic-btn { transition: transform 0.1s; cursor: pointer; position: relative; z-index: 10; } /* Ensure z-index */
-.haptic-btn:active { transform: scale(0.92); }
+.haptic-btn { transition: transform 0.1s; cursor: pointer; position: relative; z-index: 10; }
+.haptic-btn:active { transform: scale(0.90); }
 
-/* RESPONSIVE */
+/* LAYOUT */
+.app-stage { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: 140px; }
+.app-stage::-webkit-scrollbar { display: none; }
+
 @media (min-width: 769px) {
   .side-nav { display: flex !important; width: var(--nav-w); flex-direction: column; position: fixed; height: 100%; border-right: 1px solid var(--border); z-index: 50; padding: 40px 24px; }
   .bottom-nav { display: none !important; }
