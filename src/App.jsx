@@ -1,30 +1,39 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from './data/store';
 import { supabase } from './data/supabaseClient';
 import AppShell from './auth/AppShell';
+import SplashScreen from './components/SplashScreen'; // Re-using splash as loader
 
 export default function App() {
   const { setUser, setTheme } = useStore();
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
-    // 1. Check Session on Load
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null);
-    });
+    const initApp = async () => {
+        // 1. Get Session
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user || null);
 
-    // 2. Listen for Auth Changes (Login/Logout)
+        // 2. Set Theme
+        const savedTheme = localStorage.getItem('aalap-theme') || 'paper';
+        document.body.className = `theme-${savedTheme}`;
+        setTheme(savedTheme);
+
+        // 3. Mark Ready
+        setSessionChecked(true);
+    };
+
+    initApp();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
     });
 
-    // 3. Theme System
-    const savedTheme = localStorage.getItem('aalap-theme') || 'paper';
-    document.body.className = `theme-${savedTheme}`;
-    setTheme(savedTheme);
-
     return () => subscription.unsubscribe();
   }, [setUser, setTheme]);
 
-  // ALWAYS render the AppShell (The Shell will handle guests)
+  // CRITICAL FIX: Do not render AppShell until we know who the user is
+  if (!sessionChecked) return null; 
+
   return <AppShell />;
 }

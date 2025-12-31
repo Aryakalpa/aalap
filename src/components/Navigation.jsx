@@ -1,9 +1,9 @@
-import { Home, Bookmark, Bell, PenTool, User } from 'lucide-react'; // Added User Icon
+import { Home, Bookmark, Bell, PenTool, User } from 'lucide-react';
 import { useStore } from '../data/store';
 import Avatar from './Avatar';
 
 export function SideNav({ activeTab, setTab }) {
-  const { user } = useStore(); // Get user
+  const { user } = useStore(); 
 
   const navItems = [
     { id: 'home', icon: Home, label: 'Home' },
@@ -11,6 +11,10 @@ export function SideNav({ activeTab, setTab }) {
     { id: 'write', icon: PenTool, label: 'Write' },
     { id: 'notifications', icon: Bell, label: 'Notifs' },
   ];
+
+  // Safe User Data Access
+  const avatarUrl = user?.user_metadata?.avatar_url;
+  const displayName = user?.user_metadata?.full_name || 'Author';
 
   return (
     <nav className="side-nav">
@@ -43,16 +47,16 @@ export function SideNav({ activeTab, setTab }) {
         })}
       </div>
 
-      <div onClick={() => setTab('profile')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '12px', cursor: 'pointer', marginTop: 'auto', hover: { background: 'var(--surface-2)' } }}>
+      <div onClick={() => setTab('profile')} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '12px', cursor: 'pointer', marginTop: 'auto' }}>
         {user ? (
-             <Avatar url={user.user_metadata?.avatar_url} size={36} />
+             <Avatar url={avatarUrl} size={36} />
         ) : (
              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--surface-2)', display: 'grid', placeItems: 'center' }}>
                 <User size={20} color="var(--text-sec)" />
              </div>
         )}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: '14px', fontWeight: 600 }}>{user ? (user.user_metadata?.full_name || 'Author') : 'Guest'}</span>
+          <span style={{ fontSize: '14px', fontWeight: 600 }}>{user ? displayName : 'Guest'}</span>
           <span style={{ fontSize: '12px', color: 'var(--text-sec)' }}>{user ? 'View Profile' : 'Tap to Login'}</span>
         </div>
       </div>
@@ -62,6 +66,8 @@ export function SideNav({ activeTab, setTab }) {
 
 export function BottomNav({ activeTab, setTab }) {
   const { user } = useStore();
+  const avatarUrl = user?.user_metadata?.avatar_url;
+
   const navItems = [
     { id: 'home', icon: Home },
     { id: 'bookmarks', icon: Bookmark },
@@ -91,7 +97,7 @@ export function BottomNav({ activeTab, setTab }) {
       
       <div onClick={() => setTab('profile')} style={{ padding: '5px' }}>
          {user ? (
-             <Avatar url={user.user_metadata?.avatar_url} size={28} />
+             <Avatar url={avatarUrl} size={28} />
          ) : (
              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--surface-2)', display: 'grid', placeItems: 'center' }}>
                 <User size={16} color="var(--text-sec)" />
