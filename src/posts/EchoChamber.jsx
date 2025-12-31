@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Send, Trash2 } from 'lucide-react';
 import { supabase } from '../data/supabaseClient';
 import { useStore } from '../data/store';
-import Avatar from '../components/Avatar'; // FIXED IMPORT PATH
+import Avatar from '../components/Avatar';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
@@ -12,16 +12,24 @@ export default function EchoChamber({ post, onClose }) {
   const [newComment, setNewComment] = useState('');
   const scrollRef = useRef(null);
 
-  // Fetch Comments
   useEffect(() => {
     const fetchComments = async () => {
-      const { data } = await supabase
+      // THE FIX: Explicitly join with profiles using the foreign key
+      const { data, error } = await supabase
         .from('comments')
-        .select(`*, profiles(id, display_name, avatar_url)`)
+        .select(`
+            id,
+            body,
+            created_at,
+            user_id,
+            profiles (id, display_name, avatar_url)
+        `)
         .eq('post_id', post.id)
         .order('created_at', { ascending: true });
+        
+      if (error) console.error("Comment fetch error:", error);
       setComments(data || []);
-      setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 200);
     };
 
     fetchComments();
@@ -29,7 +37,8 @@ export default function EchoChamber({ post, onClose }) {
     const sub = supabase.channel('comments-room')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: `post_id=eq.${post.id}` }, 
       async (payload) => {
-          const { data } = await supabase.from('profiles').select('*').eq('id', payload.new.user_id).single();
+          // Fetch profile for the new comment immediately
+          const { data } = await supabase.from('profiles').select('id, display_name, avatar_url').eq('id', payload.new.user_id).single();
           setComments(prev => [...prev, { ...payload.new, profiles: data }]);
           setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       })
@@ -40,19 +49,38 @@ export default function EchoChamber({ post, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || !user) return;
     
-    // Optimistic Update
+    // 1. Prepare data
+    const commentBody = newComment; // freeze value
+    setNewComment(''); // clear input immediately
+
+    // 2. Optimistic UI (Fake it 'til you make it)
     const tempId = Date.now();
-    const tempComment = { id: tempId, body: newComment, user_id: user.id, created_at: new Date().toISOString(), profiles: { avatar_url: user.user_metadata.avatar_url, display_name: 'You' } };
-    setComments([...comments, tempComment]);
-    setNewComment('');
+    const tempComment = { 
+        id: tempId, 
+        body: commentBody, 
+        user_id: user.id, 
+        created_at: new Date().toISOString(), 
+        profiles: { 
+            avatar_url: user.user_metadata.avatar_url, 
+            display_name: user.user_metadata.full_name || 'You' 
+        } 
+    };
+    setComments(prev => [...prev, tempComment]);
     setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
 
-    const { error } = await supabase.from('comments').insert({ post_id: post.id, user_id: user.id, body: tempComment.body });
+    // 3. Actual Send
+    const { error } = await supabase.from('comments').insert({ 
+        post_id: post.id, 
+        user_id: user.id, 
+        body: commentBody 
+    });
+
     if (error) {
-        toast.error('Failed to post');
-        setComments(prev => prev.filter(c => c.id !== tempId));
+        toast.error('Could not send comment');
+        console.error(error);
+        setComments(prev => prev.filter(c => c.id !== tempId)); // Remove if failed
     }
   };
 

@@ -10,50 +10,64 @@ export default function PostCard({ post }) {
   const { user, setView, toggleBookmark, bookmarks } = useStore();
   const haptic = useHaptic();
   
-  // Local State for Instant Interaction
+  // Safe default for likes count
   const [likesCount, setLikesCount] = useState(post.likes_count || 0);
-  const [isLiked, setIsLiked] = useState(false); // Default false, updated by effect
+  const [isLiked, setIsLiked] = useState(false);
   const isSaved = bookmarks.some(b => b.id === post.id);
 
-  // Check if User Liked This Post
+  // Check initial like status
   useEffect(() => {
     if (!user) return;
     const checkLike = async () => {
-        const { data } = await supabase.from('likes').select('id').eq('user_id', user.id).eq('post_id', post.id).single();
+        const { data } = await supabase.from('likes').select('id').eq('user_id', user.id).eq('post_id', post.id).maybeSingle();
         if (data) setIsLiked(true);
     };
     checkLike();
   }, [user, post.id]);
 
-  const handleLike = async () => {
+  const handleLike = async (e) => {
+    e.stopPropagation();
     if (!user) return toast.error('Please login to like');
+    
     haptic.impactMedium();
 
-    // 1. Optimistic Update (Immediate UI Change)
-    const oldLiked = isLiked;
-    const oldCount = likesCount;
-    setIsLiked(!isLiked);
-    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+    // Optimistic UI Update
+    const previousLiked = isLiked;
+    const previousCount = likesCount;
 
-    // 2. Server Sync
-    if (oldLiked) {
-        // Unlike
+    setIsLiked(!previousLiked);
+    setLikesCount(prev => previousLiked ? prev - 1 : prev + 1);
+
+    if (previousLiked) {
+        // Remove Like
         const { error } = await supabase.from('likes').delete().eq('user_id', user.id).eq('post_id', post.id);
-        if (error) { setIsLiked(true); setLikesCount(oldCount); } // Revert on error
+        if (error) {
+            console.error(error);
+            setIsLiked(true); // Revert
+            setLikesCount(previousCount);
+        }
     } else {
-        // Like
+        // Add Like
         const { error } = await supabase.from('likes').insert({ user_id: user.id, post_id: post.id });
-        if (error) { setIsLiked(false); setLikesCount(oldCount); }
+        if (error) {
+            // Error code 23505 means duplicate key (already liked), which is fine.
+            if (error.code !== '23505') {
+                console.error(error);
+                setIsLiked(false); // Revert
+                setLikesCount(previousCount);
+            }
+        }
     }
   };
 
-  const handleEcho = () => {
+  const handleEcho = (e) => {
+    e.stopPropagation();
     haptic.tap();
-    // Open the Echo Chamber
     setView('echo', post);
   };
 
-  const handleShare = async () => {
+  const handleShare = async (e) => {
+    e.stopPropagation();
     haptic.tap();
     const deepLink = `${window.location.origin}/?post=${post.id}`;
     const shareData = { title: `Aalap`, text: `Read "${post.title}" on Aalap.\n`, url: deepLink };
@@ -68,16 +82,21 @@ export default function PostCard({ post }) {
     setView('reader', post);
   };
 
+  const openAuthor = (e) => {
+     e.stopPropagation();
+     setView('author', post.author_id);
+  };
+
   const author = post.profiles || {};
   const categoryLabel = post.category === 'poem' ? 'কবিতা' : 'গল্প';
 
   return (
     <div className="notepad-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       
-      {/* CLICKABLE AREA */}
+      {/* CLICKABLE CONTENT */}
       <div className="card-click-area" onClick={openReader} style={{ padding: '24px 24px 10px 24px', flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <div onClick={(e) => { e.stopPropagation(); setView('author', post.author_id); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', zIndex: 10 }}>
+            <div onClick={openAuthor} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', zIndex: 10 }}>
               <Avatar url={author.avatar_url} size={32} />
               <div>
                 <div style={{ fontSize: '13px', fontWeight: 700 }}>{author.display_name || 'নামবিহীন'}</div>
@@ -90,14 +109,12 @@ export default function PostCard({ post }) {
           <p style={{ fontFamily: 'var(--font-serif)', fontSize: '17px', lineHeight: '1.7', color: 'var(--text-sec)', margin: '0 0 15px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.body}</p>
       </div>
 
-      {/* FOOTER ACTIONS */}
+      {/* FOOTER - POINTER EVENTS AUTO ENFORCED */}
       <div style={{ padding: '10px 24px 20px 24px', marginTop: 'auto', borderTop: '1px dashed var(--border)', display: 'flex', justifyContent: 'space-between', background: 'var(--card)', position: 'relative', zIndex: 20 }}>
         <div style={{ display: 'flex', gap: '20px' }}>
-            {/* LIKE */}
             <button onClick={handleLike} className="haptic-btn" style={{ background: 'none', border: 'none', padding: '8px', display: 'flex', alignItems: 'center', gap: '6px', color: isLiked ? 'var(--danger)' : 'var(--text-sec)', fontSize: '13px', fontWeight: 600 }}>
                 <Heart size={22} fill={isLiked ? 'currentColor' : 'none'} /> {likesCount}
             </button>
-            {/* ECHO */}
             <button onClick={handleEcho} className="haptic-btn" style={{ background: 'none', border: 'none', padding: '8px', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-sec)', fontSize: '13px', fontWeight: 600 }}>
                 <MessageCircle size={22} /> 
             </button>
