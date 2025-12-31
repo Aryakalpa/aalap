@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, Bookmark, MessageCircle, Share } from 'lucide-react';
+import { Heart, Bookmark, Share2, MessageCircle } from 'lucide-react';
 import { useStore } from '../data/store';
 import { supabase } from '../data/supabaseClient';
 import { useHaptic } from '../hooks/useHaptic';
@@ -14,9 +14,10 @@ export default function PostCard({ post }) {
   const [isLiked, setIsLiked] = useState(false);
   const isSaved = bookmarks.some(b => b.id === post.id);
 
+  // DATA FETCH
   useEffect(() => {
     let mounted = true;
-    const fetchStats = async () => {
+    const load = async () => {
         const { count: l } = await supabase.from('likes').select('id', { count: 'exact', head: true }).eq('post_id', post.id);
         const { count: c } = await supabase.from('comments').select('id', { count: 'exact', head: true }).eq('post_id', post.id);
         if(mounted) setStats({ likes: l || 0, comments: c || 0 });
@@ -26,76 +27,76 @@ export default function PostCard({ post }) {
             if(mounted && data) setIsLiked(true);
         }
     };
-    fetchStats();
+    load();
     return () => { mounted = false; };
   }, [post.id, user]);
 
   const authGuard = () => {
-      if(!user) { toast.error('অনুগ্ৰহ কৰি লগ-ইন কৰক'); setTab('profile'); return false; }
-      return true;
-  }
+    if(!user) { toast.error('অনুগ্ৰহ কৰি লগ-ইন কৰক'); setTab('profile'); return false; }
+    return true;
+  };
 
   const handleLike = async (e) => {
-    e.stopPropagation();
+    e.stopPropagation(); // CRITICAL: Stop bubble
     if(!authGuard()) return;
-    haptic.impact();
-    const prevLiked = isLiked;
-    setIsLiked(!prevLiked);
-    setStats(s => ({ ...s, likes: prevLiked ? s.likes - 1 : s.likes + 1 }));
+    haptic.impactMedium();
     
-    if(prevLiked) await supabase.from('likes').delete().eq('user_id', user.id).eq('post_id', post.id);
+    const prev = isLiked;
+    setIsLiked(!prev);
+    setStats(s => ({ ...s, likes: prev ? s.likes - 1 : s.likes + 1 }));
+
+    if(prev) await supabase.from('likes').delete().eq('user_id', user.id).eq('post_id', post.id);
     else await supabase.from('likes').insert({ user_id: user.id, post_id: post.id });
   };
 
-  const handleShare = (e) => {
-      e.stopPropagation(); haptic.tap();
-      navigator.clipboard.writeText(`${window.location.origin}/?post=${post.id}`);
-      toast.success('লিংক কপি কৰা হ’ল');
-  }
-
   return (
-    <div className="glass-card animate-enter">
-      <div onClick={() => { haptic.tap(); setView('reader', post); }} style={{ cursor: 'pointer' }}>
-          {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-             <div onClick={(e) => { e.stopPropagation(); setView('author', post.author_id); }} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Avatar url={post.profiles?.avatar_url} size={36} />
-                <div>
-                    <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-ui)' }}>{post.profiles?.display_name || 'Anonymous'}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{new Date(post.created_at).toLocaleDateString()}</div>
-                </div>
-             </div>
-             <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-tertiary)', background: 'var(--bg-secondary)', padding: '4px 10px', borderRadius: 20 }}>
-                 {post.category === 'poem' ? 'কবিতা' : 'গল্প'}
-             </span>
-          </div>
-
-          {/* Body */}
-          <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 10, lineHeight: 1.3 }}>{post.title}</h3>
-          <p style={{ fontSize: 17, lineHeight: 1.6, color: 'var(--text-secondary)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-              {post.body}
-          </p>
+    <div className="notepad-card">
+      
+      {/* 1. HEADER (Profile Click) */}
+      <div 
+        onClick={(e) => { e.stopPropagation(); setView('author', post.author_id); }}
+        style={{ padding: '20px 20px 10px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', borderBottom: '1px solid transparent' }}
+      >
+         <Avatar url={post.profiles?.avatar_url} size={40} />
+         <div>
+            <div style={{ fontWeight: 700, fontSize: 15 }}>{post.profiles?.display_name || 'Anonymous'}</div>
+            <div style={{ fontSize: 12, opacity: 0.6, fontFamily: 'Inter' }}>{new Date(post.created_at).toLocaleDateString()}</div>
+         </div>
       </div>
 
-      {/* Footer */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid var(--glass-border)' }}>
-          <div style={{ display: 'flex', gap: 20 }}>
-              <button onClick={handleLike} className="btn-icon" style={{ padding: 0, gap: 6, width: 'auto', borderRadius: 0, color: isLiked ? 'var(--danger)' : 'var(--text-secondary)' }}>
-                  <Heart size={20} fill={isLiked ? "currentColor" : "none"} color={isLiked ? "var(--danger)" : "currentColor"} />
-                  <span style={{fontSize: 14, fontWeight: 600}}>{stats.likes}</span>
-              </button>
-              <button onClick={(e) => { e.stopPropagation(); setView('echo', post); }} className="btn-icon" style={{ padding: 0, gap: 6, width: 'auto', borderRadius: 0 }}>
-                  <MessageCircle size={20} />
-                  <span style={{fontSize: 14, fontWeight: 600}}>{stats.comments > 0 && stats.comments}</span>
-              </button>
-          </div>
-          <div style={{ display: 'flex', gap: 15 }}>
-              <button onClick={handleShare} className="btn-icon" style={{padding:0}}><Share size={20} /></button>
-              <button onClick={(e) => { e.stopPropagation(); if(authGuard()) toggleBookmark(post); }} className="btn-icon" style={{padding:0, color: isSaved ? 'var(--accent-color)' : 'var(--text-secondary)'}}>
-                  <Bookmark size={20} fill={isSaved ? "currentColor" : "none"} />
-              </button>
-          </div>
+      {/* 2. BODY (Reader Click) */}
+      <div 
+        onClick={() => { haptic.tap(); setView('reader', post); }}
+        style={{ padding: '0 20px 15px', cursor: 'pointer' }}
+      >
+         <h3 style={{ fontSize: 22, fontWeight: 700, margin: '10px 0', lineHeight: 1.3 }}>{post.title}</h3>
+         <p style={{ fontSize: 17, lineHeight: 1.6, opacity: 0.9, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0 }}>
+            {post.body}
+         </p>
       </div>
+
+      {/* 3. FOOTER (Action Clicks) */}
+      <div style={{ padding: '10px 20px 20px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(128,128,128,0.1)' }}>
+         <div style={{ display: 'flex', gap: 20 }}>
+            <button onClick={handleLike} className="haptic-btn" style={{ color: isLiked ? '#ff4d4d' : 'inherit' }}>
+               <Heart size={22} fill={isLiked ? "currentColor" : "none"} /> 
+               <span style={{ fontWeight: 600, fontSize: 14 }}>{stats.likes}</span>
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); setView('echo', post); }} className="haptic-btn">
+               <MessageCircle size={22} />
+               <span style={{ fontWeight: 600, fontSize: 14 }}>{stats.comments > 0 && stats.comments}</span>
+            </button>
+         </div>
+         <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(window.location.origin); toast.success('Link Copied'); }} className="haptic-btn">
+               <Share2 size={22} />
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); if(authGuard()) toggleBookmark(post); }} className="haptic-btn" style={{ color: isSaved ? '#fff' : 'inherit' }}>
+               <Bookmark size={22} fill={isSaved ? "currentColor" : "none"} />
+            </button>
+         </div>
+      </div>
+
     </div>
   );
 }
