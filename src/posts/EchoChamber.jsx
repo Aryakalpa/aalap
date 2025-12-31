@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Send, Trash2 } from 'lucide-react';
 import { supabase } from '../data/supabaseClient';
 import { useStore } from '../data/store';
-import Avatar from './Avatar';
+import Avatar from '../components/Avatar'; // FIXED IMPORT PATH
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
@@ -10,7 +10,6 @@ export default function EchoChamber({ post, onClose }) {
   const { user } = useStore();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
-  const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
 
   // Fetch Comments
@@ -22,31 +21,28 @@ export default function EchoChamber({ post, onClose }) {
         .eq('post_id', post.id)
         .order('created_at', { ascending: true });
       setComments(data || []);
-      // Scroll to bottom
       setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     };
 
     fetchComments();
 
-    // Realtime Listener
     const sub = supabase.channel('comments-room')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: `post_id=eq.${post.id}` }, 
       async (payload) => {
-          // Fetch the full profile for the new comment
           const { data } = await supabase.from('profiles').select('*').eq('id', payload.new.user_id).single();
           setComments(prev => [...prev, { ...payload.new, profiles: data }]);
           setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       })
       .subscribe();
 
-    return () => supabase.removeChannel(sub);
+    return () => { supabase.removeChannel(sub); };
   }, [post.id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
     
-    // Optimistic Update (Show it immediately)
+    // Optimistic Update
     const tempId = Date.now();
     const tempComment = { id: tempId, body: newComment, user_id: user.id, created_at: new Date().toISOString(), profiles: { avatar_url: user.user_metadata.avatar_url, display_name: 'You' } };
     setComments([...comments, tempComment]);
@@ -56,7 +52,7 @@ export default function EchoChamber({ post, onClose }) {
     const { error } = await supabase.from('comments').insert({ post_id: post.id, user_id: user.id, body: tempComment.body });
     if (error) {
         toast.error('Failed to post');
-        setComments(prev => prev.filter(c => c.id !== tempId)); // Rollback
+        setComments(prev => prev.filter(c => c.id !== tempId));
     }
   };
 
@@ -65,13 +61,11 @@ export default function EchoChamber({ post, onClose }) {
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}
     >
-      {/* HEADER */}
-      <div style={{ padding: '15px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--glass)', backdropFilter: 'blur(10)' }}>
+      <div style={{ padding: '15px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--glass)', backdropFilter: 'blur(10px)' }}>
         <h3 style={{ margin: 0, fontFamily: 'var(--font-serif)', fontSize: '18px' }}>Echoes ({comments.length})</h3>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text)' }}><X size={24} /></button>
       </div>
 
-      {/* LIST */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px', paddingBottom: '100px' }}>
         {comments.length === 0 && <div style={{ textAlign: 'center', marginTop: '50px', color: 'var(--text-sec)', opacity: 0.5 }}>Be the first to echo...</div>}
         
@@ -90,7 +84,6 @@ export default function EchoChamber({ post, onClose }) {
         <div ref={scrollRef}></div>
       </div>
 
-      {/* INPUT */}
       <div style={{ padding: '15px', borderTop: '1px solid var(--border)', background: 'var(--card)', paddingBottom: '30px' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px' }}>
             <input 
