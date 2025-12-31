@@ -1,9 +1,9 @@
-/* RESET */
+/* RESET & BASE */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 html, body, #root {
   margin: 0; padding: 0; width: 100%; min-height: 100vh;
-  /* DEFAULT: NIGHT SANCTUARY */
+  /* DEFAULT THEME: NIGHT */
   background-color: #050505;
   color: #e0e0e0;
   font-family: "Noto Serif Bengali", serif; /* THE SOUL */
@@ -26,14 +26,16 @@ body.theme-paper .notepad-card {
 }
 body.theme-paper .studio-input { color: #2D2D2D !important; }
 body.theme-paper .meta-badge { background: #F4F2ED !important; color: #666 !important; }
+body.theme-paper .auth-box { background: #fff !important; border: 1px solid #E8E6DF !important; }
+body.theme-paper input, body.theme-paper textarea { color: #2D2D2D !important; }
 body.theme-paper h1, body.theme-paper h2, body.theme-paper h3 { color: #1a1a1a !important; }
 body.theme-paper p { color: #444 !important; }
 
 
-/* === LAYOUT (BLOCK - UNBREAKABLE) === */
+/* === LAYOUT (BLOCK - STABLE) === */
 .main-layout { display: block; width: 100%; position: relative; }
 
-/* DESKTOP */
+/* DESKTOP SIDEBAR */
 @media (min-width: 769px) {
   .side-nav {
     position: fixed; top: 0; left: 0; bottom: 0;
@@ -45,7 +47,7 @@ body.theme-paper p { color: #444 !important; }
   .mobile-only { display: none !important; }
 }
 
-/* MOBILE */
+/* MOBILE NAV */
 @media (max-width: 768px) {
   .side-nav { display: none !important; }
   .bottom-nav { 

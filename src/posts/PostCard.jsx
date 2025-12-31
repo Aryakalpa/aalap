@@ -58,7 +58,6 @@ export default function PostCard({ post }) {
             </div>
             <span className="meta-badge">{categoryLabel}</span>
           </div>
-          
           <h3 style={{ fontSize: 22, lineHeight: 1.4, marginBottom: 12 }}>{post.title}</h3>
           <p style={{ overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', opacity: 0.9 }}>{post.body}</p>
       </div>

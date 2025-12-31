@@ -27,17 +27,12 @@ export default function Studio() {
         <button onClick={() => setTab('home')} style={{ background: 'none', border: 'none', opacity: 0.6, color: 'inherit' }}><X size={24} /></button>
         <button onClick={handlePost} disabled={loading} style={{ background: '#333', color: '#fff', border: 'none', padding: '8px 20px', borderRadius: 20, fontFamily: 'Inter', fontSize: 13, fontWeight: 600 }}>{loading ? '...' : 'প্ৰকাশ কৰক'}</button>
       </div>
-
       <input className="studio-input" style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }} placeholder="শিৰোনাম..." value={title} onChange={e => setTitle(e.target.value)} />
-      
       <div style={{ display: 'flex', gap: 10, marginBottom: 25 }}>
         {['story', 'poem'].map(c => (
-            <button key={c} onClick={() => setCategory(c)} style={{ border: '1px solid #444', background: category === c ? '#444' : 'transparent', color: 'inherit', padding: '6px 14px', borderRadius: 20, fontSize: 12 }}>
-                {c === 'story' ? 'গল্প' : 'কবিতা'}
-            </button>
+            <button key={c} onClick={() => setCategory(c)} style={{ border: '1px solid #444', background: category === c ? '#444' : 'transparent', color: 'inherit', padding: '6px 14px', borderRadius: 20, fontSize: 12 }}>{c === 'story' ? 'গল্প' : 'কবিতা'}</button>
         ))}
       </div>
-
       <textarea className="studio-input" style={{ height: 'calc(100% - 200px)' }} placeholder="ইয়াত লিখক..." value={body} onChange={e => setBody(e.target.value)} />
     </div>
   );

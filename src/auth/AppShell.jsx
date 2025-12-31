@@ -6,6 +6,9 @@ import Studio from '../posts/Studio';
 import Reader from '../posts/Reader';
 import Profile from '../profile/Profile';
 import AuthorProfile from '../profile/AuthorProfile';
+import EditProfile from '../profile/EditProfile';
+import SettingsScreen from '../profile/SettingsScreen';
+import PrivacyScreen from '../profile/PrivacyScreen';
 import Notifications from '../profile/Notifications';
 import EchoChamber from '../posts/EchoChamber';
 import { SideNav, BottomNav } from '../components/Navigation';
@@ -25,7 +28,7 @@ export default function AppShell() {
 
   return (
     <div className="main-layout">
-      <Toaster position="top-center" toastOptions={{ style: { background: '#333', color: '#fff' } }} />
+      <Toaster position="top-center" toastOptions={{ style: { background: '#333', color: '#fff', fontFamily: 'Noto Serif Bengali' } }} />
       <SideNav activeTab={activeTab} setTab={setTab} />
       <main className="main-content">
          <div className="mobile-only" style={{textAlign:'center',marginBottom:20}}><h2>aalap</h2></div>
@@ -38,10 +41,13 @@ export default function AppShell() {
               {activeTab === 'profile' && <Profile />}
             </>
          ) : (
-            <div style={{ background: '#000', minHeight: '100vh', position: 'relative', zIndex: 200 }}>
+            <div style={{ background: 'inherit', minHeight: '100vh', position: 'relative', zIndex: 200 }}>
                 {view === 'studio' && <Studio />}
                 {view === 'reader' && <Reader post={viewData} />}
                 {view === 'author' && <AuthorProfile authorId={viewData} />}
+                {view === 'edit-profile' && <EditProfile />}
+                {view === 'settings' && <SettingsScreen />}
+                {view === 'privacy' && <PrivacyScreen />}
             </div>
          )}
       </main>

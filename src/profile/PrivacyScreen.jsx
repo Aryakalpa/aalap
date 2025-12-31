@@ -1,1 +1,1 @@
-export default function PrivacyScreen() { return <div>Privacy</div>; }
+export default function PrivacyScreen() { return <div style={{padding:20}}><h1>Privacy Policy</h1><p>We respect your data.</p></div>; }

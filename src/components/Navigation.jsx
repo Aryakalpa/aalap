@@ -4,26 +4,28 @@ import Avatar from './Avatar';
 
 export function SideNav({ activeTab, setTab }) {
   const { user } = useStore();
+  
   const navItems = [
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'bookmarks', icon: Bookmark, label: 'Saved' },
     { id: 'write', icon: PenTool, label: 'Write' },
     { id: 'notifications', icon: Bell, label: 'Notifs' },
   ];
+
   return (
     <nav className="side-nav">
-      <h1 style={{ fontSize: 24, fontWeight: 900, marginBottom: 40 }}>aalap</h1>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <h1 style={{ fontSize: 26, fontWeight: 900, marginBottom: 40 }}>aalap</h1>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {navItems.map((item) => (
-          <button key={item.id} onClick={() => setTab(item.id)} style={{ display: 'flex', alignItems: 'center', gap: 15, padding: 12, background: activeTab === item.id ? '#222' : 'transparent', color: activeTab === item.id ? '#fff' : '#888', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 600 }}>
-            <item.icon size={20} /> {item.label}
+          <button key={item.id} onClick={() => setTab(item.id)} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', background: activeTab === item.id ? 'rgba(128,128,128,0.1)' : 'transparent', color: activeTab === item.id ? 'inherit' : 'rgba(128,128,128,0.7)', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 600 }}>
+            <item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} /> <span style={{ fontFamily: 'Inter' }}>{item.label}</span>
           </button>
         ))}
       </div>
-      <div onClick={() => setTab('profile')} style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: 10 }}>
-        <Avatar url={user?.user_metadata?.avatar_url} size={32} />
+      <div onClick={() => setTab('profile')} style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: 10 }}>
+        <Avatar url={user?.user_metadata?.avatar_url} size={36} />
         <div>
-           <div style={{ fontWeight: 'bold', fontSize: 14 }}>{user ? (user.user_metadata?.full_name || 'User') : 'Guest'}</div>
+           <div style={{ fontWeight: 'bold', fontSize: 14, fontFamily: 'Inter' }}>{user ? (user.user_metadata?.full_name || 'User') : 'Guest'}</div>
         </div>
       </div>
     </nav>
@@ -36,7 +38,7 @@ export function BottomNav({ activeTab, setTab }) {
   return (
     <nav className="bottom-nav">
       {navItems.map((item) => (
-        <button key={item.id} onClick={() => setTab(item.id)} className="haptic-btn" style={{ color: activeTab === item.id ? '#fff' : '#666' }}>
+        <button key={item.id} onClick={() => setTab(item.id)} className="haptic-btn" style={{ color: activeTab === item.id ? 'inherit' : 'rgba(128,128,128,0.6)' }}>
           <item.icon size={24} strokeWidth={activeTab === item.id ? 2.5 : 2} />
         </button>
       ))}
