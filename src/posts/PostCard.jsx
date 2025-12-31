@@ -80,7 +80,7 @@ export default function PostCard({ post }) {
       {/* Footer */}
       <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid var(--glass-border)' }}>
           <div style={{ display: 'flex', gap: 20 }}>
-              <button onClick={handleLike} className="btn-icon" style={{ padding: 0, gap: 6, width: 'auto', borderRadius: 0, color: isLiked ? var(--danger) : 'var(--text-secondary)' }}>
+              <button onClick={handleLike} className="btn-icon" style={{ padding: 0, gap: 6, width: 'auto', borderRadius: 0, color: isLiked ? 'var(--danger)' : 'var(--text-secondary)' }}>
                   <Heart size={20} fill={isLiked ? "currentColor" : "none"} color={isLiked ? "var(--danger)" : "currentColor"} />
                   <span style={{fontSize: 14, fontWeight: 600}}>{stats.likes}</span>
               </button>
