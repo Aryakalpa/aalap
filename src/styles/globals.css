@@ -3,52 +3,85 @@
 
 html, body, #root {
   margin: 0; padding: 0; width: 100%; min-height: 100vh;
-  background-color: #000000;
-  color: #eeeeee;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  /* DEFAULT: NIGHT SANCTUARY */
+  background-color: #050505;
+  color: #e0e0e0;
+  font-family: "Noto Serif Bengali", serif; /* THE SOUL */
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* BLOCK LAYOUT PREVENTS COLLAPSE */
-.main-layout { display: block; width: 100%; position: relative; background: #000; }
+/* === THEME: PAPER (LIGHT MODE) === */
+body.theme-paper {
+  background-color: #F9F8F4 !important;
+  color: #2D2D2D !important;
+}
+body.theme-paper .side-nav { background-color: #F9F8F4 !important; border-right: 1px solid #E8E6DF !important; }
+body.theme-paper .bottom-nav { background-color: #fff !important; border-top: 1px solid #E8E6DF !important; }
+body.theme-paper .notepad-card { 
+  background-color: #ffffff !important; 
+  border: 1px solid #E8E6DF !important; 
+  color: #2D2D2D !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+body.theme-paper .studio-input { color: #2D2D2D !important; }
+body.theme-paper .meta-badge { background: #F4F2ED !important; color: #666 !important; }
+body.theme-paper h1, body.theme-paper h2, body.theme-paper h3 { color: #1a1a1a !important; }
+body.theme-paper p { color: #444 !important; }
 
-/* DESKTOP SIDEBAR */
+
+/* === LAYOUT (BLOCK - UNBREAKABLE) === */
+.main-layout { display: block; width: 100%; position: relative; }
+
+/* DESKTOP */
 @media (min-width: 769px) {
   .side-nav {
     position: fixed; top: 0; left: 0; bottom: 0;
-    width: 260px; border-right: 1px solid #333; padding: 30px 20px;
+    width: 260px; border-right: 1px solid #222; padding: 40px 24px;
     background: #050505; z-index: 100;
   }
-  .main-content { margin-left: 260px; width: auto; max-width: 800px; }
+  .main-content { margin-left: 260px; width: auto; max-width: 750px; }
   .bottom-nav { display: none !important; }
   .mobile-only { display: none !important; }
 }
 
-/* MOBILE LAYOUT */
+/* MOBILE */
 @media (max-width: 768px) {
   .side-nav { display: none !important; }
   .bottom-nav { 
     position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-    background: #111; border-top: 1px solid #333;
+    background: #111; border-top: 1px solid #222;
     display: flex !important; justify-content: space-around; align-items: center;
     z-index: 1000;
   }
-  .main-content { margin: 0; width: 100%; padding: 15px; padding-bottom: 80px; }
+  .main-content { margin: 0; width: 100%; padding: 20px; padding-bottom: 90px; }
   .mobile-only { display: block !important; }
 }
 
 .main-content { padding-top: 20px; min-height: 100vh; display: block; }
 
+/* === COMPONENT STYLES === */
+
 /* CARDS */
 .notepad-card {
-  background-color: #121212; border: 1px solid #333; border-radius: 12px;
-  padding: 20px; margin-bottom: 24px; color: #eee; display: block;
+  background-color: #121212;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  color: #eee;
+  display: block;
 }
+
 .card-click-area { cursor: pointer; }
 .card-click-area:active { opacity: 0.8; }
 
-/* BUTTONS */
-button { cursor: pointer; }
-.haptic-btn { background: none; border: none; padding: 5px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-.meta-badge { background: #333; color: #ccc; padding: 4px 10px; border-radius: 12px; font-size: 11px; text-transform: uppercase; font-weight: bold; }
-.studio-input { background: transparent; border: none; outline: none; color: #fff; width: 100%; resize: none; font-size: 18px; line-height: 1.6; }
+/* TYPOGRAPHY */
+h1, h2, h3 { font-weight: 700; letter-spacing: -0.02em; margin-top: 0; }
+p { line-height: 1.8; font-size: 17px; margin-bottom: 1.5em; }
+
+/* UTILS */
+button { cursor: pointer; font-family: "Inter", sans-serif; }
+.haptic-btn { background: none; border: none; padding: 5px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.meta-badge { background: #222; color: #888; padding: 4px 10px; border-radius: 20px; font-size: 11px; text-transform: uppercase; font-weight: 600; font-family: "Inter", sans-serif; }
+.studio-input { background: transparent; border: none; outline: none; color: #fff; width: 100%; resize: none; font-size: 19px; line-height: 1.8; font-family: "Noto Serif Bengali", serif; }

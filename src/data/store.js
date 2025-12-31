@@ -6,11 +6,19 @@ export const useStore = create((set, get) => ({
   view: 'main',
   viewData: null,
   activeTab: 'home',
+  theme: 'night',
   bookmarks: JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]'),
 
   setUser: (user) => set({ user }),
   setView: (view, data = null) => set({ view, viewData: data }),
   setTab: (tab) => set({ activeTab: tab, view: 'main' }),
+  
+  setTheme: (theme) => {
+    if (theme === 'paper') document.body.classList.add('theme-paper');
+    else document.body.classList.remove('theme-paper');
+    localStorage.setItem('aalap-theme', theme);
+    set({ theme });
+  },
 
   toggleBookmark: (post) => {
     const { bookmarks } = get();
