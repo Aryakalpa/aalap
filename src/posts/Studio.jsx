@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { useStore } from '../data/store';
 import { supabase } from '../data/supabaseClient';
 import toast from 'react-hot-toast';
@@ -11,29 +11,51 @@ export default function Studio() {
   const [category, setCategory] = useState('story');
   const [loading, setLoading] = useState(false);
 
-  if (!user) { toast.error("Login to write"); setTab('profile'); return null; }
+  if (!user) { setTab('profile'); return null; }
 
   const handlePost = async () => {
-    if (!title.trim() || !body.trim()) return toast.error('লিখিবলৈ একো নাই (Empty)');
+    if (!title.trim() || !body.trim()) return toast.error('খালি ৰাখিব নোৱাৰিব');
     setLoading(true);
     const { error } = await supabase.from('posts').insert({ title, body, category, author_id: user.id });
-    if (error) toast.error(error.message); else { toast.success('প্ৰকাশ কৰা হ’ল (Published)'); setTab('home'); }
+    if (!error) { toast.success('সফলভাৱে প্ৰকাশিত!'); setTab('home'); }
+    else toast.error('ভুল হৈছে');
     setLoading(false);
   };
 
   return (
-    <div style={{ padding: 20, height: '100vh', background: 'inherit' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 30 }}>
-        <button onClick={() => setTab('home')} style={{ background: 'none', border: 'none', opacity: 0.6, color: 'inherit' }}><X size={24} /></button>
-        <button onClick={handlePost} disabled={loading} style={{ background: '#333', color: '#fff', border: 'none', padding: '8px 20px', borderRadius: 20, fontFamily: 'Inter', fontSize: 13, fontWeight: 600 }}>{loading ? '...' : 'প্ৰকাশ কৰক'}</button>
+    <div style={{ padding: 20, height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <button onClick={() => setTab('home')} className="btn-icon"><X size={24} /></button>
+        <button onClick={handlePost} disabled={loading} className="btn-primary" style={{ opacity: loading ? 0.5 : 1 }}>
+            {loading ? '...' : 'প্ৰকাশ কৰক'}
+        </button>
       </div>
-      <input className="studio-input" style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }} placeholder="শিৰোনাম..." value={title} onChange={e => setTitle(e.target.value)} />
-      <div style={{ display: 'flex', gap: 10, marginBottom: 25 }}>
+      
+      <input 
+        value={title} onChange={e => setTitle(e.target.value)}
+        placeholder="শিৰোনাম..." 
+        style={{ background: 'transparent', border: 'none', fontSize: 32, fontWeight: 700, fontFamily: 'var(--font-body)', color: 'var(--text-primary)', width: '100%', marginBottom: 20, outline: 'none' }}
+      />
+      
+      <div style={{ display: 'flex', gap: 10, marginBottom: 30 }}>
         {['story', 'poem'].map(c => (
-            <button key={c} onClick={() => setCategory(c)} style={{ border: '1px solid #444', background: category === c ? '#444' : 'transparent', color: 'inherit', padding: '6px 14px', borderRadius: 20, fontSize: 12 }}>{c === 'story' ? 'গল্প' : 'কবিতা'}</button>
+            <button key={c} onClick={() => setCategory(c)} 
+                style={{ 
+                    padding: '8px 16px', borderRadius: 20, border: '1px solid var(--glass-border)', 
+                    background: category === c ? 'var(--text-primary)' : 'transparent', 
+                    color: category === c ? 'var(--bg-primary)' : 'var(--text-secondary)',
+                    fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
+                }}>
+                {c === 'story' ? 'গল্প' : 'কবিতা'}
+            </button>
         ))}
       </div>
-      <textarea className="studio-input" style={{ height: 'calc(100% - 200px)' }} placeholder="ইয়াত লিখক..." value={body} onChange={e => setBody(e.target.value)} />
+
+      <textarea 
+        value={body} onChange={e => setBody(e.target.value)}
+        placeholder="আপোনাৰ সৃষ্টি লিখক..." 
+        style={{ flex: 1, background: 'transparent', border: 'none', fontSize: 20, lineHeight: 1.8, fontFamily: 'var(--font-body)', color: 'var(--text-primary)', outline: 'none', resize: 'none' }}
+      />
     </div>
   );
 }

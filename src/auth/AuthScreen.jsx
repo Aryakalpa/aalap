@@ -1,26 +1,33 @@
 import { useState } from 'react';
 import { supabase } from '../data/supabaseClient';
 import toast from 'react-hot-toast';
+
 export default function AuthScreen() {
   const [email, setEmail] = useState('');
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const [loading, setLoading] = useState(false);
+
+  const login = async (e) => {
+    e.preventDefault(); setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) toast.error(error.message); else toast.success('Check email!');
+    if(error) toast.error(error.message); else toast.success('মেইল চেক কৰক (Check Email)');
+    setLoading(false);
   };
-  const handleGoogle = async () => { await supabase.auth.signInWithOAuth({ provider: 'google' }); };
+
+  const google = async () => { await supabase.auth.signInWithOAuth({ provider: 'google' }); };
+
   return (
-    <div style={{ padding: 40, textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <h1 style={{ marginBottom: 10 }}>aalap</h1>
-      <p style={{ opacity: 0.6, marginBottom: 40 }}>Where words find their rhythm.</p>
-      <div className="auth-box" style={{ padding: 20, borderRadius: 12, background: '#111', border: '1px solid #222' }}>
-        <button onClick={handleGoogle} style={{ width:'100%', padding: 12, background: '#fff', color: '#000', border: 'none', borderRadius: 8, marginBottom: 20, fontWeight: 'bold' }}>Continue with Google</button>
-        <div style={{ opacity: 0.4, margin: '20px 0' }}>— OR —</div>
-        <form onSubmit={handleLogin}>
-          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: 12, borderRadius: 8, background: 'rgba(255,255,255,0.1)', color: 'inherit', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 }} />
-          <button style={{ width: '100%', padding: 12, background: '#333', color: '#fff', border: 'none', borderRadius: 8 }}>Send Magic Link</button>
-        </form>
-      </div>
+    <div style={{ padding: 40, minHeight: '60vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
+      <h1 style={{ fontSize: 40, marginBottom: 10, letterSpacing: -2 }}>আলাপ</h1>
+      <p style={{ opacity: 0.6, marginBottom: 40, fontFamily: 'var(--font-ui)' }}>শব্দৰ জৰিয়তে সংযোগ</p>
+      
+      <button onClick={google} style={{ background: '#fff', color: '#000', border: 'none', padding: 15, borderRadius: 12, fontWeight: 700, fontSize: 16, cursor: 'pointer', marginBottom: 20 }}>Google ৰ সৈতে আগবাঢ়ক</button>
+      
+      <div style={{ opacity: 0.3, margin: '20px 0' }}>— অথবা —</div>
+      
+      <form onSubmit={login}>
+         <input className="glass-input" type="email" placeholder="ইমেইল দিয়ক..." value={email} onChange={e => setEmail(e.target.value)} style={{ marginBottom: 15 }} />
+         <button disabled={loading} className="btn-primary" style={{ width: '100%' }}>{loading ? '...' : 'লিংক পঠাওক'}</button>
+      </form>
     </div>
   );
 }

@@ -10,34 +10,31 @@ export default function Feed({ type }) {
 
   useEffect(() => {
     if (type === 'bookmarks' && !user) { setLoading(false); return; }
-    const fetchPosts = async () => {
+    const fetch = async () => {
       setLoading(true);
-      try {
-          if (type === 'bookmarks') {
-             const local = JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]');
-             setPosts(local);
-          } else {
-             const { data } = await supabase.from('posts').select(`*, profiles(*)`).order('created_at', { ascending: false });
-             setPosts(data || []);
-          }
-      } catch (err) { console.error(err); } finally { setLoading(false); }
+      const query = supabase.from('posts').select(`*, profiles(*)`).order('created_at', { ascending: false });
+      if (type === 'bookmarks') {
+         const local = JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]');
+         setPosts(local);
+      } else {
+         const { data } = await query;
+         setPosts(data || []);
+      }
+      setLoading(false);
     };
-    fetchPosts();
+    fetch();
   }, [type, user]);
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', opacity: 0.5 }}>লোড হৈ আছে (Loading)...</div>;
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', opacity: 0.5, fontFamily: 'var(--font-ui)' }}>লোড হৈ আছে...</div>;
 
-  if (type === 'bookmarks' && !user) {
-      return (
-          <div style={{ textAlign: 'center', padding: 60, opacity: 0.7, border: '1px dashed #333', borderRadius: 12 }}>
-              <h3>লগ-ইন কৰক</h3>
-              <p style={{fontSize: 13, margin: '10px 0'}}>বুকমাৰ্ক চাবলৈ অনুগ্ৰহ কৰি লগ-ইন কৰক</p>
-              <button onClick={() => setTab('profile')} style={{ padding: '8px 20px', background: '#333', color: '#fff', border: 'none', borderRadius: 20, fontFamily: 'Inter' }}>Login</button>
-          </div>
-      );
-  }
+  if (type === 'bookmarks' && !user) return (
+      <div style={{ padding: 60, textAlign: 'center', opacity: 0.7 }}>
+          <h3>লগ-ইন প্ৰয়োজনীয়</h3>
+          <button onClick={() => setTab('profile')} className="btn-primary" style={{ marginTop: 20 }}>লগ-ইন কৰক</button>
+      </div>
+  );
 
-  if (posts.length === 0) return <div style={{ padding: 40, textAlign: 'center', opacity: 0.5 }}>কোনো কাহিনী পোৱা নগ’ল (No stories).</div>;
+  if (posts.length === 0) return <div style={{ padding: 40, textAlign: 'center', opacity: 0.5 }}>কোনো কাহিনী পোৱা নগ’ল</div>;
 
-  return <div style={{ paddingBottom: 100 }}>{posts.map(post => <PostCard key={post.id} post={post} />)}</div>;
+  return <div style={{ paddingBottom: 100 }}>{posts.map(p => <PostCard key={p.id} post={p} />)}</div>;
 }

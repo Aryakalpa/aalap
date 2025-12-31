@@ -1,40 +1,41 @@
-import { ArrowLeft, Trash2, Moon, Sun } from 'lucide-react';
+import { ArrowLeft, Trash2, Moon, Sun, LogOut } from 'lucide-react';
 import { useStore } from '../data/store';
 import toast from 'react-hot-toast';
 
 export default function SettingsScreen() {
-  const { theme, setTheme } = useStore();
+  const { theme, setTheme, setView, signOut } = useStore();
 
-  const handleClearCache = () => {
-    localStorage.removeItem('aalap-bookmarks');
-    toast.success('Cache Cleared');
-  };
+  const clear = () => { localStorage.removeItem('aalap-bookmarks'); toast.success('Cache cleared'); };
 
   return (
     <div style={{ padding: 20 }}>
       <div style={{ display: 'flex', gap: 15, alignItems: 'center', marginBottom: 40 }}>
-         <button onClick={() => window.history.back()} style={{background:'none',border:'none',color:'inherit'}}><ArrowLeft /></button>
-         <h2>Settings</h2>
+         <button onClick={() => setView('main')} className="btn-icon"><ArrowLeft /></button>
+         <h2 style={{margin:0}}>Settings</h2>
       </div>
 
-      <div style={{ marginBottom: 30 }}>
-         <h4 style={{ opacity: 0.5, marginBottom: 10, fontFamily: 'Inter' }}>APPEARANCE</h4>
+      <div className="glass-card">
+         <h4 style={{ opacity: 0.5, marginBottom: 15, fontFamily: 'var(--font-ui)' }}>THEME</h4>
          <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => setTheme('night')} style={{ flex: 1, padding: 15, borderRadius: 8, border: '1px solid #333', background: theme === 'night' ? '#222' : 'transparent', color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-                <Moon size={24} /> Night
+            <button onClick={() => setTheme('night')} style={{ flex: 1, padding: 20, borderRadius: 12, border: '1px solid var(--glass-border)', background: theme==='night'?'var(--bg-secondary)':'transparent', color:'inherit', cursor:'pointer' }}>
+                <Moon style={{display:'block', margin:'0 auto 10px'}} /> Night
             </button>
-            <button onClick={() => setTheme('paper')} style={{ flex: 1, padding: 15, borderRadius: 8, border: '1px solid #333', background: theme === 'paper' ? '#E8E6DF' : 'transparent', color: theme === 'paper' ? '#000' : 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-                <Sun size={24} /> Paper
+            <button onClick={() => setTheme('paper')} style={{ flex: 1, padding: 20, borderRadius: 12, border: '1px solid var(--glass-border)', background: theme==='paper'?'#E0E0E0':'transparent', color: theme==='paper'?'#000':'inherit', cursor:'pointer' }}>
+                <Sun style={{display:'block', margin:'0 auto 10px'}} /> Paper
             </button>
          </div>
       </div>
 
-      <div style={{ marginBottom: 30 }}>
-         <h4 style={{ opacity: 0.5, marginBottom: 10, fontFamily: 'Inter' }}>DATA</h4>
-         <button onClick={handleClearCache} style={{ width: '100%', padding: 15, background: 'rgba(255,0,0,0.1)', color: '#ff4d4d', border: 'none', borderRadius: 8, display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
-            <Trash2 size={20} /> Clear Local Cache
+      <div className="glass-card">
+         <h4 style={{ opacity: 0.5, marginBottom: 15, fontFamily: 'var(--font-ui)' }}>DATA</h4>
+         <button onClick={clear} style={{ width: '100%', padding: 15, borderRadius: 12, border: 'none', background: 'rgba(255, 69, 58, 0.15)', color: 'var(--danger)', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+            <Trash2 size={18} /> Clear Cache
          </button>
       </div>
+
+      <button onClick={() => { signOut(); setView('main'); }} style={{ width: '100%', padding: 15, borderRadius: 12, border: '1px solid var(--glass-border)', background: 'transparent', color: 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer' }}>
+        Log Out
+      </button>
     </div>
   );
 }

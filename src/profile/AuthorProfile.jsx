@@ -15,29 +15,29 @@ export default function AuthorProfile({ authorId, isOwnProfile }) {
     supabase.from('posts').select(`*, profiles(*)`).eq('author_id', authorId).order('created_at', {ascending: false}).then(({data}) => setPosts(data||[]));
   }, [authorId]);
 
-  if (!profile) return <div style={{padding:20, opacity:0.5}}>Loading profile...</div>;
+  if(!profile) return <div style={{padding:40, textAlign:'center'}}>Loading...</div>;
 
   return (
     <div>
-      <div style={{ padding: '30px 20px', display: 'flex', alignItems: 'center', gap: 20, borderBottom: '1px solid rgba(128,128,128,0.1)' }}>
+      <div style={{ padding: 30, display: 'flex', alignItems: 'center', gap: 20 }}>
          <Avatar url={profile.avatar_url} size={80} />
-         <div style={{ flex: 1 }}>
+         <div>
             <h2 style={{ margin: 0, fontSize: 24 }}>{profile.display_name}</h2>
-            {profile.bio && <p style={{ opacity: 0.7, margin: '5px 0', fontSize: 15 }}>{profile.bio}</p>}
+            {profile.bio && <p style={{ margin: '5px 0', opacity: 0.7, fontSize: 14 }}>{profile.bio}</p>}
          </div>
       </div>
-      
+
       {isOwnProfile && (
-        <div style={{ display: 'flex', gap: 10, padding: 20 }}>
-            <button onClick={() => setView('edit-profile')} style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #333', background: 'transparent', color: 'inherit', display: 'flex', justifyContent: 'center', gap: 8 }}><Edit3 size={18}/> Edit</button>
-            <button onClick={() => setView('settings')} style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #333', background: 'transparent', color: 'inherit', display: 'flex', justifyContent: 'center', gap: 8 }}><Settings size={18}/> Settings</button>
-            <button onClick={signOut} style={{ padding: 10, borderRadius: 8, border: '1px solid #333', background: 'transparent', color: '#ff4d4d' }}><LogOut size={18}/></button>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 10, padding: '0 20px 20px' }}>
+            <button onClick={() => setView('edit-profile')} className="glass-input" style={{ padding: 10, textAlign: 'center', cursor: 'pointer' }}>Edit</button>
+            <button onClick={() => setView('settings')} className="glass-input" style={{ padding: 10, textAlign: 'center', cursor: 'pointer' }}>Settings</button>
+            <button onClick={signOut} className="glass-input" style={{ padding: 10, width: 50, display: 'grid', placeItems: 'center', color: 'var(--danger)', cursor: 'pointer' }}><LogOut size={20}/></button>
         </div>
       )}
 
       <div style={{ padding: 20 }}>
-         <h3 style={{ fontSize: 14, opacity: 0.5, marginBottom: 20, fontFamily: 'Inter' }}>STORIES ({posts.length})</h3>
-         {posts.map(post => <PostCard key={post.id} post={post} />)}
+          <h4 style={{ fontFamily: 'var(--font-ui)', opacity: 0.5, letterSpacing: 1, fontSize: 12 }}>PUBLISHED ({posts.length})</h4>
+          {posts.map(p => <PostCard key={p.id} post={p} />)}
       </div>
     </div>
   );
