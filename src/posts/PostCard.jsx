@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, Bookmark, Share2, MessageCircle, Trash2 } from 'lucide-react';
+import { Heart, Bookmark, Share2, MessageCircle, Trash2, Edit3 } from 'lucide-react';
 import { useStore } from '../data/store';
 import { supabase } from '../data/supabaseClient';
 import { sharePost } from '../utils/share';
@@ -42,7 +42,6 @@ export default function PostCard({ post }) {
 
   return (
     <div className="story-card">
-      {/* COVER IMAGE */}
       {post.cover_image && (
           <div onClick={() => setView('reader', post)} style={{ height: 160, width: '100%', cursor: 'pointer', background: post.cover_image.includes('gradient') ? post.cover_image : `url(${post.cover_image}) center/cover` }} />
       )}
@@ -72,7 +71,12 @@ export default function PostCard({ post }) {
             <button onClick={(e) => { e.stopPropagation(); setView('echo', post); }} className="btn-icon"><MessageCircle size={22} /> {stats.comments > 0 && stats.comments}</button>
          </div>
          <div style={{ display: 'flex', gap: 10 }}>
-            {isAuthor && (<button onClick={handleDelete} className="btn-icon" style={{ color: 'var(--danger)' }}><Trash2 size={20} /></button>)}
+            {isAuthor && (
+                <>
+                   <button onClick={(e) => { e.stopPropagation(); setView('studio', post); }} className="btn-icon"><Edit3 size={20} /></button>
+                   <button onClick={handleDelete} className="btn-icon" style={{ color: 'var(--danger)' }}><Trash2 size={20} /></button>
+                </>
+            )}
             <button onClick={(e) => { e.stopPropagation(); setShareTarget(post); }} className="btn-icon"><Share2 size={22} /></button>
             <button onClick={(e) => { e.stopPropagation(); if(authGuard()) toggleBookmark(post); }} className="btn-icon" style={{color: isSaved ? 'var(--text-main)' : 'var(--text-muted)'}}><Bookmark size={22} fill={isSaved ? "currentColor" : "none"} /></button>
          </div>
