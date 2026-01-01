@@ -159,3 +159,14 @@ button { cursor: pointer; border: none; background: none; color: inherit; font-f
 /* Mobile: Above Bottom Nav. Desktop: Near Bottom */
 @media (max-width: 768px) { .reader-bar { bottom: 85px; } }
 @media (min-width: 769px) { .reader-bar { bottom: 40px; } }
+/* --- SKELETON LOADING ANIMATION --- */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-input) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer { 
+  0% { background-position: 200% 0; } 
+  100% { background-position: -200% 0; } 
+}
