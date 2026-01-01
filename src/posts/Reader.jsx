@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Heart, MessageCircle, Share2, Bookmark } from 'lucide-react';
 import { useStore } from '../data/store';
 import { supabase } from '../data/supabaseClient';
+import { sharePost } from '../utils/share'; // Import the new engine
 import Avatar from '../components/Avatar';
 import toast from 'react-hot-toast';
 
@@ -27,19 +28,9 @@ export default function Reader({ post }) {
       else await supabase.from('likes').insert({ user_id: user.id, post_id: post.id });
   };
 
-  const handleShare = () => {
-    const url = `${window.location.origin}/?post=${post.id}`;
-    if (navigator.share) navigator.share({ title: post.title, url });
-    else { navigator.clipboard.writeText(url); toast.success('Link Copied'); }
-  };
-
-  // SMART BACK: Uses browser history to allow swipe-to-back
   const goBack = () => {
-     if (window.history.length > 1) {
-         window.history.back();
-     } else {
-         setView('main');
-     }
+     if (window.history.length > 1) window.history.back();
+     else setView('main');
   };
 
   return (
@@ -63,7 +54,7 @@ export default function Reader({ post }) {
           </button>
           <button onClick={() => setView('echo', post)} className="btn-icon" style={{color: 'var(--text-main)'}}><MessageCircle size={24} /></button>
           <button onClick={() => { if(authGuard()) toggleBookmark(post); }} className="btn-icon" style={{color: isSaved ? 'var(--text-main)' : 'var(--text-muted)'}}><Bookmark size={24} fill={isSaved ? "currentColor" : "none"} /></button>
-          <button onClick={handleShare} className="btn-icon" style={{color: 'var(--text-muted)'}}><Share2 size={24} /></button>
+          <button onClick={() => sharePost(post)} className="btn-icon" style={{color: 'var(--text-muted)'}}><Share2 size={24} /></button>
       </div>
     </div>
   );
