@@ -3,7 +3,7 @@ import { supabase } from '../data/supabaseClient';
 import { useStore } from '../data/store';
 import PostCard from './PostCard';
 import SkeletonLoader from '../components/SkeletonLoader';
-import { RefreshCcw, Search, X } from 'lucide-react';
+import { RefreshCcw, Search, X, Loader2 } from 'lucide-react';
 
 export default function Feed({ type }) {
   const { user, setTab } = useStore();
@@ -19,50 +19,63 @@ export default function Feed({ type }) {
   const startY = useRef(0);
   const isRefreshing = useRef(false);
 
+  // CORE FETCH FUNCTION
   const fetchPosts = async (searchTerm = '') => {
     setLoading(true);
     
     if (type === 'bookmarks') {
        const saved = JSON.parse(localStorage.getItem('aalap-bookmarks') || '[]');
-       // Client-side filter for bookmarks
        if (searchTerm) {
            const lower = searchTerm.toLowerCase();
            setPosts(saved.filter(p => p.title.toLowerCase().includes(lower) || p.body.toLowerCase().includes(lower)));
        } else {
            setPosts(saved);
        }
+       setLoading(false);
     } else {
-       // Database filter for community feed
+       // Database Fetch
        let q = supabase.from('posts').select(`*, profiles(*)`);
-       
        if (searchTerm) {
-           // Search Title OR Body (using Supabase 'or' syntax)
            q = q.or(`title.ilike.%${searchTerm}%,body.ilike.%${searchTerm}%`);
        }
-       
        const { data } = await q.order('created_at', { ascending: false });
        setPosts(data || []);
+       setLoading(false);
     }
-    setLoading(false);
   };
 
+  // INITIAL LOAD
   useEffect(() => {
     if (type === 'bookmarks' && !user) { setLoading(false); return; }
-    fetchPosts();
+    fetchPosts('');
   }, [type, user]);
 
-  const handleSearch = (e) => {
-      e.preventDefault();
-      fetchPosts(query);
-  };
+  // LIVE SEARCH EFFECT (DEBOUNCED)
+  useEffect(() => {
+    // Only trigger if search mode is active
+    if (!showSearch) return;
 
-  const clearSearch = () => {
+    // Instant filter for bookmarks (Local data)
+    if (type === 'bookmarks') {
+        fetchPosts(query);
+        return;
+    }
+
+    // Debounced fetch for DB (Wait 500ms after typing stops)
+    const delay = setTimeout(() => {
+        fetchPosts(query);
+    }, 500);
+
+    return () => clearTimeout(delay);
+  }, [query, showSearch]);
+
+  const closeSearch = () => {
       setQuery('');
       setShowSearch(false);
-      fetchPosts('');
+      fetchPosts(''); // Reset feed
   };
 
-  // PULL TO REFRESH HANDLERS
+  // PULL TO REFRESH LOGIC
   const handleTouchStart = (e) => { if (window.scrollY === 0) startY.current = e.touches[0].clientY; };
   const handleTouchMove = (e) => {
       if (window.scrollY === 0 && startY.current > 0) {
@@ -91,18 +104,21 @@ export default function Feed({ type }) {
   return (
     <div onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} style={{ paddingBottom: 100, minHeight: '80vh' }}>
       
-      {/* SEARCH BAR HEADER */}
-      <div style={{ padding: '0 0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* HEADER WITH LIVE SEARCH */}
+      <div style={{ padding: '0 0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 60 }}>
           {showSearch ? (
-              <form onSubmit={handleSearch} style={{ flex: 1, display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <input 
-                    autoFocus
-                    value={query} onChange={e => setQuery(e.target.value)}
-                    placeholder="Search stories..." 
-                    style={{ flex: 1, background: 'var(--bg-input)', border: '1px solid var(--border-light)', padding: '8px 15px', borderRadius: 20, color: 'var(--text-main)', outline: 'none' }}
-                  />
-                  <button type="button" onClick={clearSearch} className="btn-icon"><X size={20}/></button>
-              </form>
+              <div style={{ flex: 1, display: 'flex', gap: 10, alignItems: 'center', animation: 'fadeIn 0.2s' }}>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                      <input 
+                        autoFocus
+                        value={query} onChange={e => setQuery(e.target.value)}
+                        placeholder={type === 'bookmarks' ? "Search saved..." : "Search Aalap..."}
+                        style={{ width: '100%', background: 'var(--bg-input)', border: '1px solid var(--border-light)', padding: '10px 15px', borderRadius: 20, color: 'var(--text-main)', outline: 'none', paddingRight: 35 }}
+                      />
+                      {loading && <Loader2 size={16} className="spin" style={{ position: 'absolute', right: 12, top: 12, opacity: 0.5 }} />}
+                  </div>
+                  <button onClick={closeSearch} className="btn-icon" style={{ background: 'var(--bg-card)', borderRadius: '50%' }}><X size={20}/></button>
+              </div>
           ) : (
               <>
                 <h2 style={{ margin: 0, fontSize: 22 }}>{type === 'bookmarks' ? 'সংৰক্ষিত (Saved)' : 'সদ্যপ্ৰকাশিত'}</h2>
@@ -120,18 +136,31 @@ export default function Feed({ type }) {
           </div>
       </div>
 
-      {loading && pullY === 0 ? (
+      {loading && pullY === 0 && !query ? (
           <div style={{ paddingTop: 10 }}>{[1, 2, 3].map(i => <SkeletonLoader key={i} />)}</div>
       ) : (
           posts.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', opacity: 0.5 }}>
-                {query ? 'কোনো ফলাফল পোৱা নগ’ল (No results)' : 'কোনো কাহিনী পোৱা নগ’ল'}
+            <div style={{ padding: 60, textAlign: 'center', opacity: 0.5 }}>
+                {query ? (
+                    <>
+                        <div style={{ fontSize: 24, marginBottom: 10 }}>🔍</div>
+                        <div>কোনো ফলাফল পোৱা নগ’ল</div>
+                        <div style={{ fontSize: 12, marginTop: 5 }}>"{query}"</div>
+                    </>
+                ) : 'কোনো কাহিনী পোৱা নগ’ল'}
             </div>
           ) : (
-            posts.map(post => <PostCard key={post.id} post={post} />)
+            <div style={{ animation: 'fadeIn 0.3s' }}>
+                {posts.map(post => <PostCard key={post.id} post={post} />)}
+            </div>
           )
       )}
-      <style>{`.spin { animation: spin 1s linear infinite; } @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      
+      <style>{`
+        .spin { animation: spin 1s linear infinite; } 
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
     </div>
   );
 }
