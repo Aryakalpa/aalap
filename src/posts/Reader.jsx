@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Heart, MessageCircle, Share2, Bookmark } from 'lucide-react';
 import { useStore } from '../data/store';
 import { supabase } from '../data/supabaseClient';
-import { sharePost } from '../utils/share'; // Import the new engine
 import Avatar from '../components/Avatar';
 import toast from 'react-hot-toast';
 
 export default function Reader({ post }) {
-  const { setView, user, toggleBookmark, bookmarks, setTab } = useStore();
+  const { setView, user, toggleBookmark, bookmarks, setTab, setShareTarget } = useStore();
   const author = post.profiles || {};
   
   const [likes, setLikes] = useState(0);
@@ -28,10 +27,7 @@ export default function Reader({ post }) {
       else await supabase.from('likes').insert({ user_id: user.id, post_id: post.id });
   };
 
-  const goBack = () => {
-     if (window.history.length > 1) window.history.back();
-     else setView('main');
-  };
+  const goBack = () => { if (window.history.length > 1) window.history.back(); else setView('main'); };
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-body)', position: 'relative' }}>
@@ -54,7 +50,7 @@ export default function Reader({ post }) {
           </button>
           <button onClick={() => setView('echo', post)} className="btn-icon" style={{color: 'var(--text-main)'}}><MessageCircle size={24} /></button>
           <button onClick={() => { if(authGuard()) toggleBookmark(post); }} className="btn-icon" style={{color: isSaved ? 'var(--text-main)' : 'var(--text-muted)'}}><Bookmark size={24} fill={isSaved ? "currentColor" : "none"} /></button>
-          <button onClick={() => sharePost(post)} className="btn-icon" style={{color: 'var(--text-muted)'}}><Share2 size={24} /></button>
+          <button onClick={() => setShareTarget(post)} className="btn-icon" style={{color: 'var(--text-muted)'}}><Share2 size={24} /></button>
       </div>
     </div>
   );

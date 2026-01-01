@@ -10,6 +10,7 @@ import EditProfile from '../profile/EditProfile';
 import SettingsScreen from '../profile/SettingsScreen';
 import Notifications from '../profile/Notifications';
 import EchoChamber from '../posts/EchoChamber';
+import ShareSheet from '../components/ShareSheet'; // IMPORTED
 import { SideNav, BottomNav } from '../components/Navigation';
 import { Toaster } from 'react-hot-toast';
 import nameLogo from '../assets/namelogo.png';
@@ -19,10 +20,8 @@ export default function AppShell() {
   const { view, viewData, activeTab, setTab, setView, theme, toggleTheme } = useStore();
 
   useEffect(() => {
-    // Theme Sync
     if (theme === 'paper') document.documentElement.classList.add('theme-paper');
     
-    // Deep Linking
     const params = new URLSearchParams(window.location.search);
     const postId = params.get('post');
     if (postId) {
@@ -31,9 +30,7 @@ export default function AppShell() {
         });
     }
 
-    // Back History Handler
     const handlePopState = (e) => {
-        // If we have state, restore it. If not, go to main.
         if (e.state?.view) {
             setView(e.state.view, e.state.viewData);
             if(e.state.tab) setTab(e.state.tab);
@@ -45,28 +42,15 @@ export default function AppShell() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // UPDATE URL & HISTORY ON VIEW CHANGE
   useEffect(() => {
-     // 1. READER VIEW
      if (view === 'reader' && viewData?.id) {
          const url = `${window.location.pathname}?post=${viewData.id}`;
-         // Only push if we aren't already there (prevents loops)
-         if (window.location.search !== `?post=${viewData.id}`) {
-             window.history.pushState({view, viewData, tab: activeTab}, '', url);
-         }
-     } 
-     // 2. ECHO (COMMENTS) VIEW - THIS WAS MISSING
-     else if (view === 'echo' && viewData?.id) {
+         if (window.location.search !== `?post=${viewData.id}`) window.history.pushState({view, viewData, tab: activeTab}, '', url);
+     } else if (view === 'echo' && viewData?.id) {
          const url = `${window.location.pathname}?post=${viewData.id}#comments`;
-         if (window.location.hash !== '#comments') {
-             window.history.pushState({view, viewData, tab: activeTab}, '', url);
-         }
-     }
-     // 3. MAIN VIEW
-     else if (view === 'main') {
-         if (window.location.search || window.location.hash) {
-             window.history.pushState({view, viewData: null, tab: activeTab}, '', window.location.pathname);
-         }
+         if (window.location.hash !== '#comments') window.history.pushState({view, viewData, tab: activeTab}, '', url);
+     } else if (view === 'main') {
+         if (window.location.search || window.location.hash) window.history.pushState({view, viewData: null, tab: activeTab}, '', window.location.pathname);
      }
   }, [view, viewData, activeTab]);
 
@@ -102,8 +86,8 @@ export default function AppShell() {
         )}
       </main>
       
-      {/* Echo Chamber handles its own closing via history.back() now */}
       {view === 'echo' && <EchoChamber post={viewData} />}
+      <ShareSheet /> 
       <BottomNav />
     </div>
   );

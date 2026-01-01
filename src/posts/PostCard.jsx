@@ -2,16 +2,14 @@ import { useState, useEffect } from 'react';
 import { Heart, Bookmark, Share2, MessageCircle, Trash2 } from 'lucide-react';
 import { useStore } from '../data/store';
 import { supabase } from '../data/supabaseClient';
-import { sharePost } from '../utils/share'; // Import the new engine
 import Avatar from '../components/Avatar';
 import toast from 'react-hot-toast';
 
 export default function PostCard({ post }) {
-  const { user, setView, toggleBookmark, bookmarks, setTab } = useStore();
+  const { user, setView, toggleBookmark, bookmarks, setTab, setShareTarget } = useStore();
   const [stats, setStats] = useState({ likes: 0, comments: 0 });
   const [isLiked, setIsLiked] = useState(false);
   const isSaved = Array.isArray(bookmarks) && bookmarks.some(b => b && b.id === post.id);
-  
   const isAuthor = user && user.id === post.author_id;
 
   const getCategoryLabel = (c) => {
@@ -36,15 +34,9 @@ export default function PostCard({ post }) {
 
   const handleDelete = async (e) => {
       e.stopPropagation();
-      if(!confirm('আপুনি এই লেখাটি মচি পেলাব বিচাৰে নেকি? (Delete?)')) return;
+      if(!confirm('Delete?')) return;
       const { error } = await supabase.from('posts').delete().eq('id', post.id);
-      if(!error) { toast.success('মচি পেলোৱা হ’ল'); window.location.reload(); } 
-      else { toast.error('ভুল হৈছে'); }
-  };
-
-  const handleShare = (e) => {
-      e.stopPropagation();
-      sharePost(post); // Trigger Native Share
+      if(!error) { toast.success('Deleted'); window.location.reload(); } else { toast.error('Error'); }
   };
 
   return (
@@ -55,18 +47,12 @@ export default function PostCard({ post }) {
             <div style={{ fontWeight: 700, fontSize: 15, color:'var(--text-main)' }}>{post.profiles?.display_name || 'Anonymous'}</div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(post.created_at).toLocaleDateString()}</div>
          </div>
-         {post.category && (
-             <span style={{ fontSize: 11, background: 'var(--btn-soft)', padding: '4px 10px', borderRadius: 20, color: 'var(--text-muted)' }}>
-                {getCategoryLabel(post.category)}
-             </span>
-         )}
+         {post.category && (<span style={{ fontSize: 11, background: 'var(--btn-soft)', padding: '4px 10px', borderRadius: 20, color: 'var(--text-muted)' }}>{getCategoryLabel(post.category)}</span>)}
       </div>
-      
       <div onClick={() => setView('reader', post)} style={{ padding: '0 20px 15px', cursor: 'pointer' }}>
          <h3 style={{ fontSize: 22, fontWeight: 700, margin: '10px 0', lineHeight: 1.3, color:'var(--text-main)' }}>{post.title}</h3>
          <p style={{ fontSize: 17, lineHeight: 1.6, color: 'var(--text-main)', opacity: 0.9, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: 0 }}>{post.body}</p>
       </div>
-
       <div style={{ padding: '10px 20px 20px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-light)' }}>
          <div style={{ display: 'flex', gap: 20 }}>
             <button onClick={like} className="btn-icon" style={{color: isLiked ? 'var(--danger)' : 'var(--text-muted)'}}><Heart size={22} fill={isLiked ? "currentColor" : "none"} /> {stats.likes}</button>
@@ -74,7 +60,7 @@ export default function PostCard({ post }) {
          </div>
          <div style={{ display: 'flex', gap: 10 }}>
             {isAuthor && (<button onClick={handleDelete} className="btn-icon" style={{ color: 'var(--danger)' }}><Trash2 size={20} /></button>)}
-            <button onClick={handleShare} className="btn-icon"><Share2 size={22} /></button>
+            <button onClick={(e) => { e.stopPropagation(); setShareTarget(post); }} className="btn-icon"><Share2 size={22} /></button>
             <button onClick={(e) => { e.stopPropagation(); if(authGuard()) toggleBookmark(post); }} className="btn-icon" style={{color: isSaved ? 'var(--text-main)' : 'var(--text-muted)'}}><Bookmark size={22} fill={isSaved ? "currentColor" : "none"} /></button>
          </div>
       </div>

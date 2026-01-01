@@ -7,6 +7,11 @@ export const useStore = create((set, get) => ({
   viewData: null,
   activeTab: 'home',
   theme: localStorage.getItem('aalap-theme') || 'night',
+  
+  // NEW: Share State
+  shareTarget: null, 
+  setShareTarget: (post) => set({ shareTarget: post }),
+
   bookmarks: (() => {
     try { return JSON.parse(localStorage.getItem('aalap-bookmarks')) || []; } 
     catch { return []; }
@@ -16,19 +21,16 @@ export const useStore = create((set, get) => ({
   setView: (view, data = null) => set({ view, viewData: data }),
   setTab: (tab) => set({ activeTab: tab, view: 'main' }),
   
-  toggleTheme: () => {
-    const next = get().theme === 'night' ? 'paper' : 'night';
-    if (next === 'paper') document.documentElement.classList.add('theme-paper');
-    else document.documentElement.classList.remove('theme-paper');
-    localStorage.setItem('aalap-theme', next);
-    set({ theme: next });
-  },
-
   setTheme: (theme) => {
     if (theme === 'paper') document.documentElement.classList.add('theme-paper');
     else document.documentElement.classList.remove('theme-paper');
     localStorage.setItem('aalap-theme', theme);
     set({ theme });
+  },
+  
+  toggleTheme: () => {
+    const next = get().theme === 'night' ? 'paper' : 'night';
+    get().setTheme(next);
   },
 
   toggleBookmark: (post) => {
