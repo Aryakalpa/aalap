@@ -31,8 +31,9 @@ export default function AppShell() {
         });
     }
 
-    // Back History
+    // Back History Handler
     const handlePopState = (e) => {
+        // If we have state, restore it. If not, go to main.
         if (e.state?.view) {
             setView(e.state.view, e.state.viewData);
             if(e.state.tab) setTab(e.state.tab);
@@ -44,12 +45,36 @@ export default function AppShell() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // UPDATE URL & HISTORY ON VIEW CHANGE
+  useEffect(() => {
+     // 1. READER VIEW
+     if (view === 'reader' && viewData?.id) {
+         const url = `${window.location.pathname}?post=${viewData.id}`;
+         // Only push if we aren't already there (prevents loops)
+         if (window.location.search !== `?post=${viewData.id}`) {
+             window.history.pushState({view, viewData, tab: activeTab}, '', url);
+         }
+     } 
+     // 2. ECHO (COMMENTS) VIEW - THIS WAS MISSING
+     else if (view === 'echo' && viewData?.id) {
+         const url = `${window.location.pathname}?post=${viewData.id}#comments`;
+         if (window.location.hash !== '#comments') {
+             window.history.pushState({view, viewData, tab: activeTab}, '', url);
+         }
+     }
+     // 3. MAIN VIEW
+     else if (view === 'main') {
+         if (window.location.search || window.location.hash) {
+             window.history.pushState({view, viewData: null, tab: activeTab}, '', window.location.pathname);
+         }
+     }
+  }, [view, viewData, activeTab]);
+
   return (
     <div className="app-wrapper">
       <Toaster position="top-center" toastOptions={{ style: { background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-light)' } }} />
       <SideNav />
       
-      {/* MOBILE HEADER */}
       <div className="mobile-header">
          <img src={nameLogo} alt="Logo" style={{ height: 24, filter: theme === 'night' ? 'invert(1)' : 'none' }} />
          <button onClick={toggleTheme} className="btn-icon">
@@ -58,7 +83,6 @@ export default function AppShell() {
       </div>
 
       <main className="main-container">
-        {/* MAIN FEED VIEWS */}
         <div style={{ display: view === 'main' ? 'block' : 'none' }}>
            {activeTab === 'home' && <Feed type="community" />}
            {activeTab === 'bookmarks' && <Feed type="bookmarks" />}
@@ -67,7 +91,6 @@ export default function AppShell() {
            {activeTab === 'profile' && <Profile />}
         </div>
 
-        {/* OVERLAY VIEWS */}
         {view !== 'main' && (
            <div style={{ position: 'relative', zIndex: 50 }}>
               {view === 'studio' && <Studio />}
@@ -79,7 +102,8 @@ export default function AppShell() {
         )}
       </main>
       
-      {view === 'echo' && <EchoChamber post={viewData} onClose={() => setView('reader', viewData)} />}
+      {/* Echo Chamber handles its own closing via history.back() now */}
+      {view === 'echo' && <EchoChamber post={viewData} />}
       <BottomNav />
     </div>
   );

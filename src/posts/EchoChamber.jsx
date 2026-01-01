@@ -6,7 +6,7 @@ import Avatar from '../components/Avatar';
 import toast from 'react-hot-toast';
 
 export default function EchoChamber({ post }) {
-  const { user, setTab } = useStore();
+  const { user, setTab, setView } = useStore();
   const [comments, setComments] = useState([]);
   const [text, setText] = useState('');
 
@@ -26,9 +26,15 @@ export default function EchoChamber({ post }) {
     }
   };
 
-  // SMART CLOSE: Use history back to respect browser stack
+  // ROBUST CLOSE: Checks if we can swipe back, otherwise forces view change
   const close = () => {
-     window.history.back();
+     // If we are currently in the #comments hash state, we can safely go back
+     if (window.location.hash === '#comments') {
+         window.history.back();
+     } else {
+         // Fallback if history is somehow desynced
+         setView('reader', post);
+     }
   };
 
   return (
