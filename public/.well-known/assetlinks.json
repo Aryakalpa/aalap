@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.aryakalpa.aalap",
+      "sha256_cert_fingerprints": [" 89:C7:F4:9A:84:37:3D:97:E5:29:96:E4:7A:BF:EC:94:B6:AC:1E:6C:F0:05:74:C8:4E:58:89:0B:42:E7:77:B2"]
+    }
+  }
+]
