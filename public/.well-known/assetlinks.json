@@ -4,7 +4,7 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.aalap.aalap",
-      "sha256_cert_fingerprints": ["01:7B:B0:C5:23:05:14:B2:B8:AF:6B:62:FC:1F:1E:10:D2:22:0F:2C"]
+      "sha256_cert_fingerprints": ["3F:E5:A7:6A:89:11:07:E8:D9:5C:6D:D6:B3:74:F0:44:69:C6:DB:13:8E:3E:CC:86:20:55:7D:8C:56:37:DE:97"]
     }
   }
 ]
