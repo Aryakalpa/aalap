@@ -9,6 +9,22 @@ export const useStore = create((set, get) => ({
   shareTarget: null,
   setShareTarget: (post) => set({ shareTarget: post }),
 
+  // HELPER: Get Badges
+  getBadges: (stats) => {
+    const badges = [];
+    // 1. Writer Status
+    if (stats.posts < 5) badges.push({ id: 'nabagata', label: 'নৱাগত', color: '#888' });
+    else badges.push({ id: 'kobi', label: 'কবি', color: '#FFD700' });
+
+    // 2. Popularity
+    if (stats.likes > 50) badges.push({ id: 'janapriya', label: 'জনপ্ৰিয়', color: '#ff4b4b' });
+
+    // 3. Reader Status (Paathak)
+    if (stats.comments > 20) badges.push({ id: 'paathak', label: 'পাঠক', color: '#4CAF50' });
+
+    return badges;
+  },
+
   bookmarks: (() => {
     try { return JSON.parse(localStorage.getItem('aalap-bookmarks')) || []; }
     catch { return []; }
@@ -26,6 +42,18 @@ export const useStore = create((set, get) => ({
   toggleTheme: () => {
     const next = get().theme === 'night' ? 'paper' : 'night';
     get().setTheme(next);
+  },
+
+  // NEW: Unread Notifications
+  unreadCount: parseInt(localStorage.getItem('aalap-unread') || '0'),
+  incUnread: () => {
+    const next = get().unreadCount + 1;
+    localStorage.setItem('aalap-unread', next);
+    set({ unreadCount: next });
+  },
+  resetUnread: () => {
+    localStorage.setItem('aalap-unread', '0');
+    set({ unreadCount: 0 });
   },
 
   toggleBookmark: (post) => {

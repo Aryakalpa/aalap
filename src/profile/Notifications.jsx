@@ -6,12 +6,14 @@ import Avatar from '../components/Avatar';
 import { Heart, MessageCircle, Trophy } from 'lucide-react';
 
 export default function Notifications() {
-    const { user } = useStore();
+    const { user, resetUnread } = useStore();
     const navigate = useNavigate();
     const [list, setList] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        resetUnread(); // Clear badge on view
+
         if (!user) return;
         const fetch = async () => {
             setLoading(true);
@@ -70,9 +72,6 @@ export default function Notifications() {
     }, [user]);
 
     if (!user) {
-        // Effect or render will navigate, but let's just show button for better UX or navigate
-        // Navigating in render is bad practice somewhat, return null and navigate
-        // Simple return UI:
         return (
             <div style={{ padding: 40, textAlign: 'center', opacity: 0.8 }}>
                 <p>Login to see notifications</p>

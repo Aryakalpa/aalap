@@ -37,6 +37,9 @@ export function useRealtimeNotifications() {
 
                     const name = profile?.display_name || 'Someone';
 
+                    // Increment Badge using direct store access (avoids stale closures or dependency loops)
+                    useStore.getState().incUnread();
+
                     toast(`${name} liked your story!`, {
                         icon: '❤️',
                         style: {

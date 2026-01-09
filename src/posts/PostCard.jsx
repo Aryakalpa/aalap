@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Heart, Bookmark, Share2, MessageCircle, Trash2, Edit3 } from 'lucide-react';
+import { Heart, Bookmark, Share2, MessageCircle, Trash2, Edit3, Image as ImageIcon } from 'lucide-react';
 import { useStore } from '../data/store';
 import { supabase } from '../data/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import Avatar from '../components/Avatar';
 import toast from 'react-hot-toast';
+import ShareImageModal from '../components/ShareImageModal';
 
 export default function PostCard({ post }) {
    const { user, toggleBookmark, bookmarks, setShareTarget } = useStore();
    const navigate = useNavigate();
    const [stats, setStats] = useState({ likes: 0, comments: 0 });
    const [isLiked, setIsLiked] = useState(false);
+   const [showImageModal, setShowImageModal] = useState(false); // NEW State
+
    const isSaved = Array.isArray(bookmarks) && bookmarks.some(b => b && b.id === post.id);
    const isAuthor = user && user.id === post.author_id;
 
@@ -43,6 +46,9 @@ export default function PostCard({ post }) {
 
    return (
       <div className="story-card">
+         {/* IMAGE MODAL */}
+         {showImageModal && <ShareImageModal post={post} user={post.profiles} close={() => setShowImageModal(false)} />}
+
          {post.cover_image && (
             <div onClick={() => navigate(`/post/${post.id}`, { state: post })} style={{ height: 160, width: '100%', cursor: 'pointer', background: post.cover_image.includes('gradient') ? post.cover_image : `url(${post.cover_image}) center/cover` }} />
          )}
@@ -78,6 +84,7 @@ export default function PostCard({ post }) {
                      <button onClick={handleDelete} className="btn-icon" style={{ color: 'var(--danger)' }}><Trash2 size={20} /></button>
                   </>
                )}
+               <button onClick={(e) => { e.stopPropagation(); setShowImageModal(true); }} className="btn-icon"><ImageIcon size={22} /></button>
                <button onClick={(e) => { e.stopPropagation(); setShareTarget(post); }} className="btn-icon"><Share2 size={22} /></button>
                <button onClick={(e) => { e.stopPropagation(); if (authGuard()) toggleBookmark(post); }} className="btn-icon" style={{ color: isSaved ? 'var(--text-main)' : 'var(--text-muted)' }}><Bookmark size={22} fill={isSaved ? "currentColor" : "none"} /></button>
             </div>

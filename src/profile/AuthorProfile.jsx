@@ -18,9 +18,10 @@ export default function AuthorProfile({ authorId }) {
     const [profile, setProfile] = useState(null);
     const [posts, setPosts] = useState([]);
     const [isFollowing, setIsFollowing] = useState(false);
-    const [stats, setStats] = useState({ followers: 0, following: 0 });
+    const [stats, setStats] = useState({ followers: 0, following: 0, likes_received: 0, comments_made: 0 }); // UPDATED
 
     const isOwnProfile = user && activeId && user.id === activeId;
+    const badges = useStore.getState().getBadges({ posts: posts.length, likes: stats.likes_received, comments: stats.comments_made }); // CALCULATE BADGES
 
     useEffect(() => {
         if (!activeId) return;
@@ -33,7 +34,18 @@ export default function AuthorProfile({ authorId }) {
         const loadSocials = async () => {
             const { count: followers } = await supabase.from('follows').select('follower_id', { count: 'exact', head: true }).eq('following_id', activeId);
             const { count: following } = await supabase.from('follows').select('following_id', { count: 'exact', head: true }).eq('follower_id', activeId);
-            setStats({ followers: followers || 0, following: following || 0 });
+
+            // 4. Get Badge Stats
+            const { data: myPostIds } = await supabase.from('posts').select('id').eq('author_id', activeId);
+            let totalLikes = 0;
+            if (myPostIds && myPostIds.length > 0) {
+                const { count } = await supabase.from('likes').select('id', { count: 'exact', head: true }).in('post_id', myPostIds.map(p => p.id));
+                totalLikes = count || 0;
+            }
+
+            const { count: comments_made } = await supabase.from('comments').select('id', { count: 'exact', head: true }).eq('user_id', activeId);
+
+            setStats({ followers: followers || 0, following: following || 0, likes_received: totalLikes, comments_made: comments_made || 0 });
 
             if (user && !isOwnProfile) {
                 const { data } = await supabase.from('follows').select('follower_id').eq('follower_id', user.id).eq('following_id', activeId).maybeSingle();
@@ -74,8 +86,20 @@ export default function AuthorProfile({ authorId }) {
                 <div style={{ flex: 1 }}>
                     <h2 style={{ margin: 0, fontSize: 24, lineHeight: 1.2 }}>{profile.display_name}</h2>
 
+                    {/* BADGES */}
+                    <div style={{ display: 'flex', gap: 5, marginTop: 5, flexWrap: 'wrap' }}>
+                        {badges.map(b => (
+                            <span key={b.id} style={{
+                                fontSize: 10, padding: '2px 8px', borderRadius: 10,
+                                background: b.color, color: '#fff', fontWeight: 700
+                            }}>
+                                {b.label}
+                            </span>
+                        ))}
+                    </div>
+
                     {/* Social Stats */}
-                    <div style={{ display: 'flex', gap: 15, fontSize: 13, opacity: 0.8, marginTop: 5 }}>
+                    <div style={{ display: 'flex', gap: 15, fontSize: 13, opacity: 0.8, marginTop: 10 }}>
                         <span><b>{stats.followers}</b> Followers</span>
                         <span><b>{stats.following}</b> Following</span>
                     </div>

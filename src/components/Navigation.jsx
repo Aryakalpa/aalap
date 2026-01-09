@@ -5,7 +5,7 @@ import Avatar from './Avatar';
 import nameLogo from '../assets/namelogo.png';
 
 export function SideNav() {
-  const { user, theme, toggleTheme } = useStore();
+  const { user, theme, toggleTheme, unreadCount } = useStore();
 
   // UPDATED: Pure Assamese Labels
   const items = [
@@ -30,8 +30,15 @@ export function SideNav() {
             key={i.id}
             to={i.path}
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            style={{ position: 'relative' }}
           >
             <i.icon size={20} /> {i.label}
+            {i.id === 'notifications' && unreadCount > 0 && (
+              <div style={{
+                position: 'absolute', top: 10, left: 30, width: 8, height: 8,
+                borderRadius: '50%', background: 'var(--danger)', border: '1px solid var(--bg-card)'
+              }} />
+            )}
           </NavLink>
         ))}
       </div>
@@ -52,7 +59,7 @@ export function SideNav() {
 }
 
 export function BottomNav() {
-  const { user } = useStore();
+  const { user, unreadCount } = useStore();
   const icons = [
     { id: 'home', icon: Home, path: '/' },
     { id: 'bookmarks', icon: Bookmark, path: '/bookmarks' },
@@ -67,9 +74,19 @@ export function BottomNav() {
           key={i.id}
           to={i.path}
           className="btn-icon"
-          style={({ isActive }) => ({ color: isActive ? 'var(--text-main)' : 'var(--text-muted)' })}
+          style={({ isActive }) => ({ color: isActive ? 'var(--text-main)' : 'var(--text-muted)', position: 'relative' })}
         >
-          {({ isActive }) => <i.icon size={24} strokeWidth={isActive ? 2.5 : 2} />}
+          {({ isActive }) => (
+            <>
+              <i.icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+              {i.id === 'notifications' && unreadCount > 0 && (
+                <div style={{
+                  position: 'absolute', top: 12, right: 12, width: 8, height: 8,
+                  borderRadius: '50%', background: 'var(--danger)', border: '1px solid var(--bg-card)'
+                }} />
+              )}
+            </>
+          )}
         </NavLink>
       ))}
       <NavLink to="/profile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
