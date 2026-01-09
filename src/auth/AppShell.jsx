@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
 import { useStore } from '../data/store';
 import { supabase } from '../data/supabaseClient';
+import { useRealtimeNotifications } from '../hooks/useRealtimeNotifications'; // New Import
 import Feed from '../posts/Feed';
 import Studio from '../posts/Studio';
 import Reader from '../posts/Reader';
@@ -20,6 +21,7 @@ import { Sun, Moon } from 'lucide-react';
 
 function Layout() {
   const { theme, toggleTheme } = useStore();
+  useRealtimeNotifications(); // Activate Realtime
 
   return (
     <div className="app-wrapper">
