@@ -3,6 +3,7 @@ import { useStore } from './data/store';
 import { supabase } from './data/supabaseClient';
 import AppShell from './auth/AppShell';
 import ErrorBoundary from './components/ErrorBoundary';
+import { BrowserRouter } from 'react-router-dom';
 
 export default function App() {
   const { setUser } = useStore();
@@ -14,5 +15,11 @@ export default function App() {
   }, []);
 
   if(!ready) return <div style={{height:'100vh', background:'var(--bg-primary)'}} />;
-  return <ErrorBoundary><AppShell /></ErrorBoundary>;
+  return (
+    <BrowserRouter>
+      <ErrorBoundary>
+        <AppShell />
+      </ErrorBoundary>
+    </BrowserRouter>
+  );
 }
