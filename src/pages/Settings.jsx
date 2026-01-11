@@ -83,8 +83,22 @@ export default function Settings() {
                         </div>
                     </div>
                     <div style={{ marginTop: '1.5rem' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginBottom: '1rem', fontWeight: '700' }}>অৱতাৰ বাছনি কৰক (Choose Style)</div>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                            {['avataaars', 'bottts', 'pixel-art', 'lorelei', 'notionists'].map(style => (
+                                <button
+                                    key={style}
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    style={{ fontSize: '0.7rem', padding: '0.4rem 0.8rem', borderRadius: '2rem', textTransform: 'capitalize' }}
+                                    onClick={() => setAvatarUrl(`https://api.dicebear.com/7.x/${style}/svg?seed=${Math.random().toString(36).substring(7)}`)}
+                                >
+                                    {style.replace('-', ' ')}
+                                </button>
+                            ))}
+                        </div>
                         <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-tertiary)', marginBottom: '0.5rem' }}>
-                            Avatar URL
+                            বা পোনে পোনে লিংক দিয়ক (URL)
                         </label>
                         <input
                             type="url"

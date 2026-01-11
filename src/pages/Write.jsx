@@ -9,11 +9,13 @@ export default function Write() {
     const { id } = useParams()
     const navigate = useNavigate()
     const { user } = useAuth()
+
     const [title, setTitle] = useState('')
     const [body, setBody] = useState('')
     const [category, setCategory] = useState('')
     const [coverImage, setCoverImage] = useState('')
     const [alignment, setAlignment] = useState('left')
+    const [isDraft, setIsDraft] = useState(true)
     const [saving, setSaving] = useState(false)
     const [lastSaved, setLastSaved] = useState(null)
 
@@ -40,10 +42,13 @@ export default function Write() {
             setCategory(data.category || '')
             setCoverImage(data.cover_image || '')
             setAlignment(data.alignment || 'left')
+            setIsDraft(!data.is_published)
         }
     }
 
-    const handlePublish = async () => {
+    const handleSaveDraft = () => handlePublish(false)
+
+    const handlePublish = async (publish = true) => {
         if (!title.trim() || !body.trim() || !category) {
             alert('অনুগ্ৰহ কৰি সঠিকভাৱে শিৰোনাম, বিষয়বস্তু আৰু বিভাগ বাছনি কৰক।')
             return
@@ -56,9 +61,9 @@ export default function Write() {
                 body,
                 category,
                 cover_image: coverImage,
-                alignment, // Author's preferred presentation
+                alignment,
                 author_id: user.id,
-                is_published: true,
+                is_published: publish,
                 updated_at: new Date().toISOString()
             }
 
@@ -67,10 +72,17 @@ export default function Write() {
                 : await supabase.from('posts').insert(postData).select().single()
 
             if (error) throw error
-            navigate(`/post/${data.id}`)
+
+            if (publish) {
+                navigate(`/post/${data.id}`)
+            } else {
+                setLastSaved(new Date())
+                setIsDraft(true)
+                if (!id) navigate(`/write/${data.id}`, { replace: true })
+            }
         } catch (error) {
-            console.error('Error publishing:', error)
-            alert('প্ৰকাশ কৰিবলৈ অসুবিধা হৈছে। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।')
+            console.error('Error saving:', error)
+            alert('সংৰক্ষণ কৰিবলৈ অসুবিধা হৈছে। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।')
         } finally {
             setSaving(false)
         }
@@ -97,10 +109,18 @@ export default function Write() {
                     <h1 style={{ fontSize: '1.25rem', margin: 0 }}>লিখন কক্ষ</h1>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: '600' }}>
-                        {countWords(body)} শব্দ
-                    </span>
-                    <button className="btn btn-primary" onClick={handlePublish} disabled={saving} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontSize: '0.7rem', color: isDraft ? 'var(--accent)' : 'var(--text-tertiary)', fontWeight: '700' }}>
+                            {isDraft ? 'খচৰা (Draft)' : 'প্ৰকাশিত (Published)'}
+                        </span>
+                        <span style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)' }}>
+                            {lastSaved ? `শেহতীয়া: ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : `${countWords(body)} শব্দ`}
+                        </span>
+                    </div>
+                    <button className="btn btn-secondary" onClick={handleSaveDraft} disabled={saving} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+                        <Save size={16} /> খচৰা
+                    </button>
+                    <button className="btn btn-primary" onClick={() => handlePublish(true)} disabled={saving} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
                         {saving ? 'প্ৰকাশ হৈ আছে...' : 'প্ৰকাশ কৰক'}
                     </button>
                 </div>

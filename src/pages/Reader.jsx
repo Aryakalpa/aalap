@@ -360,7 +360,7 @@ export default function Reader() {
                     </div>
                     {user && user.id !== post.author_id && (
                         <button className={`btn ${following ? 'btn-secondary' : 'btn-primary'}`} onClick={handleFollow} style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem', borderRadius: '2rem' }}>
-                            {following ? 'অনুসৰণ কৰি থকা' : 'অনুসৰণ কৰক'}
+                            {following ? 'অনুসৰণ কৰা হৈছে' : 'অনুসৰণ কৰক'}
                         </button>
                     )}
                 </div>

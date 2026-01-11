@@ -169,7 +169,7 @@ export default function Profile() {
                                 onClick={handleFollow}
                             >
                                 {following ? (
-                                    <><UserMinus size={18} /> অনুসৰণ কৰি থকা</>
+                                    <><UserMinus size={18} /> অনুসৰণ কৰা হৈছে</>
                                 ) : (
                                     <><UserPlus size={18} /> অনুসৰণ কৰক</>
                                 )}
