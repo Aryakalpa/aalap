@@ -1,0 +1,154 @@
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { supabase } from '../supabase'
+import { useAuth } from '../contexts/AuthContext'
+import { CATEGORIES, countWords } from '../utils/helpers'
+import { PenTool, Image, FileText, CheckCircle, ChevronLeft, Save } from 'lucide-react'
+
+export default function Write() {
+    const { id } = useParams()
+    const navigate = useNavigate()
+    const { user } = useAuth()
+    const [title, setTitle] = useState('')
+    const [body, setBody] = useState('')
+    const [category, setCategory] = useState('')
+    const [coverImage, setCoverImage] = useState('')
+    const [saving, setSaving] = useState(false)
+    const [lastSaved, setLastSaved] = useState(null)
+
+    useEffect(() => {
+        if (!user) {
+            alert('লিখিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
+            navigate('/')
+            return
+        }
+        if (id) fetchPost()
+    }, [id, user])
+
+    const fetchPost = async () => {
+        const { data, error } = await supabase
+            .from('posts')
+            .select('*')
+            .eq('id', id)
+            .eq('author_id', user.id)
+            .single()
+
+        if (data) {
+            setTitle(data.title || '')
+            setBody(data.body || '')
+            setCategory(data.category || '')
+            setCoverImage(data.cover_image || '')
+        }
+    }
+
+    const handlePublish = async () => {
+        if (!title.trim() || !body.trim() || !category) {
+            alert('অনুগ্ৰহ কৰি সঠিকভাৱে শিৰোনাম, বিষয়বস্তু আৰু বিভাগ বাছনি কৰক।')
+            return
+        }
+
+        setSaving(true)
+        try {
+            const postData = {
+                title,
+                body,
+                category,
+                cover_image: coverImage,
+                author_id: user.id,
+                is_published: true,
+                updated_at: new Date().toISOString()
+            }
+
+            const { data, error } = id
+                ? await supabase.from('posts').update(postData).eq('id', id).select().single()
+                : await supabase.from('posts').insert(postData).select().single()
+
+            if (error) throw error
+            navigate(`/post/${data.id}`)
+        } catch (error) {
+            console.error('Error publishing:', error)
+            alert('প্ৰকাশ কৰিবলৈ অসুবিধা হৈছে। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    return (
+        <div className="container-sm">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem', sticky: 'top', background: 'var(--bg-primary)', padding: '1rem 0', zIndex: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button onClick={() => navigate(-1)} className="btn-icon">
+                        <ChevronLeft size={24} />
+                    </button>
+                    <h1 style={{ fontSize: '1.5rem' }}>লিখন কক্ষ</h1>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
+                        {countWords(body)} শব্দ
+                    </span>
+                    <button className="btn btn-primary" onClick={handlePublish} disabled={saving}>
+                        {saving ? 'প্ৰকাশ হৈ আছে...' : 'প্ৰকাশ কৰক'}
+                    </button>
+                </div>
+            </div>
+
+            <div className="card" style={{ padding: '3.5rem', border: 'none', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
+                <div style={{ marginBottom: '2.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
+                        <Image size={18} /> বেটুপাতৰ লিংক (ঐচ্ছিক)
+                    </label>
+                    <input
+                        type="url"
+                        placeholder="https://example.com/image.jpg"
+                        value={coverImage}
+                        onChange={(e) => setCoverImage(e.target.value)}
+                        style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}
+                    />
+                </div>
+
+                <div style={{ marginBottom: '2.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
+                        <FileText size={18} /> শিৰোনাম
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="আপোনাৰ লিখনৰ শিৰোনাম..."
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        style={{ fontSize: '2rem', fontWeight: '800', border: 'none', background: 'transparent', padding: '0', borderBottom: '2px solid var(--border-color)', borderRadius: '0' }}
+                    />
+                </div>
+
+                <div style={{ marginBottom: '2.5rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
+                        <CheckCircle size={18} /> বিভাগ বাছনি কৰক
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        {CATEGORIES.map(cat => (
+                            <button
+                                key={cat.id}
+                                className={`btn ${category === cat.id ? 'btn-primary' : 'btn-secondary'}`}
+                                onClick={() => setCategory(cat.id)}
+                                style={{ borderRadius: '2rem', padding: '0.5rem 1.25rem' }}
+                            >
+                                {cat.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
+                        <PenTool size={18} /> লিখনি আৰম্ভ কৰক
+                    </label>
+                    <textarea
+                        placeholder="আপোনাৰ মনৰ কথা লিখিবলৈ আৰম্ভ কৰক..."
+                        value={body}
+                        onChange={(e) => setBody(e.target.value)}
+                        style={{ minHeight: '500px', fontSize: '1.25rem', lineHeight: '1.8', border: 'none', background: 'transparent', padding: '0', color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}
+                    />
+                </div>
+            </div>
+        </div>
+    )
+}
