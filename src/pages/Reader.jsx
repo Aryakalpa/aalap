@@ -207,9 +207,9 @@ export default function Reader() {
                                 <MoreVertical size={20} />
                             </button>
                             {showMenu && (
-                                <div className="share-menu fade-in" style={{ right: 0, minWidth: '150px' }}>
+                                <div className="share-menu fade-in" style={{ right: 0, top: '100%', bottom: 'auto', minWidth: '180px', zIndex: 1200 }}>
                                     <div className="share-menu-item" onClick={() => navigate(`/write/${post.id}`)}>
-                                        <Edit size={16} /> <span>সম্পাদনা (Edit)</span>
+                                        <Edit size={16} /> <span>সম্পাদনা</span>
                                     </div>
                                     <div className="share-menu-item" onClick={async () => {
                                         const { error } = await supabase.from('posts').update({ is_published: !post.is_published }).eq('id', post.id)
@@ -217,15 +217,16 @@ export default function Reader() {
                                         setShowMenu(false)
                                     }}>
                                         {post.is_published ? <EyeOff size={16} /> : <Eye size={16} />}
-                                        <span>{post.is_published ? 'লুকুৱাই ৰাখক (Hide)' : 'প্ৰকাশ কৰক (Show)'}</span>
+                                        <span>{post.is_published ? 'লুকুৱাই ৰাখক' : 'প্ৰকাশ কৰক'}</span>
                                     </div>
-                                    <div className="share-menu-item" style={{ color: 'var(--danger)' }} onClick={async () => {
+                                    <div className="share-divider" />
+                                    <div className="share-menu-item danger" onClick={async () => {
                                         if (window.confirm('আপুনি নিশ্চিতনে? এই লিখনিটো সমূলি মচি পেলোৱা হ\'ব।')) {
                                             const { error } = await supabase.from('posts').delete().eq('id', post.id)
                                             if (!error) navigate('/')
                                         }
                                     }}>
-                                        <Trash2 size={16} /> <span>মচি পেলাওক (Delete)</span>
+                                        <Trash2 size={16} /> <span>মচি পেলাওক</span>
                                     </div>
                                 </div>
                             )}

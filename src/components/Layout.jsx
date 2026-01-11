@@ -1,4 +1,5 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import logo from '../logo/namelogo.png'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { supabase } from '../supabase'
@@ -53,8 +54,8 @@ export default function Layout({ children }) {
         <div className="layout-main">
             <nav className="top-nav">
                 <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '4.5rem' }}>
-                    <Link to="/" style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--accent-purple)', display: 'flex', alignItems: 'center', gap: '0.5rem', letterSpacing: '-0.02em' }}>
-                        আলাপ
+                    <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
+                        <img src={logo} alt="Aalap Logo" className="nav-logo" />
                     </Link>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
