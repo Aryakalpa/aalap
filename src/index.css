@@ -90,6 +90,20 @@
   font-style: italic;
   font-size: 1.15rem;
   line-height: 2 !important;
+  max-width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Ensure poems don't justify */
+.poem-content.text-justify {
+  text-align: left;
+}
+
+.literature-content {
+  white-space: pre-wrap;
+  line-height: 1.8;
+  word-break: break-word;
 }
 
 /* Base & Scrollbar */
@@ -362,6 +376,12 @@ a {
 
 .btn-ghost svg {
   stroke-width: 2.2px;
+}
+
+.btn-ghost.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent) !important;
 }
 
 /* Inputs & Forms */

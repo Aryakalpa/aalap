@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import Trending from './pages/Trending'
+import Settings from './pages/Settings'
 import Write from './pages/Write'
 import Notifications from './pages/Notifications'
 import Profile from './pages/Profile'
@@ -33,6 +34,7 @@ export default function App() {
                             <Route path="/write" element={<Write />} />
                             <Route path="/write/:id" element={<Write />} />
                             <Route path="/notifications" element={<Notifications />} />
+                            <Route path="/settings" element={<Settings />} />
                             <Route path="/profile/:id" element={<Profile />} />
                             <Route path="/post/:id" element={<Reader />} />
                             <Route path="/search" element={<Search />} />

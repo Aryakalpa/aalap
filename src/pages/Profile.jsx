@@ -114,35 +114,26 @@ export default function Profile() {
             }}>
                 {/* Avatar */}
                 <div style={{ position: 'relative', display: 'inline-block', marginBottom: '1.5rem' }}>
-                    <img
-                        src={profile.avatar_url || getAvatarUrl(profile.id, profile.display_name)}
-                        alt={profile.display_name}
-                        style={{
-                            width: '120px',
-                            height: '120px',
-                            borderRadius: '50%',
-                            objectFit: 'cover',
-                            border: `4px solid ${badge.color}`,
-                            boxShadow: `0 8px 24px ${badge.color}55`
-                        }}
-                    />
-                    {/* Badge Icon Overlay */}
+                    <div style={{ padding: '4px', background: 'var(--bg-primary)', borderRadius: '50%', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+                        <Avatar profile={profile} size="xl" />
+                    </div>
+                    {/* Badge Dot Overlay */}
                     <div style={{
                         position: 'absolute',
-                        bottom: '0',
-                        right: '0',
+                        bottom: '8px',
+                        right: '8px',
+                        width: '24px',
+                        height: '24px',
                         background: badge.color,
                         borderRadius: '50%',
-                        width: '40px',
-                        height: '40px',
+                        border: '4px solid var(--bg-primary)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '1.5rem',
-                        border: '3px solid var(--bg-secondary)',
+                        color: 'white',
                         boxShadow: 'var(--shadow-md)'
-                    }}>
-                        {badge.icon}
+                    }} title={badge.name}>
+                        <div style={{ width: '8px', height: '8px', background: 'white', borderRadius: '50%' }} />
                     </div>
                 </div>
 

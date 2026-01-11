@@ -191,46 +191,121 @@ export default function Reader() {
                     <ChevronLeft size={24} />
                 </button>
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                    {/* Reading Settings Button */}
                     <div ref={settingsRef} style={{ position: 'relative' }}>
-                        <button className={`btn-icon ${showSettings ? 'text-accent' : ''}`} onClick={() => setShowSettings(!showSettings)}>
-                            <Type size={22} />
+                        <button
+                            className={`btn-ghost ${showSettings ? 'active' : ''}`}
+                            onClick={() => setShowSettings(!showSettings)}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.4rem',
+                                padding: '0.5rem 0.75rem',
+                                borderRadius: 'var(--radius-md)',
+                                color: showSettings ? 'var(--accent)' : 'var(--text-secondary)',
+                                background: showSettings ? 'var(--accent-light)' : 'transparent',
+                                border: '1px solid ' + (showSettings ? 'var(--accent)' : 'var(--border-color)')
+                            }}
+                        >
+                            <Type size={18} />
+                            <span style={{ fontSize: '0.85rem', fontWeight: '800' }}>Aa</span>
                         </button>
+
                         {showSettings && (
-                            <div className="share-menu fade-in" style={{ right: 0, top: '100%', minWidth: '280px', padding: '1.25rem', zIndex: 1200 }}>
-                                <div style={{ marginBottom: '1.25rem' }}>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginBottom: '0.75rem', fontWeight: '700' }}>থীম (Theme)</div>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <button onClick={() => setTheme('light')} style={{ flex: 1, height: '32px', background: '#ffffff', border: theme === 'light' ? '2px solid var(--accent)' : '1px solid #ddd', borderRadius: '4px' }} />
-                                        <button onClick={() => setTheme('paper')} style={{ flex: 1, height: '32px', background: '#f5f2e9', border: theme === 'paper' ? '2px solid var(--accent)' : '1px solid #ddd', borderRadius: '4px' }} />
-                                        <button onClick={() => setTheme('dark')} style={{ flex: 1, height: '32px', background: '#020617', border: theme === 'dark' ? '2px solid var(--accent)' : '1px solid #333', borderRadius: '4px' }} />
+                            <div className="share-menu fade-in" style={{
+                                right: 0,
+                                bottom: 'auto',
+                                top: 'calc(100% + 12px)',
+                                minWidth: '280px',
+                                padding: '1.5rem',
+                                zIndex: 1200,
+                                background: 'rgba(var(--bg-primary-rgb), 0.95)',
+                                backdropFilter: 'blur(20px)',
+                                border: '1px solid var(--border-color)',
+                                boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+                            }}>
+                                {/* Theme Switcher */}
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.85rem', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>থীম (Theme)</div>
+                                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                        <button
+                                            onClick={() => setTheme('light')}
+                                            style={{ flex: 1, height: '40px', background: '#ffffff', border: theme === 'light' ? '3px solid var(--accent)' : '1px solid #e1e1e1', borderRadius: 'var(--radius-sm)', cursor: 'pointer', transition: '0.2s' }}
+                                        />
+                                        <button
+                                            onClick={() => setTheme('paper')}
+                                            style={{ flex: 1, height: '40px', background: '#f5f2e9', border: theme === 'paper' ? '3px solid var(--accent)' : '1px solid #dcd3b8', borderRadius: 'var(--radius-sm)', cursor: 'pointer', transition: '0.2s' }}
+                                        />
+                                        <button
+                                            onClick={() => setTheme('dark')}
+                                            style={{ flex: 1, height: '40px', background: '#000000', border: theme === 'dark' ? '3px solid var(--accent)' : '1px solid #333', borderRadius: 'var(--radius-sm)', cursor: 'pointer', transition: '0.2s' }}
+                                        />
                                     </div>
                                 </div>
-                                <div style={{ marginBottom: '1.25rem' }}>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginBottom: '0.75rem', fontWeight: '700' }}>ফণ্ট (Font)</div>
+
+                                {/* Font Choice */}
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.85rem', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>ফণ্ট (Font)</div>
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <button className={`btn ${fontFamily === 'serif' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setFontFamily('serif')} style={{ flex: 1, fontSize: '0.8rem', padding: '0.4rem' }}>Tiro</button>
-                                        <button className={`btn ${fontFamily === 'sans' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setFontFamily('sans')} style={{ flex: 1, fontSize: '0.8rem', padding: '0.4rem' }}>Siliguri</button>
+                                        <button
+                                            className={`btn ${fontFamily === 'serif' ? 'btn-primary' : 'btn-secondary'}`}
+                                            onClick={() => setFontFamily('serif')}
+                                            style={{ flex: 1, fontSize: '0.8rem', padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
+                                        >Tiro</button>
+                                        <button
+                                            className={`btn ${fontFamily === 'sans' ? 'btn-primary' : 'btn-secondary'}`}
+                                            onClick={() => setFontFamily('sans')}
+                                            style={{ flex: 1, fontSize: '0.8rem', padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
+                                        >Siliguri</button>
                                     </div>
                                 </div>
-                                <div style={{ marginBottom: '1.25rem' }}>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginBottom: '0.75rem', fontWeight: '700' }}>আকাৰ (Size)</div>
+
+                                {/* Font Size */}
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>আকাৰ (Size)</div>
+                                        <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--accent)' }}>{fontSize}px</span>
+                                    </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <span style={{ fontSize: '0.8rem' }}>Aa</span>
-                                        <input type="range" min="16" max="28" step="2" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} style={{ flex: 1 }} />
-                                        <span style={{ fontSize: '1.2rem' }}>Aa</span>
+                                        <span style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>A</span>
+                                        <input
+                                            type="range"
+                                            min="16" max="32" step="1"
+                                            value={fontSize}
+                                            onChange={(e) => setFontSize(parseInt(e.target.value))}
+                                            style={{ flex: 1, cursor: 'pointer', background: 'var(--accent-light)' }}
+                                        />
+                                        <span style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>A</span>
                                     </div>
                                 </div>
+
+                                {/* Alignment */}
                                 <div>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginBottom: '0.75rem', fontWeight: '700' }}>শাৰীবদ্ধতা (Alignment)</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.85rem', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>শাৰীবদ্ধতা (Alignment)</div>
                                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <button className={`btn ${alignment === 'left' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setAlignment('left')} style={{ flex: 1, padding: '0.4rem' }}><AlignLeft size={18} /></button>
-                                        <button className={`btn ${alignment === 'center' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setAlignment('center')} style={{ flex: 1, padding: '0.4rem' }}><AlignCenter size={18} /></button>
-                                        <button className={`btn ${alignment === 'justify' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setAlignment('justify')} style={{ flex: 1, padding: '0.4rem' }}><AlignJustify size={18} /></button>
+                                        <button
+                                            className={`btn ${alignment === 'left' ? 'btn-primary' : 'btn-secondary'}`}
+                                            onClick={() => setAlignment('left')}
+                                            style={{ flex: 1, padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
+                                        ><AlignLeft size={18} /></button>
+                                        <button
+                                            className={`btn ${alignment === 'center' ? 'btn-primary' : 'btn-secondary'}`}
+                                            onClick={() => setAlignment('center')}
+                                            style={{ flex: 1, padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
+                                        ><AlignCenter size={18} /></button>
+                                        {!['poem', 'poetry'].includes(post.category?.toLowerCase()) && (
+                                            <button
+                                                className={`btn ${alignment === 'justify' ? 'btn-primary' : 'btn-secondary'}`}
+                                                onClick={() => setAlignment('justify')}
+                                                style={{ flex: 1, padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
+                                            ><AlignJustify size={18} /></button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         )}
                     </div>
+
                     <ShareButton title={post.title} postId={post.id} />
                     {user && user.id === post.author_id && (
                         <div ref={menuRef} style={{ position: 'relative' }}>

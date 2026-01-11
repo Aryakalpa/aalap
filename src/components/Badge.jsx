@@ -15,59 +15,38 @@ export default function Badge({ postCount, size = 'md', showTooltip = true }) {
 
     return (
         <div
-            style={{ position: 'relative', display: 'inline-block' }}
+            style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
             onMouseEnter={() => setShowTip(true)}
             onMouseLeave={() => setShowTip(false)}
         >
             <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                padding: sizeStyle.padding,
-                borderRadius: '2rem',
-                background: `linear-gradient(135deg, ${badge.color}22, ${badge.color}44)`,
-                border: `2px solid ${badge.color}`,
-                fontSize: sizeStyle.fontSize,
-                fontWeight: '700',
-                color: badge.color,
+                width: size === 'sm' ? '8px' : '10px',
+                height: size === 'sm' ? '8px' : '10px',
+                borderRadius: '50%',
+                background: badge.color,
+                boxShadow: `0 0 10px ${badge.color}66`,
                 cursor: showTooltip ? 'pointer' : 'default',
                 transition: 'all 0.2s ease',
-                boxShadow: `0 2px 8px ${badge.color}33`
-            }}>
-                <span style={{ fontSize: sizeStyle.iconSize }}>{badge.icon}</span>
-                <span>{badge.name}</span>
-            </div>
+            }} />
 
             {showTooltip && showTip && (
                 <div style={{
                     position: 'absolute',
-                    bottom: 'calc(100% + 8px)',
+                    bottom: 'calc(100% + 12px)',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     background: 'var(--bg-primary)',
                     border: '1px solid var(--border-color)',
                     borderRadius: 'var(--radius-md)',
-                    padding: '0.75rem 1rem',
+                    padding: '0.6rem 0.8rem',
                     boxShadow: 'var(--shadow-lg)',
                     whiteSpace: 'nowrap',
-                    zIndex: 1000,
-                    fontSize: '0.85rem'
+                    zIndex: 2000,
+                    fontSize: '0.75rem',
+                    textAlign: 'center'
                 }}>
-                    <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{badge.name}</div>
-                    <div style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>
-                        {postCount} টা লিখনি প্ৰকাশ কৰিছে
-                    </div>
-                    <div style={{
-                        position: 'absolute',
-                        top: '100%',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: 0,
-                        height: 0,
-                        borderLeft: '6px solid transparent',
-                        borderRight: '6px solid transparent',
-                        borderTop: '6px solid var(--border-color)'
-                    }} />
+                    <div style={{ fontWeight: '800', color: badge.color, marginBottom: '0.2rem' }}>{badge.name}</div>
+                    <div style={{ color: 'var(--text-tertiary)' }}>{postCount} টা লিখনি</div>
                 </div>
             )}
         </div>
