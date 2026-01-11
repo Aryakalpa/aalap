@@ -38,6 +38,24 @@
   --accent-light: rgba(139, 92, 246, 0.2);
 }
 
+/* Base & Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -79,6 +97,21 @@ a {
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
+}
+
+.container-sm {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+@media (max-width: 640px) {
+
+  .container,
+  .container-sm {
+    padding: 0 1.25rem;
+  }
 }
 
 .top-nav {
@@ -277,6 +310,54 @@ a {
   stroke-width: 2.2px;
 }
 
+/* Inputs & Forms */
+input[type="text"],
+input[type="url"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--accent-purple);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 4px var(--accent-light);
+}
+
+textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.comment-area {
+  background: var(--bg-secondary) !important;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  font-size: 0.95rem;
+  min-height: 100px;
+  padding-bottom: 3.5rem !important;
+  /* Space for absolute button */
+}
+
+/* Home Grid & Spacing */
+.grid {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+}
+
 .card {
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
@@ -286,6 +367,17 @@ a {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: visible;
+}
+
+/* Spacing fix for mobile cards */
+@media (max-width: 640px) {
+  .grid {
+    gap: 1rem;
+  }
+
+  .card {
+    margin-bottom: 0.5rem;
+  }
 }
 
 .card:hover {

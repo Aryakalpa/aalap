@@ -341,12 +341,12 @@ export default function Reader() {
                 {user ? (
                     <form onSubmit={handleComment} style={{ marginBottom: '3rem', position: 'relative' }}>
                         <textarea
+                            className="comment-area"
                             placeholder="আপোনাৰ মতামত লিখক..."
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
-                            style={{ minHeight: '120px', padding: '1.25rem', paddingRight: '4rem', background: 'var(--bg-secondary)' }}
                         />
-                        <button type="submit" className="btn-primary" style={{ position: 'absolute', bottom: '1rem', right: '1rem', padding: '0.5rem 1rem' }}>
+                        <button type="submit" className="btn-primary" style={{ position: 'absolute', bottom: '1rem', right: '1rem', padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)' }}>
                             <Send size={18} />
                         </button>
                     </form>

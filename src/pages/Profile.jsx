@@ -106,7 +106,7 @@ export default function Profile() {
         <div className="container-sm fade-in">
             {/* Profile Header */}
             <div className="card" style={{
-                padding: '3rem',
+                padding: 'var(--card-padding, 3rem)',
                 marginBottom: '3rem',
                 background: `linear-gradient(135deg, ${badge.color}08, transparent)`,
                 border: '2px solid var(--border-color)',

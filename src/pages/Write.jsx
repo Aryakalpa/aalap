@@ -75,61 +75,86 @@ export default function Write() {
 
     return (
         <div className="container-sm">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem', sticky: 'top', background: 'var(--bg-primary)', padding: '1rem 0', zIndex: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '2rem',
+                position: 'sticky',
+                top: '4.5rem',
+                background: 'var(--bg-primary)',
+                padding: '1rem 0',
+                zIndex: 10,
+                borderBottom: '1px solid var(--border-color)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <button onClick={() => navigate(-1)} className="btn-icon">
-                        <ChevronLeft size={24} />
+                        <ChevronLeft size={22} />
                     </button>
-                    <h1 style={{ fontSize: '1.5rem' }}>লিখন কক্ষ</h1>
+                    <h1 style={{ fontSize: '1.25rem', margin: 0 }}>লিখন কক্ষ</h1>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: '600' }}>
                         {countWords(body)} শব্দ
                     </span>
-                    <button className="btn btn-primary" onClick={handlePublish} disabled={saving}>
+                    <button className="btn btn-primary" onClick={handlePublish} disabled={saving} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
                         {saving ? 'প্ৰকাশ হৈ আছে...' : 'প্ৰকাশ কৰক'}
                     </button>
                 </div>
             </div>
 
-            <div className="card" style={{ padding: '3.5rem', border: 'none', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)' }}>
-                <div style={{ marginBottom: '2.5rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
-                        <Image size={18} /> বেটুপাতৰ লিংক (ঐচ্ছিক)
+            <div className="card" style={{
+                padding: 'var(--card-padding, 1.5rem)',
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-secondary)',
+                borderRadius: 'var(--radius-lg)',
+                marginBottom: '4rem'
+            }}>
+                <div style={{ marginBottom: '2rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                        <Image size={16} /> বেটুপাতৰ লিংক (ঐচ্ছিক)
                     </label>
                     <input
                         type="url"
                         placeholder="https://example.com/image.jpg"
                         value={coverImage}
                         onChange={(e) => setCoverImage(e.target.value)}
-                        style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}
                     />
                 </div>
 
-                <div style={{ marginBottom: '2.5rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
-                        <FileText size={18} /> শিৰোনাম
+                <div style={{ marginBottom: '2rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                        <FileText size={16} /> শিৰোনাম
                     </label>
                     <input
                         type="text"
                         placeholder="আপোনাৰ লিখনৰ শিৰোনাম..."
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        style={{ fontSize: '2rem', fontWeight: '800', border: 'none', background: 'transparent', padding: '0', borderBottom: '2px solid var(--border-color)', borderRadius: '0' }}
+                        style={{
+                            fontSize: '1.75rem',
+                            fontWeight: '800',
+                            border: 'none',
+                            background: 'transparent',
+                            padding: '0.5rem 0',
+                            borderBottom: '2px solid var(--border-color)',
+                            borderRadius: '0',
+                            boxShadow: 'none'
+                        }}
                     />
                 </div>
 
-                <div style={{ marginBottom: '2.5rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
-                        <CheckCircle size={18} /> বিভাগ বাছনি কৰক
+                <div style={{ marginBottom: '2rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                        <CheckCircle size={16} /> বিভাগ বাছনি কৰক
                     </label>
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                         {CATEGORIES.map(cat => (
                             <button
                                 key={cat.id}
                                 className={`btn ${category === cat.id ? 'btn-primary' : 'btn-secondary'}`}
                                 onClick={() => setCategory(cat.id)}
-                                style={{ borderRadius: '2rem', padding: '0.5rem 1.25rem' }}
+                                style={{ borderRadius: '2rem', padding: '0.4rem 1rem', fontSize: '0.8rem' }}
                             >
                                 {cat.label}
                             </button>
@@ -138,14 +163,24 @@ export default function Write() {
                 </div>
 
                 <div>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
-                        <PenTool size={18} /> লিখনি আৰম্ভ কৰক
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                        <PenTool size={16} /> লিখনি আৰম্ভ কৰক
                     </label>
                     <textarea
                         placeholder="আপোনাৰ মনৰ কথা লিখিবলৈ আৰম্ভ কৰক..."
                         value={body}
                         onChange={(e) => setBody(e.target.value)}
-                        style={{ minHeight: '500px', fontSize: '1.25rem', lineHeight: '1.8', border: 'none', background: 'transparent', padding: '0', color: 'var(--text-primary)', fontFamily: 'var(--font-serif)' }}
+                        style={{
+                            minHeight: '400px',
+                            fontSize: '1.15rem',
+                            lineHeight: '1.8',
+                            border: 'none',
+                            background: 'transparent',
+                            padding: '0',
+                            color: 'var(--text-primary)',
+                            fontFamily: 'var(--font-serif)',
+                            boxShadow: 'none'
+                        }}
                     />
                 </div>
             </div>

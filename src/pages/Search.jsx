@@ -58,14 +58,7 @@ export default function Search() {
                         placeholder="লিখনি বা লেখকৰ সন্ধান কৰক..."
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        style={{
-                            fontSize: '1.1rem',
-                            padding: '1.25rem 3.5rem',
-                            background: 'var(--bg-secondary)',
-                            borderRadius: 'var(--radius-lg)',
-                            border: '2px solid var(--border-color)',
-                            width: '100%'
-                        }}
+                        style={{ paddingLeft: '3.5rem', paddingRight: '3.5rem' }}
                     />
                     <SearchIcon size={22} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
                     {query && (
