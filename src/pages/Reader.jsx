@@ -65,8 +65,8 @@ export default function Reader() {
         }
     }, [user, post])
 
-    const fetchPost = async () => {
-        setLoading(true)
+    const fetchPost = async (silent = false) => {
+        if (!silent) setLoading(true)
         try {
             const { data, error } = await supabase
                 .from('posts')
@@ -133,7 +133,7 @@ export default function Reader() {
                 await supabase.from('likes').insert({ user_id: user.id, post_id: id })
                 setLiked(true)
             }
-            fetchPost()
+            fetchPost(true)
         } catch (e) { console.error(e) }
     }
 
@@ -311,7 +311,7 @@ export default function Reader() {
                         <div ref={menuRef} style={{ position: 'relative' }}>
                             <button className="btn-icon" onClick={() => setShowMenu(!showMenu)}><MoreVertical size={20} /></button>
                             {showMenu && (
-                                <div className="share-menu fade-in" style={{ right: 0, top: '100%', minWidth: '180px', zIndex: 1200 }}>
+                                <div className="share-menu fade-in" style={{ right: 0, top: 'calc(100% + 10px)', bottom: 'auto', minWidth: '180px', zIndex: 1200 }}>
                                     <div className="share-menu-item" onClick={() => navigate(`/write/${post.id}`)}><Edit size={16} /> <span>সম্পাদনা</span></div>
                                     <div className="share-menu-item" onClick={async () => {
                                         await supabase.from('posts').update({ is_published: !post.is_published }).eq('id', post.id)

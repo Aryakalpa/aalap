@@ -30,6 +30,24 @@ export default function PostCard({ post, onUpdate }) {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
+    useEffect(() => {
+        if (user && post.id) {
+            checkUserInteractions()
+        }
+    }, [user, post.id])
+
+    const checkUserInteractions = async () => {
+        try {
+            // Check Like
+            const { data: L } = await supabase.from('likes').select('*').match({ user_id: user.id, post_id: post.id }).single()
+            if (L) setLiked(true)
+
+            // Check Bookmark
+            const { data: B } = await supabase.from('bookmarks').select('*').match({ user_id: user.id, post_id: post.id }).single()
+            if (B) setBookmarked(true)
+        } catch (e) { /* ignore single() errors if not found */ }
+    }
+
     const handleLike = async (e) => {
         e.preventDefault()
         e.stopPropagation()
@@ -52,7 +70,6 @@ export default function PostCard({ post, onUpdate }) {
                 setLiked(true)
                 setLikeCount(prev => prev + 1)
             }
-            if (onUpdate) onUpdate()
         } catch (e) {
             console.error(e)
         }
