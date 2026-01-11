@@ -267,56 +267,33 @@ export default function Reader() {
                     padding: '0.2rem 0'
                 }}>{post.title}</h1>
 
-                {/* Rich Author Card */}
-                <div className="card" style={{ marginBottom: '3rem', background: 'var(--depth-100)', border: '2px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.25rem' }}>
-                        <Avatar profile={post.profiles} size="lg" clickable showBadge authorId={post.author_id} />
-                        <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                                <Link to={`/profile/${post.author_id}`} style={{ textDecoration: 'none' }}>
-                                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)' }}>
-                                        {post.profiles?.display_name || 'অতিথি'}
-                                    </h3>
-                                </Link>
-                                <Badge postCount={post.profiles?.post_count || 0} size="md" />
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1rem', fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <BookOpen size={16} />
-                                    <span>{formatNumber(post.profiles?.post_count || 0)} টা লিখনি</span>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <TrendingUp size={16} />
-                                    <span>{formatNumber(post.profiles?.followers_count || 0)} অনুসৰণকাৰী</span>
-                                </div>
-                            </div>
-
-                            {post.profiles?.bio && (
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: '1.6' }}>
-                                    {post.profiles.bio}
-                                </p>
-                            )}
-
-                            <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                {user && user.id !== post.author_id && (
-                                    <button
-                                        className={`btn ${following ? 'btn-secondary' : 'btn-primary'}`}
-                                        onClick={handleFollow}
-                                        style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}
-                                    >
-                                        <UserPlus size={16} />
-                                        {following ? 'অনুসৰণ কৰি থকা' : 'অনুসৰণ কৰক'}
-                                    </button>
-                                )}
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                    <span>{formatDate(post.created_at)}</span>
-                                    <span>•</span>
-                                    <span>{estimateReadingTime(post.body)}</span>
-                                </div>
+                {/* Simplified Author Bar */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem', padding: '1rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <Avatar profile={post.profiles} size="md" clickable showBadge authorId={post.author_id} />
+                        <div>
+                            <Link to={`/profile/${post.author_id}`} style={{ textDecoration: 'none' }}>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
+                                    {post.profiles?.display_name || 'অতিথি'}
+                                </h3>
+                            </Link>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', display: 'flex', gap: '0.5rem' }}>
+                                <span>{formatDate(post.created_at)}</span>
+                                <span>•</span>
+                                <span>{estimateReadingTime(post.body)}</span>
                             </div>
                         </div>
                     </div>
+
+                    {user && user.id !== post.author_id && (
+                        <button
+                            className={`btn ${following ? 'btn-secondary' : 'btn-primary'}`}
+                            onClick={handleFollow}
+                            style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem', borderRadius: '2rem' }}
+                        >
+                            {following ? 'অনুসৰণ কৰি থকা' : 'অনুসৰণ কৰক'}
+                        </button>
+                    )}
                 </div>
 
                 {/* Content */}
