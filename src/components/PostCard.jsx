@@ -164,12 +164,16 @@ export default function PostCard({ post, onUpdate }) {
             <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.25rem' }}>
                 <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                        <h3 style={{
-                            fontSize: '1.5rem',
-                            fontWeight: '800',
-                            lineHeight: '1.3',
-                            margin: 0
-                        }}>
+                        <h3
+                            className="post-card-title"
+                            style={{
+                                fontSize: '1.35rem',
+                                fontWeight: '800',
+                                lineHeight: '1.4',
+                                margin: 0,
+                                color: 'var(--text-primary)'
+                            }}
+                        >
                             {post.title}
                         </h3>
                     </div>
@@ -178,16 +182,19 @@ export default function PostCard({ post, onUpdate }) {
                         <CategoryBadge category={post.category} size="sm" />
                     </div>
 
-                    <p style={{
-                        color: 'var(--text-secondary)',
-                        fontSize: '0.95rem',
-                        lineHeight: '1.6',
-                        display: '-webkit-box',
-                        WebkitLineClamp: '3',
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
-                    }}>
-                        {post.body ? post.body.replace(/<[^>]*>/g, '').substring(0, 200) + '...' : ''}
+                    <p
+                        className={['poem', 'poetry'].includes(post.category?.toLowerCase()) ? 'poem-preview' : ''}
+                        style={{
+                            color: 'var(--text-secondary)',
+                            fontSize: '0.9rem',
+                            lineHeight: '1.6',
+                            display: '-webkit-box',
+                            WebkitLineClamp: '3',
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        {post.body ? post.body.replace(/<[^>]*>/g, '').substring(0, 180) : ''}
                     </p>
                 </div>
 

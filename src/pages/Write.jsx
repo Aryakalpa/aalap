@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { CATEGORIES, countWords } from '../utils/helpers'
-import { PenTool, Image, FileText, CheckCircle, ChevronLeft, Save } from 'lucide-react'
+import { PenTool, Image, FileText, CheckCircle, ChevronLeft, Save, AlignLeft, AlignCenter, AlignJustify } from 'lucide-react'
 
 export default function Write() {
     const { id } = useParams()
@@ -13,6 +13,7 @@ export default function Write() {
     const [body, setBody] = useState('')
     const [category, setCategory] = useState('')
     const [coverImage, setCoverImage] = useState('')
+    const [alignment, setAlignment] = useState('left')
     const [saving, setSaving] = useState(false)
     const [lastSaved, setLastSaved] = useState(null)
 
@@ -38,6 +39,7 @@ export default function Write() {
             setBody(data.body || '')
             setCategory(data.category || '')
             setCoverImage(data.cover_image || '')
+            setAlignment(data.alignment || 'left')
         }
     }
 
@@ -54,6 +56,7 @@ export default function Write() {
                 body,
                 category,
                 cover_image: coverImage,
+                alignment, // Author's preferred presentation
                 author_id: user.id,
                 is_published: true,
                 updated_at: new Date().toISOString()
@@ -146,6 +149,17 @@ export default function Write() {
 
                 <div style={{ marginBottom: '2rem' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                        <AlignLeft size={16} /> লিখনিৰ ধৰণ (Alignment)
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className={`btn ${alignment === 'left' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setAlignment('left')} style={{ padding: '0.5rem 1rem' }}><AlignLeft size={18} /></button>
+                        <button className={`btn ${alignment === 'center' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setAlignment('center')} style={{ padding: '0.5rem 1rem' }}><AlignCenter size={18} /></button>
+                        <button className={`btn ${alignment === 'justify' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setAlignment('justify')} style={{ padding: '0.5rem 1rem' }}><AlignJustify size={18} /></button>
+                    </div>
+                </div>
+
+                <div style={{ marginBottom: '2rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                         <CheckCircle size={16} /> বিভাগ বাছনি কৰক
                     </label>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -179,7 +193,8 @@ export default function Write() {
                             padding: '0',
                             color: 'var(--text-primary)',
                             fontFamily: 'var(--font-serif)',
-                            boxShadow: 'none'
+                            boxShadow: 'none',
+                            textAlign: alignment
                         }}
                     />
                 </div>
