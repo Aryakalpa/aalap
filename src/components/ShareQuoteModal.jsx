@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import html2canvas from 'html2canvas'
-import { X, Share2, Image as ImageIcon } from 'lucide-react'
+import { X, Share2, Download, Image as ImageIcon } from 'lucide-react'
+
+import nameLogo from '../logo/namelogo.png'
 
 const THEMES = [
     { id: 'midnight', bg: 'linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%)', text: '#ffffff' },
@@ -31,43 +33,47 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
 
     if (!isOpen) return null
 
+    const generateBlob = async () => {
+        if (!cardRef.current) return null
+        const canvas = await html2canvas(cardRef.current, { scale: 3, useCORS: true, backgroundColor: null })
+        return new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+    }
+
     const handleShare = async () => {
         setLoading(true)
-        const blob = await new Promise(resolve => {
-            if (!cardRef.current) resolve(null)
-            html2canvas(cardRef.current, { scale: 3, useCORS: true, backgroundColor: null }).then(canvas => {
-                canvas.toBlob(resolve, 'image/png')
-            })
-        })
+        const blob = await generateBlob()
+        if (!blob) { setLoading(false); return }
 
-        if (!blob) {
-            setLoading(false)
-            return
-        }
-
-        const file = new File([blob], `aalap-quote-${postId}.png`, { type: 'image/png' })
+        const file = new File([blob], `aalap - quote - ${postId}.png`, { type: 'image/png' })
         const shareData = {
             files: [file],
-            title: `Quote from ${title}`,
-            text: `Read "${title}" by ${author} on Aalap:\n\n${window.location.origin}/post/${postId}`
+            title: `Quote from ${title} `,
+            text: `Read "${title}" by ${author} on Aalap: \n\n${window.location.origin} /post/${postId} `
         }
 
         try {
             if (navigator.canShare && navigator.canShare(shareData)) {
                 await navigator.share(shareData)
             } else {
-                // Fallback: Download
-                const link = document.createElement('a')
-                link.download = `aalap-quote-${postId}.png`
-                link.href = URL.createObjectURL(blob)
-                link.click()
-                alert('ছবি ডাউনলোড কৰা হ\'ল!') // Image downloaded!
+                alert('এই ডিভাইচত ডাইৰেক্ট শ্বেয়াৰ সম্ভৱ নহয়। অনুগ্ৰহ কৰি ডাউনলোড কৰক।')
             }
         } catch (err) {
             console.error('Share failed', err)
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleDownload = async () => {
+        setLoading(true)
+        const blob = await generateBlob()
+        if (!blob) { setLoading(false); return }
+
+        const link = document.createElement('a')
+        link.download = `aalap - quote - ${postId}.png`
+        link.href = URL.createObjectURL(blob)
+        link.click()
+        setLoading(false)
     }
 
     return (
@@ -132,7 +138,7 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
                         >
                             {/* Watermark / Logo Top */}
                             <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center', opacity: 0.9 }}>
-                                <img src="/src/logo/namelogo.png" alt="Aalap" style={{ height: '24px', objectFit: 'contain', filter: theme.id === 'white' ? 'none' : 'brightness(0) invert(1)' }} />
+                                <img src={nameLogo} alt="Aalap" style={{ height: '24px', objectFit: 'contain', filter: theme.id === 'white' ? 'none' : 'brightness(0) invert(1)' }} />
                             </div>
 
                             {/* Quote Content */}
@@ -158,18 +164,24 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
                     </div>
 
                     {/* Actions */}
-                    <button
-                        className="btn btn-primary"
-                        onClick={handleShare}
-                        disabled={loading}
-                        style={{ width: '100%', padding: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '1rem', marginTop: '0.5rem' }}
-                    >
-                        {loading ? 'প্ৰস্তুত হৈ আছে...' : (
-                            <>
-                                <Share2 size={18} /> ডাউনলোড / শ্বেয়াৰ
-                            </>
-                        )}
-                    </button>
+                    <div style={{ display: 'flex', gap: '1rem', width: '100%', marginTop: '0.5rem' }}>
+                        <button
+                            className="btn"
+                            onClick={handleDownload}
+                            disabled={loading}
+                            style={{ flex: 1, padding: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.9rem', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+                        >
+                            <Download size={18} /> ডাউনলোড
+                        </button>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleShare}
+                            disabled={loading}
+                            style={{ flex: 1, padding: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.9rem' }}
+                        >
+                            <Share2 size={18} /> শ্বেয়াৰ
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
