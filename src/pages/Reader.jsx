@@ -25,6 +25,7 @@ export default function Reader() {
     const [newComment, setNewComment] = useState('')
     const [showMenu, setShowMenu] = useState(false)
     const [showSettings, setShowSettings] = useState(false)
+    const [similarPosts, setSimilarPosts] = useState([])
 
     const [liked, setLiked] = useState(false)
     const [bookmarked, setBookmarked] = useState(false)
@@ -43,6 +44,12 @@ export default function Reader() {
         fetchPost()
         fetchComments()
     }, [id])
+
+    useEffect(() => {
+        if (post) {
+            fetchSimilarPosts()
+        }
+    }, [post])
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -91,6 +98,17 @@ export default function Reader() {
             .eq('post_id', id)
             .order('created_at', { ascending: true })
         setComments(data || [])
+    }
+
+    const fetchSimilarPosts = async () => {
+        const { data } = await supabase
+            .from('posts')
+            .select('*, profiles(*)')
+            .eq('category', post.category)
+            .neq('id', id)
+            .eq('is_published', true)
+            .limit(3)
+        setSimilarPosts(data || [])
     }
 
     const checkLiked = async () => {
@@ -306,7 +324,7 @@ export default function Reader() {
                         )}
                     </div>
 
-                    <ShareButton title={post.title} postId={post.id} />
+                    <ShareButton title={post.title} postId={post.id} direction="down" />
                     {user && user.id === post.author_id && (
                         <div ref={menuRef} style={{ position: 'relative' }}>
                             <button className="btn-icon" onClick={() => setShowMenu(!showMenu)}><MoreVertical size={20} /></button>
@@ -343,9 +361,26 @@ export default function Reader() {
                     </div>
                 )}
                 <div style={{ marginBottom: '1rem' }}><CategoryBadge category={post.category} size="md" /></div>
-                <h1 style={{ fontSize: 'clamp(2rem, 8vw, 3.5rem)', fontWeight: '800', lineHeight: '1.2', marginBottom: '2rem', textAlign: alignment === 'center' ? 'center' : 'left' }} className="gradient-text">
+                <h1 style={{ fontSize: 'clamp(2rem, 8vw, 3.5rem)', fontWeight: '800', lineHeight: '1.2', marginBottom: '1.5rem', textAlign: alignment === 'center' ? 'center' : 'left' }} className="gradient-text">
                     {post.title}
                 </h1>
+
+                {post.series_name && (
+                    <div style={{
+                        marginBottom: '2rem',
+                        padding: '0.5rem 1rem',
+                        background: 'var(--accent-light)',
+                        color: 'var(--accent)',
+                        borderRadius: 'var(--radius-sm)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontWeight: '700',
+                        fontSize: '0.9rem'
+                    }}>
+                        <BookOpen size={16} /> ধাৰাবাহিক: {post.series_name}
+                    </div>
+                )}
 
                 {/* Author simplified */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem', padding: '1rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
@@ -410,6 +445,28 @@ export default function Reader() {
                     ))}
                 </div>
             </section>
+
+            {/* Similar Articles */}
+            {similarPosts.length > 0 && (
+                <section style={{ paddingBottom: '8rem', borderTop: '1px solid var(--border-color)', paddingTop: '3rem' }}>
+                    <h3 style={{ marginBottom: '2rem' }}>আপুনি ভাল পাব পৰা অন্যান্য লিখনি</h3>
+                    <div className="grid">
+                        {similarPosts.map(p => (
+                            <Link key={p.id} to={`/post/${p.id}`} className="card" style={{ display: 'flex', gap: '1rem', textDecoration: 'none', color: 'inherit' }}>
+                                {p.cover_image && (
+                                    <img src={p.cover_image} alt="" style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-md)', objectFit: 'cover' }} />
+                                )}
+                                <div style={{ flex: 1 }}>
+                                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem' }}>{p.title}</h4>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                                        {p.profiles?.display_name} • {formatDate(p.created_at)}
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
         </div>
     )
 }
