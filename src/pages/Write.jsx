@@ -85,7 +85,7 @@ export default function Write() {
             }
         } catch (error) {
             console.error('Error saving:', error)
-            alert('সংৰক্ষণ কৰিবলৈ অসুবিধা হৈছে। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।')
+            alert(`Error: ${error.message || 'সংৰক্ষণ কৰিবলৈ অসুবিধা হৈছে। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।'}`)
         } finally {
             setSaving(false)
         }
