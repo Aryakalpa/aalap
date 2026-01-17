@@ -5,22 +5,23 @@ import { X, Share2, Download, Image as ImageIcon } from 'lucide-react'
 import nameLogo from '../logo/namelogo.png'
 
 const THEMES = [
-    { id: 'midnight', bg: 'linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%)', text: '#ffffff' },
-    { id: 'sunset', bg: 'linear-gradient(135deg, #ee7752 0%, #e73c7e 100%)', text: '#ffffff' },
-    { id: 'ocean', bg: 'linear-gradient(135deg, #23d5ab 0%, #23a6d5 100%)', text: '#ffffff' },
-    { id: 'forest', bg: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)', text: '#ffffff' },
-    { id: 'paper', bg: 'url("https://www.transparenttextures.com/patterns/cream-paper.png"), #fdfbf7', text: '#2c3e50' },
-    { id: 'minimal', bg: '#ffffff', text: '#000000' }
+    { id: 'midnight', bg: 'linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%)', text: '#ffffff', isDark: true },
+    { id: 'sunset', bg: 'linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%)', text: '#5e4b56', isDark: false }, // Adjusted for aesthetics
+    { id: 'ocean', bg: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)', text: '#4a4a4a', isDark: false }, // Softer pastel
+    { id: 'forest', bg: 'linear-gradient(135deg, #134E5E 0%, #71B280 100%)', text: '#ffffff', isDark: true },
+    { id: 'classic', bg: '#1c1c1e', text: '#ffffff', isDark: true }, // Apple Dark
+    { id: 'minimal', bg: '#ffffff', text: '#000000', isDark: false },
+    { id: 'paper', bg: 'url("https://www.transparenttextures.com/patterns/cream-paper.png"), #fdfbf7', text: '#2c3e50', isDark: false }
 ]
 
-const CHAR_LIMIT = 400
+const CHAR_LIMIT = 300
 
 export default function ShareQuoteModal({ isOpen, onClose, text, title, author, postId }) {
     const [themeIndex, setThemeIndex] = useState(0)
     const [loading, setLoading] = useState(false)
     const cardRef = useRef(null)
 
-    // Truncate text if needed
+    // Ensure text isn't too long for the aesthetic layout
     const displayQuote = text.length > CHAR_LIMIT
         ? text.substring(0, CHAR_LIMIT) + '...'
         : text
@@ -35,7 +36,8 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
 
     const generateBlob = async () => {
         if (!cardRef.current) return null
-        const canvas = await html2canvas(cardRef.current, { scale: 3, useCORS: true, backgroundColor: null })
+        // 4x scale for crisp retina-like quality
+        const canvas = await html2canvas(cardRef.current, { scale: 4, useCORS: true, backgroundColor: null })
         return new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
     }
 
@@ -44,11 +46,11 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
         const blob = await generateBlob()
         if (!blob) { setLoading(false); return }
 
-        const file = new File([blob], `aalap - quote - ${postId}.png`, { type: 'image/png' })
+        const file = new File([blob], `aalap-quote-${postId}.png`, { type: 'image/png' })
         const shareData = {
             files: [file],
-            title: `Quote from ${title} `,
-            text: `Read "${title}" by ${author} on Aalap: \n\n${window.location.origin} /post/${postId} `
+            title: `Quote from ${title}`,
+            text: `Read "${title}" by ${author} on Aalap:\n\n${window.location.origin}/post/${postId}`
         }
 
         try {
@@ -70,7 +72,7 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
         if (!blob) { setLoading(false); return }
 
         const link = document.createElement('a')
-        link.download = `aalap - quote - ${postId}.png`
+        link.download = `aalap-quote-${postId}.png`
         link.href = URL.createObjectURL(blob)
         link.click()
         setLoading(false)
@@ -78,56 +80,53 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
 
     return (
         <div className="modal-overlay fade-in" onClick={onClose} style={{ zIndex: 2000 }}>
-            {/* Added touch-action: none to prevent scrolling on mobile while touching the card */}
             <div className="modal-content" onClick={e => e.stopPropagation()} style={{
-                maxWidth: '400px',
+                maxWidth: '420px',
                 width: '90%',
                 padding: '0',
                 background: 'var(--bg-secondary)',
                 overflow: 'hidden',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                borderRadius: '24px' // More rounded
             }}>
 
                 {/* Header */}
-                <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <ImageIcon size={18} /> উদ্ধৃতি শ্বেয়াৰ কৰক
+                <div style={{ padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '600' }}>
+                        <ImageIcon size={18} /> শ্বেয়াৰ কাৰ্ড
                     </h3>
-                    <button className="btn-icon" onClick={onClose}><X size={20} /></button>
+                    <button className="btn-icon" onClick={onClose} style={{ background: 'var(--bg-tertiary)', borderRadius: '50%', padding: '0.4rem' }}><X size={18} /></button>
                 </div>
 
-                <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
-
-                    {/* Simplified Hint */}
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textAlign: 'center' }}>
-                        থীম সলনি কৰিবলৈ কাৰ্ডখনত ক্লিক কৰক
-                    </div>
+                <div style={{ padding: '0 1.5rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
 
                     {/* Preview Area - Interactive */}
                     <div
                         onClick={cycleTheme}
                         style={{
                             cursor: 'pointer',
-                            borderRadius: 'var(--radius-md)',
-                            overflow: 'hidden',
-                            boxShadow: 'var(--shadow-lg)',
-                            transition: 'transform 0.1s active',
+                            borderRadius: '20px',
+                            boxShadow: '0 20px 50px -12px rgba(0,0,0,0.25)',
+                            transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
                             width: '100%',
                             display: 'flex',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            position: 'relative'
                         }}
                         className="quote-card-container"
                     >
+                        {/* Tap hint overlay */}
+                        <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '12px', fontSize: '10px', color: 'white', pointerEvents: 'none', backdropFilter: 'blur(4px)', zIndex: 10 }}>Tap to change</div>
+
                         <div
                             ref={cardRef}
                             style={{
                                 width: '100%',
-                                maxWidth: '320px',
-                                aspectRatio: '4/5', // Instagram portrait ratio
+                                aspectRatio: '4/5',
                                 background: theme.bg,
                                 color: theme.text,
-                                padding: '2rem',
+                                padding: '3rem 2rem',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
@@ -136,29 +135,38 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
                                 userSelect: 'none'
                             }}
                         >
-                            {/* Watermark / Logo Top */}
-                            <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center', opacity: 0.9 }}>
-                                <img src={nameLogo} alt="Aalap" style={{ height: '24px', objectFit: 'contain', filter: theme.id === 'white' ? 'none' : 'brightness(0) invert(1)' }} />
+                            {/* Logo */}
+                            <div style={{ display: 'flex', justifyContent: 'center', opacity: 0.95, marginBottom: '2rem' }}>
+                                <img
+                                    src={nameLogo}
+                                    alt="Aalap"
+                                    style={{
+                                        height: '28px',
+                                        objectFit: 'contain',
+                                        filter: theme.isDark ? 'brightness(0) invert(1)' : 'none',
+                                        dropShadow: theme.isDark ? '0 2px 10px rgba(0,0,0,0.3)' : 'none'
+                                    }}
+                                />
                             </div>
 
-                            {/* Quote Content */}
+                            {/* Quote */}
                             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <div style={{
-                                    fontSize: displayQuote.length > 150 ? '1rem' : '1.3rem',
-                                    lineHeight: '1.6',
+                                    fontSize: displayQuote.length > 200 ? '1.1rem' : displayQuote.length > 100 ? '1.3rem' : '1.6rem',
+                                    lineHeight: '1.5',
                                     textAlign: 'center',
                                     fontWeight: '500',
                                     whiteSpace: 'pre-wrap',
-                                    fontStyle: 'italic'
+                                    fontFeatureSettings: '"kern" 1, "liga" 1',
                                 }}>
-                                    "{displayQuote}"
+                                    {displayQuote}
                                 </div>
                             </div>
 
-                            {/* Footer / Author */}
-                            <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                                <div style={{ fontSize: '1rem', fontWeight: 'bold' }}>{title}</div>
-                                <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '0.2rem' }}>{author}</div>
+                            {/* Footer */}
+                            <div style={{ marginTop: '2.5rem', textAlign: 'center', borderTop: `1px solid ${theme.text}20`, paddingTop: '1.5rem' }}>
+                                <div style={{ fontSize: '1.1rem', fontWeight: '700', letterSpacing: '-0.01em' }}>{title}</div>
+                                <div style={{ fontSize: '0.9rem', opacity: 0.75, marginTop: '0.3rem', fontStyle: 'italic', fontFamily: '"Hind Siliguri", sans-serif' }}>{author}</div>
                             </div>
                         </div>
                     </div>
