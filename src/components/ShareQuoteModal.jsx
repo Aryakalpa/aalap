@@ -28,6 +28,36 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
 
     const theme = THEMES[themeIndex]
 
+    const [processedLogo, setProcessedLogo] = useState(nameLogo)
+
+    // Pre-process logo for html2canvas compatibility (since it ignores CSS filters)
+    useEffect(() => {
+        const processLogo = async () => {
+            if (!theme.isDark) {
+                setProcessedLogo(nameLogo)
+                return
+            }
+
+            const img = new Image()
+            img.src = nameLogo
+            img.crossOrigin = 'anonymous'
+
+            img.onload = () => {
+                const canvas = document.createElement('canvas')
+                canvas.width = img.width
+                canvas.height = img.height
+                const ctx = canvas.getContext('2d')
+
+                // Bake the filter into the image
+                ctx.filter = 'brightness(0) invert(1)'
+                ctx.drawImage(img, 0, 0)
+
+                setProcessedLogo(canvas.toDataURL())
+            }
+        }
+        processLogo()
+    }, [theme.isDark])
+
     const cycleTheme = () => {
         setThemeIndex((prev) => (prev + 1) % THEMES.length)
     }
@@ -36,6 +66,10 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
 
     const generateBlob = async () => {
         if (!cardRef.current) return null
+
+        // Wait for images to be fully ready
+        await new Promise(resolve => setTimeout(resolve, 100))
+
         // 4x scale for crisp retina-like quality
         const canvas = await html2canvas(cardRef.current, { scale: 4, useCORS: true, backgroundColor: null })
         return new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
@@ -138,12 +172,11 @@ export default function ShareQuoteModal({ isOpen, onClose, text, title, author, 
                             {/* Logo */}
                             <div style={{ display: 'flex', justifyContent: 'center', opacity: 0.95, marginBottom: '2rem' }}>
                                 <img
-                                    src={nameLogo}
+                                    src={processedLogo}
                                     alt="Aalap"
                                     style={{
                                         height: '28px',
                                         objectFit: 'contain',
-                                        filter: theme.isDark ? 'brightness(0) invert(1)' : 'none',
                                         dropShadow: theme.isDark ? '0 2px 10px rgba(0,0,0,0.3)' : 'none'
                                     }}
                                 />
