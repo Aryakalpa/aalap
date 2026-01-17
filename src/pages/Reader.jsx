@@ -6,12 +6,13 @@ import { useTheme } from '../contexts/ThemeContext'
 import { formatDate, estimateReadingTime, formatNumber } from '../utils/helpers'
 import {
     Heart, MessageSquare, Bookmark, Share2,
-    MoreVertical, Edit, Trash2, EyeOff, Eye,
+    MoreVertical, Edit, Trash2, EyeOff, Eye, Image as ImageIcon,
     Type, Send, AlignLeft, AlignCenter, AlignJustify, ChevronLeft, ChevronRight, BookOpen, List
 } from 'lucide-react'
 import Avatar from '../components/Avatar'
 import CategoryBadge from '../components/CategoryBadge'
 import ShareButton from '../components/ShareButton'
+import ShareQuoteModal from '../components/ShareQuoteModal'
 
 export default function Reader() {
     const { id } = useParams()
@@ -28,6 +29,8 @@ export default function Reader() {
     const [similarPosts, setSimilarPosts] = useState([])
     const [seriesPosts, setSeriesPosts] = useState([])
     const [showPlaylist, setShowPlaylist] = useState(true)
+    const [showQuoteModal, setShowQuoteModal] = useState(false)
+    const [selectedQuote, setSelectedQuote] = useState('')
 
     const [liked, setLiked] = useState(false)
     const [bookmarked, setBookmarked] = useState(false)
@@ -222,6 +225,31 @@ export default function Reader() {
     }
 
     if (loading) return <div className="container" style={{ display: 'flex', justifyContent: 'center', padding: '10rem' }}><div className="spinner" /></div>
+    const handleShareClick = () => {
+        if (navigator.share) {
+            navigator.share({
+                title: post.title,
+                text: `Read "${post.title}" on Aalap`,
+                url: window.location.href
+            })
+        } else {
+            // Fallback
+        }
+    }
+
+    const openQuoteModal = () => {
+        // Try to get selected text
+        const selection = window.getSelection().toString().trim()
+        if (selection) {
+            setSelectedQuote(selection)
+        } else {
+            // Default to abstract or first paragraph
+            const abstract = post.body.substring(0, 150) + '...'
+            setSelectedQuote(abstract)
+        }
+        setShowQuoteModal(true)
+    }
+
     if (!post) return <div className="container-sm" style={{ padding: '5rem', textAlign: 'center' }}><h2>বন্ধ কৰক, এই লিখনিটো বিচাৰি পোৱা নগ'ল।</h2><Link to="/" className="btn btn-primary mt-4">মূল পৃষ্ঠালৈ উভতি যাওক</Link></div>
 
     return (
@@ -347,6 +375,9 @@ export default function Reader() {
                         )}
                     </div>
 
+                    <button className="btn-ghost" onClick={openQuoteModal} title="Create Quote Card">
+                        <ImageIcon size={20} />
+                    </button>
                     <ShareButton title={post.title} postId={post.id} direction="down" />
                     {user && user.id === post.author_id && (
                         <div ref={menuRef} style={{ position: 'relative' }}>
@@ -524,6 +555,15 @@ export default function Reader() {
                     </div>
                 </section>
             )}
+            {/* Share Quote Modal */}
+            <ShareQuoteModal
+                isOpen={showQuoteModal}
+                onClose={() => setShowQuoteModal(false)}
+                text={selectedQuote}
+                title={post.title}
+                author={post.profiles?.display_name}
+                postId={post.id}
+            />
         </div>
     )
 }
