@@ -1,184 +1,84 @@
-# Litera - Literature Social Media Platform
+# আলাপা (Aalap) - A Premium Assamese Literature Platform
 
-A minimal, feature-rich React + Vite web application for literature lovers. Share your stories, discover new voices, and connect with fellow writers.
+**Aalap** is a modern, feature-rich social platform dedicated to Assamese literature. Built with React, Vite, and Supabase, it provides a sanctuary for writers to share their stories and for readers to explore the rich tapestry of Assamese language and culture.
 
-## 🚀 Features
+![Aalap Preview](https://raw.githubusercontent.com/Aryakalpa/aalap/main/public/preview.png)
 
-### Core
-- ✅ **Light/Dark Theme** - Seamless theme switching with persistent preferences
-- ✅ **Google OAuth** - Secure authentication via Supabase
-- ✅ **Optional Login** - Browse and read without signing in
+## 🌟 Key Features
 
-### Screens
-- 🏠 **Home Feed** - Latest posts with category filtering
-- 🔥 **Trending** - Popular posts by timeframe (today, week, month)
-- ✍️ **Write** - Rich editor with auto-save, word count, and category selection
-- 🔔 **Notifications** - Real-time alerts for likes, comments, follows
-- 👤 **Profile** - Author pages with badges, achievements, and social links
-- 📖 **Reader** - Feature-rich reading experience
-- 🔍 **Search** - Full-text search with category filters
+### 📖 Immersive Reading
+- **Personalized Reader**: Adjust font size, font family (Tiro Bangla or Hind Siliguri), and text alignment on the fly.
+- **Reading Themes**: Switch between Light, Dark (AMOLED), and Paper modes for maximum comfort.
+- **Progress Tracking**: Automatically saves your scroll position so you can resume exactly where you left off.
+- **Series & Collections**: Experience structured storytelling with a "Playlist-style" navigator for connected writings (Dharabahik).
 
-### Reading Experience
-- Font size adjustment
-- Line height controls
-- Reading progress tracking
-- Estimated reading time
-- Auto-save scroll position
-- Bookmark functionality
+### ✍️ Empowering Writers
+- **Elegant Editor**: A distraction-free writing environment with real-time word count and auto-save functionality.
+- **Draft Management**: Save your work as a draft until you're ready to share it with the world.
+- **Metadata Support**: Easily add cover images, category tags, and series info to your posts.
 
-### Social Features
-- Like, comment, bookmark posts
-- Follow/unfollow authors
-- Real-time notifications with unread counter
-- Author profiles with badges & achievements
-- Cover images for posts
+### 🤝 Community & Engagement
+- **Social Interactions**: Like, comment, and bookmark your favorite writings.
+- **Follow System**: Connect with your favorite authors and stay updated on their latest works.
+- **Real-time Notifications**: Get instant alerts for likes, comments, and new followers.
+- **Gamified Profiles**: Earn badges and achievements based on your writing activity and community impact.
 
-### Achievements & Badges
-- Novice (0-4 posts)
-- Storyteller (5-19 posts)
-- Rising Writer (20-49 posts)
-- Acclaimed Author (50-99 posts)
-- Master Wordsmith (100+ posts)
-
-## 📦 Setup
-
-### Prerequisites
-- Node.js 18+
-- Supabase account with configured database
-
-### Installation
-
-1. **Run the setup script:**
-   ```powershell
-   .\setup.ps1
-   ```
-
-2. **Configure environment variables:**
-   - Open `.env` and add your Supabase credentials:
-     ```
-     VITE_SUPABASE_URL=your_supabase_url_here
-     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-     ```
-
-3. **Start the development server:**
-   ```powershell
-   npm run dev
-   ```
-
-4. **Open your browser:**
-   - Navigate to `http://localhost:3000`
-
-## 🗄️ Database Setup
-
-Ensure your Supabase database has the schema matching the provided structure with these tables:
-- `profiles` - User profiles
-- `posts` - User-generated content
-- `comments` - Post comments
-- `likes` - Post likes
-- `bookmarks` - Saved posts
-- `follows` - User relationships
-- `notifications` - Activity notifications
-- `reading_progress` - Track reading position
-- `works` - Literature works
-- `literature` - Classic literature library
+### 🎯 Discovery
+- **Trending Feed**: Explore popular literature based on daily, weekly, or monthly engagement.
+- **Full-text Search**: Find specific stories, poems, or authors with ease.
+- **Category Filtering**: Browse by Poetry (কবিতা), Story (গল্প), Essay (প্ৰৱন্ধ), and more.
 
 ## 🛠️ Tech Stack
 
-- **React 18** - UI library
-- **Vite** - Build tool
-- **React Router** - Client-side routing
-- **Supabase** - Backend, auth, and real-time database
-- **Vanilla CSS** - Styling with CSS variables
+- **Frontend**: React 18, Vite, React Router 6
+- **Backend & Auth**: Supabase (PostgreSQL + Real-time)
+- **Styling**: Modern Vanilla CSS with CSS Variables & Glassmorphism
+- **Icons**: Lucide React
 
-## 📁 Project Structure
+## 🚀 Getting Started
 
-```
-antigravity/
-├── src/
-│   ├── components/      # Shared components
-│   │   ├── Layout.jsx
-│   │   ├── PostCard.jsx
-│   │   └── ProfileBadge.jsx
-│   ├── contexts/        # React contexts
-│   │   ├── AuthContext.jsx
-│   │   └── ThemeContext.jsx
-│   ├── pages/           # Route pages
-│   │   ├── Home.jsx
-│   │   ├── Trending.jsx
-│   │   ├── Write.jsx
-│   │   ├── Notifications.jsx
-│   │   ├── Profile.jsx
-│   │   ├── Reader.jsx
-│   │   └── Search.jsx
-│   ├── utils/           # Helper functions
-│   │   └── helpers.js
-│   ├── App.jsx          # Main app component
-│   ├── main.jsx         # Entry point
-│   ├── index.css        # Global styles
-│   └── supabase.js      # Supabase client
-├── index.html
-├── package.json
-├── vite.config.js
-└── setup.ps1            # Setup script
-```
+### Prerequisites
+- Node.js (v18 or higher)
+- A Supabase account
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Aryakalpa/aalap.git
+   cd aalap
+   ```
+
+2. **Run the setup script:**
+   ```powershell
+   # On Windows
+   .\setup.ps1
+   ```
+
+3. **Configure Environment Variables:**
+   Create a `.env` file in the root directory and add your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Launch Development Server:**
+   ```bash
+   npm run dev
+   ```
 
 ## 🎨 Design Philosophy
 
-- **Minimal Codebase** - Single-file components, no UI libraries
-- **Premium Aesthetics** - Modern gradients, smooth animations, vibrant colors
-- **Performance First** - Optimized bundle size, lazy loading
-- **Accessibility** - Semantic HTML, keyboard navigation
-- **Responsive** - Mobile-first design with bottom navigation
-
-## 📝 Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-
-## 🔐 Authentication Flow
-
-1. User clicks "Sign In with Google"
-2. Redirected to Google OAuth
-3. Profile automatically created in Supabase
-4. Session persisted with localStorage
-5. Real-time sync across tabs
-
-## 📸 Features Showcase
-
-### Real-time Notifications
-- Instant updates when someone likes your post
-- Comment notifications
-- New follower alerts
-- Unread badge counter
-
-### Reading Progress
-- Automatically saves scroll position
-- Resume reading where you left off
-- Track across all devices
-
-### Badges & Achievements
-- Earn badges based on post count and engagement
-- Display achievements on profile
-- Gamified writing experience
-
-## 🚧 Future Enhancements
-
-- Echo/repost functionality
-- Rich text editor with markdown
-- Image uploads via Supabase Storage
-- PWA support for offline reading
-- Export stories to PDF
-- Reading lists/collections
+Aalap is designed to feel like a premium physical book in a digital space. We prioritize:
+- **Assamese First**: Native language support is at the core of every design decision.
+- **Minimalism**: Focusing on the content without distracting UI elements.
+- **Performance**: Near-instant load times and smooth transitions.
+- **Accessibility**: Ensuring the beauty of Assamese literature is accessible to everyone on any device.
 
 ## 📄 License
 
-MIT License - feel free to use for your own projects!
-
-## 🤝 Contributing
-
-This is a minimal reference implementation. Fork and customize as needed!
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-Built with ❤️ for literature lovers everywhere.
+আলাপ - শব্দৰ অনুভূতি, সাহিত্যৰ সাৰথি।

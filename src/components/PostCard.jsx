@@ -195,8 +195,13 @@ export default function PostCard({ post, onUpdate }) {
                         </h3>
                     </div>
 
-                    <div style={{ marginBottom: '1rem' }}>
+                    <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                         <CategoryBadge category={post.category} size="sm" />
+                        {post.series_name && (
+                            <div className="series-tag" style={{ marginTop: 0 }}>
+                                <BookOpen size={12} /> {post.series_name}
+                            </div>
+                        )}
                     </div>
 
                     <p

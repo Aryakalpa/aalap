@@ -7,7 +7,7 @@ import { formatDate, estimateReadingTime, formatNumber } from '../utils/helpers'
 import {
     Heart, MessageSquare, Bookmark, Share2,
     MoreVertical, Edit, Trash2, EyeOff, Eye,
-    Type, Send, AlignLeft, AlignCenter, AlignJustify, ChevronLeft, BookOpen
+    Type, Send, AlignLeft, AlignCenter, AlignJustify, ChevronLeft, ChevronRight, BookOpen, List
 } from 'lucide-react'
 import Avatar from '../components/Avatar'
 import CategoryBadge from '../components/CategoryBadge'
@@ -26,6 +26,8 @@ export default function Reader() {
     const [showMenu, setShowMenu] = useState(false)
     const [showSettings, setShowSettings] = useState(false)
     const [similarPosts, setSimilarPosts] = useState([])
+    const [seriesPosts, setSeriesPosts] = useState([])
+    const [showPlaylist, setShowPlaylist] = useState(true)
 
     const [liked, setLiked] = useState(false)
     const [bookmarked, setBookmarked] = useState(false)
@@ -48,6 +50,11 @@ export default function Reader() {
     useEffect(() => {
         if (post) {
             fetchSimilarPosts()
+            if (post.series_name) {
+                fetchSeriesPosts()
+            } else {
+                setSeriesPosts([])
+            }
         }
     }, [post])
 
@@ -110,6 +117,22 @@ export default function Reader() {
             .limit(3)
         setSimilarPosts(data || [])
     }
+
+    const fetchSeriesPosts = async () => {
+        const { data } = await supabase
+            .from('posts')
+            .select('id, title, created_at')
+            .eq('series_name', post.series_name)
+            .eq('author_id', post.author_id)
+            .eq('is_published', true)
+            .order('created_at', { ascending: true })
+        setSeriesPosts(data || [])
+    }
+
+    const currentIndex = seriesPosts.findIndex(p => p.id === id)
+    const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : null
+    const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : null
+
 
     const checkLiked = async () => {
         const { data } = await supabase
@@ -366,19 +389,8 @@ export default function Reader() {
                 </h1>
 
                 {post.series_name && (
-                    <div style={{
-                        marginBottom: '2rem',
-                        padding: '0.5rem 1rem',
-                        background: 'var(--accent-light)',
-                        color: 'var(--accent)',
-                        borderRadius: 'var(--radius-sm)',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        fontWeight: '700',
-                        fontSize: '0.9rem'
-                    }}>
-                        <BookOpen size={16} /> ধাৰাবাহিক: {post.series_name}
+                    <div className="series-tag">
+                        <BookOpen size={14} /> ধাৰাবাহিক: {post.series_name}
                     </div>
                 )}
 
@@ -402,10 +414,55 @@ export default function Reader() {
 
                 <div
                     className={`literature-content ${fontFamily === 'serif' ? 'font-serif' : 'font-display'} text-${alignment} ${['poem', 'poetry'].includes(post.category?.toLowerCase()) ? 'poem-content' : ''}`}
-                    style={{ fontSize: `${fontSize}px` }}
+                    style={{ fontSize: `${fontSize}px`, marginBottom: '4rem' }}
                 >
                     {post.body}
                 </div>
+
+                {/* Playlist / Collection Section */}
+                {seriesPosts.length > 1 && (
+                    <div className="playlist-panel fade-in">
+                        <div className="playlist-header">
+                            <div className="playlist-name-container">
+                                <List size={20} />
+                                <span>{post.series_name}</span>
+                            </div>
+                            <div className="playlist-progress-badge">
+                                {currentIndex + 1} / {seriesPosts.length}
+                            </div>
+                        </div>
+
+                        <div className="playlist-navigation-bar">
+                            <button
+                                className="playlist-nav-button"
+                                onClick={() => navigate(`/post/${prevPost.id}`)}
+                                disabled={!prevPost}
+                            >
+                                <ChevronLeft size={18} /> আগৰ খণ্ড
+                            </button>
+                            <button
+                                className="playlist-nav-button"
+                                onClick={() => navigate(`/post/${nextPost.id}`)}
+                                disabled={!nextPost}
+                            >
+                                পৰৱৰ্তী খণ্ড <ChevronRight size={18} />
+                            </button>
+                        </div>
+
+                        <div className="playlist-items-list">
+                            {seriesPosts.map((p, i) => (
+                                <Link
+                                    key={p.id}
+                                    to={`/post/${p.id}`}
+                                    className={`playlist-list-item ${p.id === id ? 'is-active' : ''}`}
+                                >
+                                    <div className="playlist-item-rank">{i + 1}</div>
+                                    <div className="playlist-item-label">{p.title}</div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </article>
 
             {/* Footer Stats */}
