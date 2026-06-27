@@ -64,9 +64,7 @@ export default function Write() {
       const resolvedCoverImage =
         coverMode === 'preset'
           ? buildCoverSvg({
-              title,
               category: CATEGORIES.find((c) => c.id === category)?.label || category,
-              author: user?.user_metadata?.full_name || '',
               presetId: coverPreset,
             })
           : ''
@@ -195,9 +193,9 @@ export default function Write() {
                     >
                       <div style={{ aspectRatio: '4 / 5', background: 'var(--bg-secondary)' }}>
                         <CoverPreview
-                          title={title || 'আপোনাৰ লিখনৰ শিৰোনাম...'}
+                          title=""
                           category={CATEGORIES.find((c) => c.id === category)?.label || category || 'অন্যান্য'}
-                          author={user?.user_metadata?.full_name || ''}
+                          author=""
                           presetId={preset.id}
                           alt={preset.label}
                         />
@@ -209,9 +207,9 @@ export default function Write() {
                 <div className="panel" style={{ padding: '0.75rem' }}>
                   <div style={{ aspectRatio: '4 / 5', borderRadius: '12px', overflow: 'hidden' }}>
                     <CoverPreview
-                      title={title || 'আপোনাৰ লিখনৰ শিৰোনাম...'}
+                      title=""
                       category={CATEGORIES.find((c) => c.id === category)?.label || category || 'অন্যান্য'}
-                      author={user?.user_metadata?.full_name || ''}
+                      author=""
                       presetId={coverPreset}
                       alt="Cover preview"
                     />

@@ -407,9 +407,11 @@ export default function Reader() {
           </div>
           <div className="feed-list">
             {similarPosts.map((p) => (
-              <Link key={p.id} to={`/post/${p.id}`} className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                {p.cover_image && <img src={p.cover_image} alt="" style={{ width: '88px', height: '88px', borderRadius: '14px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />}
-                <div style={{ flex: 1 }}>
+              <Link key={p.id} to={`/post/${p.id}`} className="card" style={{ display: 'block', padding: 0, overflow: 'hidden' }}>
+                <div style={{ width: '100%', aspectRatio: '16 / 9', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
+                  <CoverPreview src={p.cover_image} title={p.title} category={p.category} author={p.profiles?.display_name} alt="" />
+                </div>
+                <div style={{ padding: '1rem' }}>
                   <h4 style={{ margin: '0 0 0.35rem 0', fontSize: '1.1rem' }}>{p.title}</h4>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>{p.profiles?.display_name} • {formatDate(p.created_at)}</div>
                   <p style={{ marginTop: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.92rem' }}>{generateExcerpt(p.body || '', 110)}</p>
