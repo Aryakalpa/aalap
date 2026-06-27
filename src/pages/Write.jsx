@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { CATEGORIES, countWords, estimateReadingTime } from '../utils/helpers'
 import { PenTool, Image, CheckCircle, ChevronLeft, Save, AlignLeft, AlignCenter, AlignJustify, BookOpen } from 'lucide-react'
-import CoverPreview from '../components/CoverPreview'
-import { COVER_PRESETS, buildCoverSvg, isGeneratedCover } from '../utils/covers'
+import { buildCoverSvg, isGeneratedCover } from '../utils/covers'
+import { fetchEditablePost, savePost } from '../services/write'
+import CoverSelector from '../components/write/CoverSelector'
 
 export default function Write() {
   const { id } = useParams()
@@ -33,7 +33,7 @@ export default function Write() {
   }, [id, user])
 
   const fetchPost = async () => {
-    const { data } = await supabase.from('posts').select('*').eq('id', id).eq('author_id', user.id).single()
+    const data = await fetchEditablePost({ postId: id, authorId: user.id })
     if (data) {
       setTitle(data.title || '')
       setBody(data.body || '')
@@ -41,13 +41,9 @@ export default function Write() {
       setSeriesName(data.series_name || '')
       setAlignment(data.alignment || 'left')
       setIsDraft(!data.is_published)
-      if (!data.cover_image) {
-        setCoverMode('none')
-      } else if (isGeneratedCover(data.cover_image)) {
-        setCoverMode('preset')
-      } else {
-        setCoverMode('preset')
-      }
+      if (!data.cover_image) setCoverMode('none')
+      else if (isGeneratedCover(data.cover_image)) setCoverMode('preset')
+      else setCoverMode('preset')
     }
   }
 
@@ -81,11 +77,7 @@ export default function Write() {
         updated_at: new Date().toISOString(),
       }
 
-      const { data, error } = id
-        ? await supabase.from('posts').update(postData).eq('id', id).select().single()
-        : await supabase.from('posts').insert(postData).select().single()
-
-      if (error) throw error
+      const data = await savePost({ id, postData })
 
       if (publish) {
         navigate(`/post/${data.id}`)
@@ -168,55 +160,13 @@ export default function Write() {
 
           <div className="field-group">
             <label className="field-label"><Image size={14} style={{ marginRight: 6 }} />বেটুপাত</label>
-            <div className="tab-row" style={{ marginBottom: '0.75rem' }}>
-              <button type="button" className={`tab-btn ${coverMode === 'preset' ? 'active' : ''}`} onClick={() => setCoverMode('preset')}>Preset</button>
-              <button type="button" className={`tab-btn ${coverMode === 'none' ? 'active' : ''}`} onClick={() => setCoverMode('none')}>None</button>
-            </div>
-
-            {coverMode === 'preset' && (
-              <>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem', marginBottom: '0.9rem' }}>
-                  {COVER_PRESETS.map((preset) => (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => setCoverPreset(preset.id)}
-                      style={{
-                        border: coverPreset === preset.id ? '2px solid var(--text-primary)' : '1px solid var(--border-color)',
-                        borderRadius: '14px',
-                        overflow: 'hidden',
-                        background: 'var(--surface-raised)',
-                        cursor: 'pointer',
-                        padding: 0,
-                        textAlign: 'left',
-                      }}
-                    >
-                      <div style={{ aspectRatio: '4 / 5', background: 'var(--bg-secondary)' }}>
-                        <CoverPreview
-                          title=""
-                          category={CATEGORIES.find((c) => c.id === category)?.label || category || 'অন্যান্য'}
-                          author=""
-                          presetId={preset.id}
-                          alt={preset.label}
-                        />
-                      </div>
-                      <div style={{ padding: '0.55rem 0.7rem', fontSize: '0.82rem', fontWeight: 700 }}>{preset.label}</div>
-                    </button>
-                  ))}
-                </div>
-                <div className="panel" style={{ padding: '0.75rem' }}>
-                  <div style={{ aspectRatio: '4 / 5', borderRadius: '12px', overflow: 'hidden' }}>
-                    <CoverPreview
-                      title=""
-                      category={CATEGORIES.find((c) => c.id === category)?.label || category || 'অন্যান্য'}
-                      author=""
-                      presetId={coverPreset}
-                      alt="Cover preview"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
+            <CoverSelector
+              coverMode={coverMode}
+              setCoverMode={setCoverMode}
+              coverPreset={coverPreset}
+              setCoverPreset={setCoverPreset}
+              category={category}
+            />
           </div>
 
           <div className="field-group" style={{ marginBottom: 0 }}>

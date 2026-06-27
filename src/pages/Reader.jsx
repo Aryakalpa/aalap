@@ -1,69 +1,45 @@
 import { useRef, useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { formatDate, estimateReadingTime, generateExcerpt } from '../utils/helpers'
-import {
-  Heart,
-  MessageSquare,
-  Bookmark,
-  MoreVertical,
-  Edit,
-  Trash2,
-  EyeOff,
-  Eye,
-  Image as ImageIcon,
-  Minus,
-  Plus,
-  Send,
-  ChevronLeft,
-  ChevronRight,
-  BookOpen,
-  List,
-} from 'lucide-react'
+import { Heart, MessageSquare, Bookmark, Send, ChevronRight, BookOpen, List } from 'lucide-react'
 import Avatar from '../components/Avatar'
 import CategoryBadge from '../components/CategoryBadge'
-import ShareButton from '../components/ShareButton'
 import ShareQuoteModal from '../components/ShareQuoteModal'
 import CoverPreview from '../components/CoverPreview'
 import EmptyState from '../components/ui/EmptyState'
 import LoadingState from '../components/ui/LoadingState'
+import ReaderToolbar from '../components/reader/ReaderToolbar'
+import useReaderData from '../hooks/useReaderData'
+import { toggleLike, toggleBookmark, toggleFollow, addComment, updatePostPublishState, deletePostById } from '../services/reader'
 
 export default function Reader() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
+  const {
+    post,
+    loading,
+    comments,
+    similarPosts,
+    seriesPosts,
+    liked,
+    bookmarked,
+    following,
+    setLiked,
+    setBookmarked,
+    setFollowing,
+    refreshPost,
+    refreshComments,
+  } = useReaderData({ postId: id, user })
 
-  const [post, setPost] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState('')
   const [showMenu, setShowMenu] = useState(false)
-  const [similarPosts, setSimilarPosts] = useState([])
-  const [seriesPosts, setSeriesPosts] = useState([])
   const [showQuoteModal, setShowQuoteModal] = useState(false)
   const [selectedQuote, setSelectedQuote] = useState('')
-
-  const [liked, setLiked] = useState(false)
-  const [bookmarked, setBookmarked] = useState(false)
-  const [following, setFollowing] = useState(false)
-
   const [fontSize, setFontSize] = useState(19)
 
   const menuRef = useRef(null)
-
-  useEffect(() => {
-    fetchPost()
-    fetchComments()
-  }, [id])
-
-  useEffect(() => {
-    if (post) {
-      fetchSimilarPosts()
-      if (post.series_name) fetchSeriesPosts()
-      else setSeriesPosts([])
-    }
-  }, [post])
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -73,79 +49,16 @@ export default function Reader() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  useEffect(() => {
-    if (user && post) {
-      checkLiked()
-      checkBookmarked()
-      checkFollowing()
-    }
-  }, [user, post])
-
-  const fetchPost = async (silent = false) => {
-    if (!silent) setLoading(true)
-    try {
-      const { data, error } = await supabase.from('posts').select('*, profiles(*)').eq('id', id).single()
-      if (error) throw error
-      setPost(data)
-    } catch (error) {
-      console.error('Error fetching post:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchComments = async () => {
-    const { data } = await supabase.from('comments').select('*, profiles(*)').eq('post_id', id).order('created_at', { ascending: true })
-    setComments(data || [])
-  }
-
-  const fetchSimilarPosts = async () => {
-    const { data } = await supabase.from('posts').select('*, profiles(*)').eq('category', post.category).neq('id', id).eq('is_published', true).limit(3)
-    setSimilarPosts(data || [])
-  }
-
-  const fetchSeriesPosts = async () => {
-    const { data } = await supabase
-      .from('posts')
-      .select('id, title, created_at')
-      .eq('series_name', post.series_name)
-      .eq('author_id', post.author_id)
-      .eq('is_published', true)
-      .order('created_at', { ascending: true })
-    setSeriesPosts(data || [])
-  }
-
   const currentIndex = seriesPosts.findIndex((p) => p.id === id)
   const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : null
   const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : null
 
-  const checkLiked = async () => {
-    const { data } = await supabase.from('likes').select('*').match({ user_id: user.id, post_id: id }).single()
-    setLiked(!!data)
-  }
-
-  const checkBookmarked = async () => {
-    const { data } = await supabase.from('bookmarks').select('*').match({ user_id: user.id, post_id: id }).single()
-    setBookmarked(!!data)
-  }
-
-  const checkFollowing = async () => {
-    if (!post) return
-    const { data } = await supabase.from('follows').select('*').match({ follower_id: user.id, following_id: post.author_id }).single()
-    setFollowing(!!data)
-  }
-
   const handleLike = async () => {
     if (!user) return alert('পছন্দ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
     try {
-      if (liked) {
-        await supabase.from('likes').delete().match({ user_id: user.id, post_id: id })
-        setLiked(false)
-      } else {
-        await supabase.from('likes').insert({ user_id: user.id, post_id: id })
-        setLiked(true)
-      }
-      fetchPost(true)
+      await toggleLike({ liked, userId: user.id, postId: id })
+      setLiked(!liked)
+      refreshPost(true)
     } catch (e) {
       console.error(e)
     }
@@ -154,13 +67,8 @@ export default function Reader() {
   const handleBookmark = async () => {
     if (!user) return alert('সংৰক্ষণ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
     try {
-      if (bookmarked) {
-        await supabase.from('bookmarks').delete().match({ user_id: user.id, post_id: id })
-        setBookmarked(false)
-      } else {
-        await supabase.from('bookmarks').insert({ user_id: user.id, post_id: id })
-        setBookmarked(true)
-      }
+      await toggleBookmark({ bookmarked, userId: user.id, postId: id })
+      setBookmarked(!bookmarked)
     } catch (e) {
       console.error(e)
     }
@@ -169,13 +77,8 @@ export default function Reader() {
   const handleFollow = async () => {
     if (!user) return alert('অনুসৰণ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
     try {
-      if (following) {
-        await supabase.from('follows').delete().match({ follower_id: user.id, following_id: post.author_id })
-        setFollowing(false)
-      } else {
-        await supabase.from('follows').insert({ follower_id: user.id, following_id: post.author_id })
-        setFollowing(true)
-      }
+      await toggleFollow({ following, followerId: user.id, followingId: post.author_id })
+      setFollowing(!following)
     } catch (e) {
       console.error(e)
     }
@@ -186,10 +89,12 @@ export default function Reader() {
     if (!user) return alert('মন্তব্য কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
     if (!newComment.trim()) return
 
-    const { error } = await supabase.from('comments').insert({ post_id: id, user_id: user.id, body: newComment })
-    if (!error) {
+    try {
+      await addComment({ postId: id, userId: user.id, body: newComment })
       setNewComment('')
-      fetchComments()
+      refreshComments()
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -205,52 +110,28 @@ export default function Reader() {
 
   return (
     <div className="reading-shell fade-in">
-      <div className="reader-toolbar">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-          <button onClick={() => navigate(-1)} className="btn-icon"><ChevronLeft size={20} /></button>
-
-          <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.25rem', border: '1px solid var(--border-color)', borderRadius: '999px', background: 'var(--surface-raised)' }}>
-              <button className="btn-icon" onClick={() => setFontSize((prev) => Math.max(16, prev - 1))} title="Decrease text size">
-                <Minus size={16} />
-              </button>
-              <span style={{ minWidth: '2.5rem', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 700 }}>{fontSize}</span>
-              <button className="btn-icon" onClick={() => setFontSize((prev) => Math.min(26, prev + 1))} title="Increase text size">
-                <Plus size={16} />
-              </button>
-            </div>
-
-            <button className="btn-ghost" onClick={openQuoteModal} title="Create Quote Card"><ImageIcon size={18} /></button>
-            <ShareButton title={post.title} postId={post.id} direction="down" />
-
-            {user && user.id === post.author_id && (
-              <div ref={menuRef} style={{ position: 'relative' }}>
-                <button className="btn-icon" onClick={() => setShowMenu(!showMenu)}><MoreVertical size={18} /></button>
-                {showMenu && (
-                  <div className="share-menu fade-in" style={{ right: 0, top: 'calc(100% + 10px)', minWidth: '180px' }}>
-                    <div className="share-menu-item" onClick={() => navigate(`/write/${post.id}`)}><Edit size={16} /> <span>সম্পাদনা</span></div>
-                    <div className="share-menu-item" onClick={async () => {
-                      await supabase.from('posts').update({ is_published: !post.is_published }).eq('id', post.id)
-                      fetchPost()
-                      setShowMenu(false)
-                    }}>
-                      {post.is_published ? <EyeOff size={16} /> : <Eye size={16} />}
-                      <span>{post.is_published ? 'লুকুৱাই ৰাখক' : 'প্ৰকাশ কৰক'}</span>
-                    </div>
-                    <div className="share-divider" />
-                    <div className="share-menu-item danger" onClick={async () => {
-                      if (window.confirm('মচি পেলাব বিচাৰিছেনে?')) {
-                        await supabase.from('posts').delete().eq('id', post.id)
-                        navigate('/')
-                      }
-                    }}><Trash2 size={16} /> <span>মচি পেলাওক</span></div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <ReaderToolbar
+        navigate={navigate}
+        fontSize={fontSize}
+        setFontSize={setFontSize}
+        openQuoteModal={openQuoteModal}
+        post={post}
+        user={user}
+        menuRef={menuRef}
+        showMenu={showMenu}
+        setShowMenu={setShowMenu}
+        onTogglePublish={async () => {
+          await updatePostPublishState({ postId: post.id, isPublished: post.is_published })
+          refreshPost()
+          setShowMenu(false)
+        }}
+        onDelete={async () => {
+          if (window.confirm('মচি পেলাব বিচাৰিছেনে?')) {
+            await deletePostById(post.id)
+            navigate('/')
+          }
+        }}
+      />
 
       <article className="reader-surface">
         {(post.cover_image || post.title) && (
@@ -297,7 +178,7 @@ export default function Reader() {
               <div className="playlist-progress-badge">{currentIndex + 1} / {seriesPosts.length}</div>
             </div>
             <div className="playlist-navigation-bar">
-              <button className="playlist-nav-button" onClick={() => navigate(`/post/${prevPost.id}`)} disabled={!prevPost}><ChevronLeft size={18} /> আগৰ খণ্ড</button>
+              <button className="playlist-nav-button" onClick={() => navigate(`/post/${prevPost.id}`)} disabled={!prevPost}><BookOpen size={18} /> আগৰ খণ্ড</button>
               <button className="playlist-nav-button" onClick={() => navigate(`/post/${nextPost.id}`)} disabled={!nextPost}>পৰৱৰ্তী খণ্ড <ChevronRight size={18} /></button>
             </div>
             <div className="playlist-items-list">
