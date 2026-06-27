@@ -2,12 +2,12 @@ export const COVER_IMAGES = {
   'starry-night': '/covers/starry-night-lowpoly.jpg',
   'sunset': '/covers/sunset-lowpoly.jpg',
   'meadow': '/covers/meadow-lowpoly.jpg',
-  'ember-dusk': '/covers/ember-dusk-lowpoly.svg',
-  'aurora-peak': '/covers/aurora-peak-lowpoly.svg',
-  'lavender-field': '/covers/lavender-field-lowpoly.svg',
-  'canyon-bloom': '/covers/canyon-bloom-lowpoly.svg',
-  'monsoon-vale': '/covers/monsoon-vale-lowpoly.svg',
-  'iceberg': '/covers/iceberg-lowpoly.svg',
+  'ember-dusk': '/covers/ember-dusk-lowpoly.png',
+  'aurora-peak': '/covers/aurora-peak-lowpoly.png',
+  'lavender-field': '/covers/lavender-field-lowpoly.png',
+  'canyon-bloom': '/covers/canyon-bloom-lowpoly.png',
+  'monsoon-vale': '/covers/monsoon-vale-lowpoly.png',
+  'iceberg': '/covers/iceberg-lowpoly.png',
 }
 
 export const HOME_COVER_IDS = Object.keys(COVER_IMAGES)

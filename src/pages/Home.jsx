@@ -8,6 +8,7 @@ import { Sparkles, PenTool, ArrowRight } from 'lucide-react'
 import CategoryBadge from '../components/CategoryBadge'
 import EmptyState from '../components/ui/EmptyState'
 import LoadingState from '../components/ui/LoadingState'
+import { getRandomCoverForPost } from '../utils/covers'
 
 export default function Home() {
   const { user } = useAuth()
@@ -50,7 +51,7 @@ export default function Home() {
           <Link
             to={`/post/${featuredPost.id}`}
             className="panel hero-feature has-image"
-            style={{ backgroundImage: `linear-gradient(180deg, rgba(18,14,12,0.14), rgba(18,14,12,0.42)), url(${featuredPost.cover_image || ''})` }}
+            style={{ backgroundImage: `linear-gradient(180deg, rgba(18,14,12,0.14), rgba(18,14,12,0.42)), url(${getRandomCoverForPost(featuredPost)})` }}
           >
             <div className="hero-meta">
               <CategoryBadge category={featuredPost.category} />
