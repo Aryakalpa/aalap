@@ -26,6 +26,8 @@ import CategoryBadge from '../components/CategoryBadge'
 import ShareButton from '../components/ShareButton'
 import ShareQuoteModal from '../components/ShareQuoteModal'
 import CoverPreview from '../components/CoverPreview'
+import EmptyState from '../components/ui/EmptyState'
+import LoadingState from '../components/ui/LoadingState'
 
 export default function Reader() {
   const { id } = useParams()
@@ -198,7 +200,7 @@ export default function Reader() {
     setShowQuoteModal(true)
   }
 
-  if (loading) return <div className="container" style={{ display: 'flex', justifyContent: 'center', padding: '10rem' }}><div className="spinner" /></div>
+  if (loading) return <LoadingState padding="10rem" />
   if (!post) return <div className="container-sm" style={{ padding: '5rem', textAlign: 'center' }}><h2>বন্ধ কৰক, এই লিখনিটো বিচাৰি পোৱা নগ'ল।</h2><Link to="/" className="btn btn-primary">মূল পৃষ্ঠালৈ উভতি যাওক</Link></div>
 
   return (
@@ -334,9 +336,7 @@ export default function Reader() {
             </div>
           </form>
         ) : (
-          <div className="empty-state card" style={{ marginBottom: '1.5rem' }}>
-            <p className="empty-state-desc">মন্তব্য কৰিবলৈ লগ ইন কৰক।</p>
-          </div>
+          <EmptyState style={{ marginBottom: '1.5rem' }} title="মন্তব্য কৰিবলৈ লগ ইন কৰক।" />
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

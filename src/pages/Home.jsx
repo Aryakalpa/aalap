@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Sparkles, PenTool, ArrowRight } from 'lucide-react'
 import CategoryBadge from '../components/CategoryBadge'
+import EmptyState from '../components/ui/EmptyState'
+import LoadingState from '../components/ui/LoadingState'
 
 export default function Home() {
   const { user } = useAuth()
@@ -99,20 +101,18 @@ export default function Home() {
 
       <section>
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}><div className="spinner" /></div>
+          <LoadingState containerClassName="page-shell" />
         ) : posts.length === 0 ? (
-          <div className="empty-state card">
-            <div className="empty-state-icon">📚</div>
-            <h3 className="empty-state-title">এই শিতানত এতিয়ালৈকে কোনো লিখনি নাই</h3>
-            <p className="empty-state-desc">
-              {user ? 'আপোনাৰ সৃষ্টিশীল লিখনি এই শিতানত প্ৰথম হ\'ব পাৰে!' : 'নতুন লিখনি পঢ়িবলৈ অপেক্ষা কৰক অথবা নিজা লিখনি যোগ দিবলৈ লগ ইন কৰক।'}
-            </p>
-            {user && (
+          <EmptyState
+            icon="📚"
+            title="এই শিতানত এতিয়ালৈকে কোনো লিখনি নাই"
+            description={user ? "আপোনাৰ সৃষ্টিশীল লিখনি এই শিতানত প্ৰথম হ'ব পাৰে!" : 'নতুন লিখনি পঢ়িবলৈ অপেক্ষা কৰক অথবা নিজা লিখনি যোগ দিবলৈ লগ ইন কৰক।'}
+            action={user ? (
               <Link to="/write" className="btn btn-primary" style={{ marginTop: '1.25rem' }}>
                 <PenTool size={18} /> নতুন লিখনি আৰম্ভ কৰক
               </Link>
-            )}
-          </div>
+            ) : null}
+          />
         ) : (
           <div className="feed-list">
             {(featuredPost ? latestPosts : posts).map(post => (

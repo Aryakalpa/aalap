@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { fetchTrendingPosts as fetchTrendingPostsService } from '../services/posts'
 import PostCard from '../components/PostCard'
 import { TrendingUp } from 'lucide-react'
+import EmptyState from '../components/ui/EmptyState'
+import LoadingState from '../components/ui/LoadingState'
 
 export default function Trending() {
   const [posts, setPosts] = useState([])
@@ -47,13 +49,13 @@ export default function Trending() {
       </div>
 
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}><div className="spinner" /></div>
+        <LoadingState containerClassName="page-shell" />
       ) : posts.length === 0 ? (
-        <div className="empty-state card">
-          <div className="empty-state-icon">📈</div>
-          <h3 className="empty-state-title">এতিয়ালৈকে কোনো জনপ্ৰিয় লিখনি নাই</h3>
-          <p className="empty-state-desc">এই সময়ছোৱাত কোনো লিখনিয়ে এতিয়ালৈকে জনপ্ৰিয়তা লাভ কৰা নাই। অলপ পিছত আকৌ চেষ্টা কৰিব।</p>
-        </div>
+        <EmptyState
+          icon="📈"
+          title="এতিয়ালৈকে কোনো জনপ্ৰিয় লিখনি নাই"
+          description="এই সময়ছোৱাত কোনো লিখনিয়ে এতিয়ালৈকে জনপ্ৰিয়তা লাভ কৰা নাই। অলপ পিছত আকৌ চেষ্টা কৰিব।"
+        />
       ) : (
         <div className="feed-list">
           {posts.map(post => <PostCard key={post.id} post={post} onUpdate={fetchTrendingPosts} />)}

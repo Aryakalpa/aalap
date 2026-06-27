@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { Link } from 'react-router-dom'
 import { formatDate } from '../utils/helpers'
 import { Heart, MessageSquare, UserPlus, Bell, ChevronRight } from 'lucide-react'
+import EmptyState from '../components/ui/EmptyState'
+import LoadingState from '../components/ui/LoadingState'
 
 export default function Notifications() {
   const { user } = useAuth()
@@ -54,7 +56,7 @@ export default function Notifications() {
     }
   }
 
-  if (loading) return <div className="container" style={{ display: 'flex', justifyContent: 'center', padding: '10rem' }}><div className="spinner" /></div>
+  if (loading) return <LoadingState padding="10rem" />
 
   return (
     <div className="page-shell fade-in">
@@ -66,9 +68,7 @@ export default function Notifications() {
       </header>
 
       {notifications.length === 0 ? (
-        <div className="empty-state card">
-          <h3 className="empty-state-title">আপোনাৰ এতিয়ালৈকে কোনো জাননী নাই।</h3>
-        </div>
+        <EmptyState title="আপোনাৰ এতিয়ালৈকে কোনো জাননী নাই।" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {notifications.map(n => {

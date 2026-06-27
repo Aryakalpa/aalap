@@ -7,6 +7,8 @@ import PostCard from '../components/PostCard'
 import Avatar from '../components/Avatar'
 import { formatNumber } from '../utils/helpers'
 import { Settings, Globe, UserPlus, UserMinus } from 'lucide-react'
+import EmptyState from '../components/ui/EmptyState'
+import LoadingState from '../components/ui/LoadingState'
 
 export default function Profile() {
   const { id } = useParams()
@@ -76,7 +78,7 @@ export default function Profile() {
     }
   }
 
-  if (loading) return <div className="container" style={{ display: 'flex', justifyContent: 'center', padding: '10rem' }}><div className="spinner" /></div>
+  if (loading) return <LoadingState padding="10rem" />
   if (!profile) return <div className="container" style={{ textAlign: 'center', padding: '5rem' }}><h2>প্ৰ'ফাইল বিচাৰি পোৱা নগ'ল।</h2></div>
 
   const isOwnProfile = user?.id === profile.id
@@ -121,9 +123,7 @@ export default function Profile() {
         <div className="feed-list">
           {posts.map(post => <PostCard key={post.id} post={post} onUpdate={fetchUserPosts} />)}
           {posts.length === 0 && (
-            <div className="empty-state card">
-              <h3 className="empty-state-title">এতিয়ালৈকে কোনো লিখনি প্ৰকাশ কৰা নাই।</h3>
-            </div>
+            <EmptyState title="এতিয়ালৈকে কোনো লিখনি প্ৰকাশ কৰা নাই।" />
           )}
         </div>
       </div>

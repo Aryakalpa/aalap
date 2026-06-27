@@ -1,17 +1,21 @@
+import { Suspense, lazy, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/Layout'
-import Home from './pages/Home'
-import Trending from './pages/Trending'
-import Settings from './pages/Settings'
-import Write from './pages/Write'
-import Notifications from './pages/Notifications'
-import Profile from './pages/Profile'
-import Reader from './pages/Reader'
-import Search from './pages/Search'
-import { useEffect } from 'react'
+import LoadingState from './components/ui/LoadingState'
 import { APP_VERSION } from './constants/app'
+
+
+const Home = lazy(() => import('./pages/Home'))
+const Trending = lazy(() => import('./pages/Trending'))
+const Settings = lazy(() => import('./pages/Settings'))
+const Write = lazy(() => import('./pages/Write'))
+const Notifications = lazy(() => import('./pages/Notifications'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Reader = lazy(() => import('./pages/Reader'))
+const Search = lazy(() => import('./pages/Search'))
+
 
 export default function App() {
     // Force refresh for mobile users on new version
@@ -27,6 +31,7 @@ export default function App() {
             <AuthProvider>
                 <BrowserRouter>
                     <Layout>
+                        <Suspense fallback={<LoadingState padding="10rem" />}>
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/trending" element={<Trending />} />
@@ -39,6 +44,7 @@ export default function App() {
                             <Route path="/search" element={<Search />} />
                             <Route path="/login" element={<Home />} />
                         </Routes>
+                        </Suspense>
                     </Layout>
                 </BrowserRouter>
             </AuthProvider>
