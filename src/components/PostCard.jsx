@@ -123,7 +123,7 @@ export default function PostCard({ post, onUpdate }) {
         </div>
 
         <h3 className="post-title">{post.title}</h3>
-        <p className={['poem', 'poetry'].includes(post.category?.toLowerCase()) ? 'post-excerpt poem-preview' : 'post-excerpt'}>{generateExcerpt(post.body || '', 220)}</p>
+        <p className={['poem', 'poetry', 'কবিতা'].includes(post.category?.toLowerCase()) ? 'post-excerpt poem-preview' : 'post-excerpt'}>{generateExcerpt(post.body || '', 220)}</p>
 
         <div className="post-actions">
           <div className="inline-stats">

@@ -3,9 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import PostCard from '../components/PostCard'
-import ProfileBadge from '../components/ProfileBadge'
 import Avatar from '../components/Avatar'
-import { getBadgeLevel, getAchievements, formatNumber } from '../utils/helpers'
+import { formatNumber } from '../utils/helpers'
 import { Settings, Globe, UserPlus, UserMinus } from 'lucide-react'
 
 export default function Profile() {
@@ -81,8 +80,6 @@ export default function Profile() {
   if (!profile) return <div className="container" style={{ textAlign: 'center', padding: '5rem' }}><h2>প্ৰ'ফাইল বিচাৰি পোৱা নগ'ল।</h2></div>
 
   const isOwnProfile = user?.id === profile.id
-  const badge = getBadgeLevel(profile.post_count || 0)
-  const achievements = getAchievements(profile)
 
   return (
     <div className="page-shell fade-in">
@@ -113,14 +110,6 @@ export default function Profile() {
         </div>
       </div>
 
-      <div style={{ marginBottom: '3rem' }}>
-        <div className="section-header">
-          <div>
-            <h2 className="section-title">অৰ্জনসমূহ</h2>
-          </div>
-        </div>
-        <ProfileBadge badge={badge} achievements={achievements} />
-      </div>
 
       <div>
         <div className="section-header">

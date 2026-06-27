@@ -2,7 +2,6 @@ import { useRef, useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { useTheme } from '../contexts/ThemeContext'
 import { formatDate, estimateReadingTime, generateExcerpt } from '../utils/helpers'
 import {
   Heart,
@@ -38,7 +37,6 @@ export default function Reader() {
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState('')
   const [showMenu, setShowMenu] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
   const [similarPosts, setSimilarPosts] = useState([])
   const [seriesPosts, setSeriesPosts] = useState([])
   const [showQuoteModal, setShowQuoteModal] = useState(false)
@@ -49,11 +47,8 @@ export default function Reader() {
   const [following, setFollowing] = useState(false)
 
   const [fontSize, setFontSize] = useState(19)
-  const [fontFamily, setFontFamily] = useState('serif')
-  const [alignment, setAlignment] = useState('left')
 
   const menuRef = useRef(null)
-  const settingsRef = useRef(null)
 
   useEffect(() => {
     fetchPost()
@@ -71,7 +66,6 @@ export default function Reader() {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false)
-      if (settingsRef.current && !settingsRef.current.contains(e.target)) setShowSettings(false)
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -91,7 +85,6 @@ export default function Reader() {
       const { data, error } = await supabase.from('posts').select('*, profiles(*)').eq('id', id).single()
       if (error) throw error
       setPost(data)
-      if (data.alignment) setAlignment(data.alignment)
     } catch (error) {
       console.error('Error fetching post:', error)
     } finally {

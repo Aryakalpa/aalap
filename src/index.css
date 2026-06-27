@@ -1,45 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap');
-
 :root {
   --nav-height: 72px;
   --page-max: 1120px;
   --content-max: 760px;
 
-  --bg-primary: #f6f1e8;
-  --bg-primary-rgb: 246, 241, 232;
-  --bg-secondary: #fbf7f0;
-  --bg-tertiary: #efe7da;
-  --bg-strong: #e8ddce;
-  --surface-raised: #fffdf9;
+  --bg-primary: #f5f5f7;
+  --bg-primary-rgb: 245, 245, 247;
+  --bg-secondary: #fbfbfd;
+  --bg-tertiary: #f0f1f5;
+  --bg-strong: #e4e7ee;
+  --surface-raised: rgba(255, 255, 255, 0.82);
 
-  --text-primary: #1d1916;
-  --text-secondary: #4f463f;
-  --text-tertiary: #7b6d61;
-  --text-muted: #9a8c7f;
+  --text-primary: #111214;
+  --text-secondary: #42464d;
+  --text-tertiary: #6a707a;
+  --text-muted: #8b919b;
 
-  --accent: #a65a3a;
-  --accent-rgb: 166, 90, 58;
-  --accent-soft: #f0dfd3;
-  --accent-strong: #7f3f26;
-  --ink-blue: #6b7a8f;
-  --forest: #415348;
-  --gold: #b38a3d;
-  --danger: #b14a34;
-  --success: #46624b;
+  --accent: #1677ff;
+  --accent-rgb: 22, 119, 255;
+  --accent-soft: #e7f0ff;
+  --accent-strong: #0c5ed6;
+  --ink-blue: #1677ff;
+  --forest: #3f6f5f;
+  --gold: #b28a2e;
+  --danger: #d74444;
+  --success: #2f7d57;
 
-  --border-color: #d9cdbf;
-  --border-strong: #c9b9a7;
+  --border-color: rgba(17, 18, 20, 0.08);
+  --border-strong: rgba(17, 18, 20, 0.14);
 
-  --radius-xs: 8px;
-  --radius-sm: 12px;
-  --radius-md: 16px;
-  --radius-lg: 22px;
-  --shadow-sm: 0 1px 2px rgba(35, 24, 16, 0.04);
-  --shadow-md: 0 10px 30px rgba(42, 28, 20, 0.06);
-  --shadow-lg: 0 20px 50px rgba(42, 28, 20, 0.1);
+  --radius-xs: 10px;
+  --radius-sm: 16px;
+  --radius-md: 22px;
+  --radius-lg: 30px;
+  --shadow-sm: 0 6px 24px rgba(17, 18, 20, 0.05);
+  --shadow-md: 0 18px 44px rgba(17, 18, 20, 0.08);
+  --shadow-lg: 0 28px 80px rgba(17, 18, 20, 0.12);
 
-  --font-serif: 'Tiro Bangla', serif;
-  --font-display: 'Hind Siliguri', sans-serif;
+  --font-serif: 'Georgia', 'Times New Roman', serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   --section-gap: 2.5rem;
 }
@@ -113,11 +111,15 @@ html {
 
 body {
   font-family: var(--font-display);
-  background: var(--bg-primary);
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.88), transparent 38%),
+    linear-gradient(180deg, #fbfbfd 0%, #f5f5f7 100%);
   color: var(--text-primary);
   line-height: 1.6;
   overflow-x: hidden;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 img {
@@ -271,6 +273,8 @@ h4,
   border: 1px solid var(--border-color);
   border-radius: 999px;
   background: var(--surface-raised);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
 }
 
 .top-nav-link {
@@ -501,6 +505,8 @@ textarea {
 
 .card:hover {
   border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .post-card-shell {
@@ -523,6 +529,8 @@ textarea {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
 }
 
 .section-header {
@@ -695,6 +703,17 @@ textarea {
   line-height: 1.7;
 }
 
+.poem-preview {
+  white-space: pre-wrap;
+  font-style: italic;
+  line-height: 1.9;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .post-thumb {
   width: 132px;
   aspect-ratio: 4 / 5;
@@ -817,11 +836,6 @@ textarea {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.poem-preview {
-  white-space: pre-line;
-  font-style: italic;
 }
 
 .poem-content {
@@ -1215,6 +1229,15 @@ textarea {
   .writer-sidebar,
   .reader-surface {
     padding: 1rem;
+  }
+
+  .hero-feature,
+  .panel,
+  .card,
+  .reader-surface,
+  .bottom-nav {
+    backdrop-filter: blur(16px) saturate(135%);
+    -webkit-backdrop-filter: blur(16px) saturate(135%);
   }
 
   .post-row {
