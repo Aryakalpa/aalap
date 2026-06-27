@@ -1,5 +1,11 @@
 const encodeSvg = (svg) => `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
 
+export const COVER_IMAGES = {
+  'starry-night': '/covers/starry-night-lowpoly.jpg',
+  'sunset': '/covers/sunset-lowpoly.jpg',
+  'meadow': '/covers/meadow-lowpoly.jpg',
+}
+
 export const COVER_PRESETS = [
   { id: 'paper-ink', label: 'Paper Ink', bg: '#f6f1e8', accent: '#a65a3a', soft: '#ead7cb', line: '#d4b9a7' },
   { id: 'river-mist', label: 'River Mist', bg: '#e9eef2', accent: '#6b7a8f', soft: '#d7e0e8', line: '#b8c6d3' },
@@ -7,6 +13,9 @@ export const COVER_PRESETS = [
   { id: 'night-ink', label: 'Night Ink', bg: '#1a1715', accent: '#d0a06c', soft: '#2b2521', line: '#5c4737' },
   { id: 'forest-cloth', label: 'Forest Cloth', bg: '#dde5dd', accent: '#556b5a', soft: '#cfdbcf', line: '#a9bca9' },
   { id: 'gold-manuscript', label: 'Gold Manuscript', bg: '#f3ead6', accent: '#b38a3d', soft: '#eadfbe', line: '#d7c28c' },
+  { id: 'starry-night', label: '✨ Starry Night', bg: '#1a1a2e', accent: '#e8d5b7', soft: '#2d2d5a', line: '#4a4a8a', isImage: true },
+  { id: 'sunset', label: '🌅 Sunset', bg: '#ff7e5f', accent: '#feb47b', soft: '#ff9068', line: '#ffcb8e', isImage: true },
+  { id: 'meadow', label: '🌿 Meadow', bg: '#98d8aa', accent: '#f7f7dc', soft: '#c9e4ca', line: '#7bc88f', isImage: true },
 ]
 
 const patternByCategory = (category = '', accent = '#a65a3a', line = '#d4b9a7') => {
@@ -49,6 +58,11 @@ export function buildCoverSvg({ category = 'অন্যান্য', presetId 
   const preset = COVER_PRESETS.find((p) => p.id === presetId) || COVER_PRESETS[0]
   const safeCategory = String(category || 'অন্যান্য')
 
+  // Return image path for image-based presets
+  if (preset.isImage && COVER_IMAGES[preset.id]) {
+    return COVER_IMAGES[preset.id]
+  }
+
   const svg = `
   <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
     <rect width="1600" height="900" fill="${preset.bg}"/>
@@ -70,5 +84,11 @@ export function buildCoverSvg({ category = 'অন্যান্য', presetId 
 }
 
 export function isGeneratedCover(value = '') {
-  return typeof value === 'string' && value.startsWith('data:image/svg+xml')
+  if (typeof value !== 'string') return false
+  // Handle both SVG data URIs and image paths
+  return value.startsWith('data:image/svg+xml') || value.startsWith('/covers/')
+}
+
+export function isImageCover(value = '') {
+  return typeof value === 'string' && value.startsWith('/covers/')
 }
