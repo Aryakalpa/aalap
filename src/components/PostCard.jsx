@@ -76,14 +76,22 @@ export default function PostCard({ post, onUpdate }) {
   }
 
   return (
-    <Link to={`/post/${post.id}`} className="card fade-in post-card-shell" style={{ display: 'block', padding: 0, overflow: 'hidden' }}>
+    <Link to={`/post/${post.id}`} className="card fade-in post-card-shell immersive-post-card" style={{ display: 'block', padding: 0, overflow: 'hidden' }}>
       {post.title && (
-        <div className="post-card-cover">
+        <div className="post-card-cover immersive-cover-shell">
           <CoverPreview post={post} alt="" />
+          <div className="immersive-cover-overlay" />
+          <div className="immersive-cover-content">
+            <div style={{ marginBottom: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <CategoryBadge category={post.category} size="sm" />
+              {post.series_name && <div className="series-tag immersive-series-tag" style={{ marginTop: 0 }}><BookOpen size={12} /> {post.series_name}</div>}
+            </div>
+            <h3 className="post-title immersive-post-title">{post.title}</h3>
+          </div>
         </div>
       )}
 
-      <div className="post-card-body" style={{ padding: '1.15rem 1.15rem 1.05rem' }}>
+      <div className="post-card-body immersive-post-body" style={{ padding: '1.15rem 1.15rem 1.05rem' }}>
         <div className="post-author-line">
           <Avatar profile={post.profiles} size="md" clickable />
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -117,12 +125,6 @@ export default function PostCard({ post, onUpdate }) {
           )}
         </div>
 
-        <div style={{ marginBottom: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <CategoryBadge category={post.category} size="sm" />
-          {post.series_name && <div className="series-tag" style={{ marginTop: 0 }}><BookOpen size={12} /> {post.series_name}</div>}
-        </div>
-
-        <h3 className="post-title">{post.title}</h3>
         <p className={['poem', 'poetry', 'কবিতা'].includes(post.category?.toLowerCase()) ? 'post-excerpt poem-preview' : 'post-excerpt'}>{generateExcerpt(post.body || '', 220)}</p>
 
         <div className="post-actions">
