@@ -3,7 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { CATEGORIES, countWords, estimateReadingTime } from '../utils/helpers'
-import { PenTool, Image, FileText, CheckCircle, ChevronLeft, Save, AlignLeft, AlignCenter, AlignJustify, BookOpen } from 'lucide-react'
+import { PenTool, Image, CheckCircle, ChevronLeft, Save, AlignLeft, AlignCenter, AlignJustify, BookOpen } from 'lucide-react'
+import CoverPreview from '../components/CoverPreview'
+import { COVER_PRESETS, buildCoverSvg, isGeneratedCover } from '../utils/covers'
 
 export default function Write() {
   const { id } = useParams()
@@ -14,11 +16,12 @@ export default function Write() {
   const [body, setBody] = useState('')
   const [category, setCategory] = useState('')
   const [seriesName, setSeriesName] = useState('')
-  const [coverImage, setCoverImage] = useState('')
   const [alignment, setAlignment] = useState('left')
   const [isDraft, setIsDraft] = useState(true)
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState(null)
+  const [coverMode, setCoverMode] = useState('preset')
+  const [coverPreset, setCoverPreset] = useState('paper-ink')
 
   useEffect(() => {
     if (!user) {
@@ -36,9 +39,15 @@ export default function Write() {
       setBody(data.body || '')
       setCategory(data.category || '')
       setSeriesName(data.series_name || '')
-      setCoverImage(data.cover_image || '')
       setAlignment(data.alignment || 'left')
       setIsDraft(!data.is_published)
+      if (!data.cover_image) {
+        setCoverMode('none')
+      } else if (isGeneratedCover(data.cover_image)) {
+        setCoverMode('preset')
+      } else {
+        setCoverMode('preset')
+      }
     }
   }
 
@@ -52,12 +61,22 @@ export default function Write() {
 
     setSaving(true)
     try {
+      const resolvedCoverImage =
+        coverMode === 'preset'
+          ? buildCoverSvg({
+              title,
+              category: CATEGORIES.find((c) => c.id === category)?.label || category,
+              author: user?.user_metadata?.full_name || '',
+              presetId: coverPreset,
+            })
+          : ''
+
       const postData = {
         title,
         body,
         category,
         series_name: seriesName,
-        cover_image: coverImage,
+        cover_image: resolvedCoverImage,
         alignment,
         author_id: user.id,
         is_published: publish,
@@ -127,7 +146,7 @@ export default function Write() {
           <div className="field-group">
             <label className="field-label"><CheckCircle size={14} style={{ marginRight: 6 }} />বিভাগ বাছনি কৰক</label>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {CATEGORIES.map(cat => (
+              {CATEGORIES.map((cat) => (
                 <button key={cat.id} className={`filter-chip ${category === cat.id ? 'active' : ''}`} onClick={() => setCategory(cat.id)}>
                   {cat.label}
                 </button>
@@ -150,8 +169,56 @@ export default function Write() {
           </div>
 
           <div className="field-group">
-            <label className="field-label"><Image size={14} style={{ marginRight: 6 }} />বেটুপাতৰ লিংক (ঐচ্ছিক)</label>
-            <input type="url" placeholder="https://example.com/image.jpg" value={coverImage} onChange={(e) => setCoverImage(e.target.value)} />
+            <label className="field-label"><Image size={14} style={{ marginRight: 6 }} />বেটুপাত</label>
+            <div className="tab-row" style={{ marginBottom: '0.75rem' }}>
+              <button type="button" className={`tab-btn ${coverMode === 'preset' ? 'active' : ''}`} onClick={() => setCoverMode('preset')}>Preset</button>
+              <button type="button" className={`tab-btn ${coverMode === 'none' ? 'active' : ''}`} onClick={() => setCoverMode('none')}>None</button>
+            </div>
+
+            {coverMode === 'preset' && (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem', marginBottom: '0.9rem' }}>
+                  {COVER_PRESETS.map((preset) => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => setCoverPreset(preset.id)}
+                      style={{
+                        border: coverPreset === preset.id ? '2px solid var(--text-primary)' : '1px solid var(--border-color)',
+                        borderRadius: '14px',
+                        overflow: 'hidden',
+                        background: 'var(--surface-raised)',
+                        cursor: 'pointer',
+                        padding: 0,
+                        textAlign: 'left',
+                      }}
+                    >
+                      <div style={{ aspectRatio: '4 / 5', background: 'var(--bg-secondary)' }}>
+                        <CoverPreview
+                          title={title || 'আপোনাৰ লিখনৰ শিৰোনাম...'}
+                          category={CATEGORIES.find((c) => c.id === category)?.label || category || 'অন্যান্য'}
+                          author={user?.user_metadata?.full_name || ''}
+                          presetId={preset.id}
+                          alt={preset.label}
+                        />
+                      </div>
+                      <div style={{ padding: '0.55rem 0.7rem', fontSize: '0.82rem', fontWeight: 700 }}>{preset.label}</div>
+                    </button>
+                  ))}
+                </div>
+                <div className="panel" style={{ padding: '0.75rem' }}>
+                  <div style={{ aspectRatio: '4 / 5', borderRadius: '12px', overflow: 'hidden' }}>
+                    <CoverPreview
+                      title={title || 'আপোনাৰ লিখনৰ শিৰোনাম...'}
+                      category={CATEGORIES.find((c) => c.id === category)?.label || category || 'অন্যান্য'}
+                      author={user?.user_metadata?.full_name || ''}
+                      presetId={coverPreset}
+                      alt="Cover preview"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="field-group" style={{ marginBottom: 0 }}>

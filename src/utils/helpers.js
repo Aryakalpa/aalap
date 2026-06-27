@@ -1,7 +1,7 @@
 // Avatar generation using DiceBear
 export const getAvatarUrl = (userId, displayName) => {
-  const seed = userId || displayName || 'default'
-  return `https://api.dicebear.com/7.x/adventurer-neutral/png?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9`
+  const seed = encodeURIComponent(userId || displayName || 'default')
+  return `https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=f6f1e8,e9eef2,f1e0d6,dde5dd,f3ead6`
 }
 
 export const countWords = (text) => {

@@ -28,6 +28,7 @@ import Avatar from '../components/Avatar'
 import CategoryBadge from '../components/CategoryBadge'
 import ShareButton from '../components/ShareButton'
 import ShareQuoteModal from '../components/ShareQuoteModal'
+import CoverPreview from '../components/CoverPreview'
 
 export default function Reader() {
   const { id } = useParams()
@@ -293,9 +294,11 @@ export default function Reader() {
       </div>
 
       <article className="reader-surface">
-        {post.cover_image && (
-          <div style={{ marginBottom: '2rem', borderRadius: '18px', overflow: 'hidden' }}>
-            <img src={post.cover_image} alt="" style={{ width: '100%', maxHeight: '480px', objectFit: 'cover' }} />
+        {(post.cover_image || post.title) && (
+          <div style={{ marginBottom: '2rem', borderRadius: '18px', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
+            <div style={{ width: '100%', maxHeight: '480px', aspectRatio: '16 / 9' }}>
+              <CoverPreview src={post.cover_image} title={post.title} category={post.category} author={post.profiles?.display_name} alt="" />
+            </div>
           </div>
         )}
 

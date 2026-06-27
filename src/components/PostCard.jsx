@@ -8,6 +8,7 @@ import Avatar from './Avatar'
 import Badge from './Badge'
 import CategoryBadge from './CategoryBadge'
 import ShareButton from './ShareButton'
+import CoverPreview from './CoverPreview'
 
 export default function PostCard({ post, onUpdate }) {
   const { user } = useAuth()
@@ -174,7 +175,17 @@ export default function PostCard({ post, onUpdate }) {
           </div>
         </div>
 
-        {post.cover_image && <img src={post.cover_image} alt="" className="post-thumb" />}
+        {(post.cover_image || post.title) && (
+          <div className="post-thumb" style={{ overflow: 'hidden' }}>
+            <CoverPreview
+              src={post.cover_image}
+              title={post.title}
+              category={post.category}
+              author={post.profiles?.display_name}
+              alt=""
+            />
+          </div>
+        )}
       </div>
     </Link>
   )
