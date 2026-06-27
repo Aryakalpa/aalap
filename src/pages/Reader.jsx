@@ -14,11 +14,9 @@ import {
   EyeOff,
   Eye,
   Image as ImageIcon,
-  Type,
+  Minus,
+  Plus,
   Send,
-  AlignLeft,
-  AlignCenter,
-  AlignJustify,
   ChevronLeft,
   ChevronRight,
   BookOpen,
@@ -34,7 +32,6 @@ export default function Reader() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { theme, setTheme } = useTheme()
 
   const [post, setPost] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -218,47 +215,14 @@ export default function Reader() {
           <button onClick={() => navigate(-1)} className="btn-icon"><ChevronLeft size={20} /></button>
 
           <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div ref={settingsRef} style={{ position: 'relative' }}>
-              <button className={`btn-ghost ${showSettings ? 'active' : ''}`} onClick={() => setShowSettings(!showSettings)}>
-                <Type size={18} /> Aa
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.25rem', border: '1px solid var(--border-color)', borderRadius: '999px', background: 'var(--surface-raised)' }}>
+              <button className="btn-icon" onClick={() => setFontSize((prev) => Math.max(16, prev - 1))} title="Decrease text size">
+                <Minus size={16} />
               </button>
-
-              {showSettings && (
-                <div className="share-menu fade-in reader-settings-menu" style={{ right: 0, top: 'calc(100% + 10px)', minWidth: '300px', padding: '1rem' }}>
-                  <div className="field-group" style={{ marginBottom: '1rem' }}>
-                    <label className="field-label">থীম (Theme)</label>
-                    <div className="tab-row" style={{ marginBottom: 0 }}>
-                      <button className={`tab-btn ${theme === 'light' ? 'active' : ''}`} onClick={() => setTheme('light')}>Light</button>
-                      <button className={`tab-btn ${theme === 'paper' ? 'active' : ''}`} onClick={() => setTheme('paper')}>Paper</button>
-                      <button className={`tab-btn ${theme === 'dark' ? 'active' : ''}`} onClick={() => setTheme('dark')}>Dark</button>
-                    </div>
-                  </div>
-
-                  <div className="field-group" style={{ marginBottom: '1rem' }}>
-                    <label className="field-label">ফণ্ট (Font)</label>
-                    <div className="tab-row" style={{ marginBottom: 0 }}>
-                      <button className={`tab-btn ${fontFamily === 'serif' ? 'active' : ''}`} onClick={() => setFontFamily('serif')}>Tiro</button>
-                      <button className={`tab-btn ${fontFamily === 'sans' ? 'active' : ''}`} onClick={() => setFontFamily('sans')}>Siliguri</button>
-                    </div>
-                  </div>
-
-                  <div className="field-group" style={{ marginBottom: '1rem' }}>
-                    <label className="field-label">আকাৰ (Size) · {fontSize}px</label>
-                    <input type="range" min="16" max="26" step="1" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} />
-                  </div>
-
-                  <div className="field-group" style={{ marginBottom: 0 }}>
-                    <label className="field-label">শাৰীবদ্ধতা (Alignment)</label>
-                    <div className="tab-row" style={{ marginBottom: 0 }}>
-                      <button className={`tab-btn ${alignment === 'left' ? 'active' : ''}`} onClick={() => setAlignment('left')}><AlignLeft size={16} /></button>
-                      <button className={`tab-btn ${alignment === 'center' ? 'active' : ''}`} onClick={() => setAlignment('center')}><AlignCenter size={16} /></button>
-                      {!['poem', 'poetry'].includes(post.category?.toLowerCase()) && (
-                        <button className={`tab-btn ${alignment === 'justify' ? 'active' : ''}`} onClick={() => setAlignment('justify')}><AlignJustify size={16} /></button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
+              <span style={{ minWidth: '2.5rem', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 700 }}>{fontSize}</span>
+              <button className="btn-icon" onClick={() => setFontSize((prev) => Math.min(26, prev + 1))} title="Increase text size">
+                <Plus size={16} />
+              </button>
             </div>
 
             <button className="btn-ghost" onClick={openQuoteModal} title="Create Quote Card"><ImageIcon size={18} /></button>
@@ -303,7 +267,7 @@ export default function Reader() {
         )}
 
         <div style={{ marginBottom: '1rem' }}><CategoryBadge category={post.category} size="md" /></div>
-        <h1 className="reader-article-title" style={{ textAlign: alignment === 'center' ? 'center' : 'left' }}>{post.title}</h1>
+        <h1 className="reader-article-title" style={{ color: 'var(--text-primary)' }}>{post.title}</h1>
 
         {post.series_name && <div className="series-tag" style={{ marginBottom: '1.2rem' }}><BookOpen size={14} /> ধাৰাবাহিক: {post.series_name}</div>}
 
@@ -327,7 +291,7 @@ export default function Reader() {
           </div>
         </div>
 
-        <div className={`literature-content ${fontFamily === 'serif' ? 'font-serif' : 'font-display'} text-${alignment} ${['poem', 'poetry'].includes(post.category?.toLowerCase()) ? 'poem-content' : ''}`} style={{ fontSize: `${fontSize}px`, marginBottom: '3rem' }}>
+        <div className={`literature-content font-serif text-${post.alignment || 'left'} ${['poem', 'poetry'].includes(post.category?.toLowerCase()) ? 'poem-content' : ''}`} style={{ fontSize: `${fontSize}px`, marginBottom: '3rem' }}>
           {post.body}
         </div>
 

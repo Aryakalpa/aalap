@@ -60,7 +60,7 @@ export default function Home() {
           <Link
             to={`/post/${featuredPost.id}`}
             className={`panel hero-feature ${featuredPost.cover_image ? 'has-image' : ''}`}
-            style={featuredPost.cover_image ? { backgroundImage: `linear-gradient(180deg, rgba(18,14,12,0.18), rgba(18,14,12,0.58)), url(${featuredPost.cover_image})` } : {}}
+            style={featuredPost.cover_image ? { backgroundImage: `linear-gradient(180deg, rgba(18,14,12,0.14), rgba(18,14,12,0.42)), url(${featuredPost.cover_image})` } : { background: 'var(--surface-raised)' }}
           >
             <div className="hero-meta">
               <CategoryBadge category={featuredPost.category} />

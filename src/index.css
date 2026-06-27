@@ -597,6 +597,20 @@ textarea {
   font-size: 0.85rem;
 }
 
+.hero-feature .hero-meta {
+  color: rgba(255,255,255,0.9);
+}
+
+.hero-feature:not(.has-image) .hero-meta,
+.hero-feature:not(.has-image) .hero-title,
+.hero-feature:not(.has-image) .hero-excerpt {
+  color: var(--text-primary);
+}
+
+.hero-feature:not(.has-image) .hero-excerpt {
+  color: var(--text-secondary);
+}
+
 .hero-title {
   font-size: clamp(1.85rem, 3.6vw, 2.7rem);
   margin: 0.75rem 0 0.85rem;
@@ -1248,13 +1262,6 @@ textarea {
 
   .post-card-cover {
     aspect-ratio: 16 / 9;
-  }
-
-  .reader-settings-menu {
-    left: 0 !important;
-    right: 0 !important;
-    min-width: 0 !important;
-    width: min(100vw - 1.8rem, 320px);
   }
 
   .reader-toolbar {
