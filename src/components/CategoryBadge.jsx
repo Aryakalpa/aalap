@@ -1,6 +1,6 @@
 import { getCategoryColor } from '../utils/helpers'
 
-export default function CategoryBadge({ category, size = 'sm' }) {
+export default function CategoryBadge({ category, size = 'sm', variant = 'default' }) {
   const categoryMap = {
     poetry: 'কবিতা',
     poem: 'কবিতা',
@@ -24,19 +24,32 @@ export default function CategoryBadge({ category, size = 'sm' }) {
 
   const sizeStyle = sizes[size]
 
+  const overlayStyle = variant === 'overlay'
+    ? {
+        background: 'rgba(255, 255, 255, 0.16)',
+        border: '1px solid rgba(255, 255, 255, 0.24)',
+        color: '#ffffff',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        textShadow: '0 1px 10px rgba(0,0,0,0.18)',
+      }
+    : {
+        background: `${color}12`,
+        border: `1px solid ${color}33`,
+        color,
+      }
+
   return (
     <div
       style={{
         display: 'inline-block',
         padding: sizeStyle.padding,
         borderRadius: '999px',
-        background: `${color}12`,
-        border: `1px solid ${color}33`,
         fontSize: sizeStyle.fontSize,
         fontWeight: '700',
-        color,
         whiteSpace: 'nowrap',
         lineHeight: '1.4',
+        ...overlayStyle,
       }}
     >
       {displayCategory}

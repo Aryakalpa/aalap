@@ -82,49 +82,52 @@ export default function PostCard({ post, onUpdate }) {
           <CoverPreview post={post} alt="" />
           <div className="immersive-cover-overlay" />
           <div className="immersive-cover-content">
-            <div style={{ marginBottom: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <CategoryBadge category={post.category} size="sm" />
-              {post.series_name && <div className="series-tag immersive-series-tag" style={{ marginTop: 0 }}><BookOpen size={12} /> {post.series_name}</div>}
+            <div className="immersive-cover-toprow">
+              <CategoryBadge category={post.category} size="sm" variant="overlay" />
+              {post.series_name && <div className="series-tag immersive-series-tag"><BookOpen size={12} /> {post.series_name}</div>}
             </div>
+
             <h3 className="post-title immersive-post-title">{post.title}</h3>
+
+            <div className="immersive-author-row">
+              <div className="immersive-author-block">
+                <Avatar profile={post.profiles} size="md" clickable />
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.15rem', flexWrap: 'wrap' }}>
+                    <span className="immersive-author-name">{post.profiles?.display_name || 'অতিথি'}</span>
+                    <Badge postCount={post.profiles?.post_count || 0} size="sm" />
+                  </div>
+                  <div className="meta-row immersive-meta-row">
+                    <span>{formatDate(post.created_at)}</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={12} /> {estimateReadingTime(post.body)}</span>
+                    {!post.is_published && <span className="immersive-hidden-flag">(অঘোষিত/Hidden)</span>}
+                  </div>
+                </div>
+              </div>
+
+              {user && user.id === post.author_id && (
+                <div ref={menuRef} style={{ position: 'relative', marginLeft: 'auto' }}>
+                  <button className="btn-icon immersive-menu-btn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu) }}>
+                    <MoreVertical size={18} />
+                  </button>
+                  {showMenu && (
+                    <div className="share-menu fade-in" style={{ right: 0, top: '100%' }}>
+                      <div className="share-menu-item" onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/write/${post.id}` }}><Edit size={16} /> <span>সম্পাদনা</span></div>
+                      <div className="share-menu-item" onClick={async (e) => { e.preventDefault(); e.stopPropagation(); const { error } = await supabase.from('posts').update({ is_published: !post.is_published }).eq('id', post.id); if (!error && onUpdate) onUpdate(); setShowMenu(false) }}>
+                        {post.is_published ? <EyeOff size={16} /> : <Eye size={16} />}<span>{post.is_published ? 'লুকুৱাই ৰাখক' : 'প্ৰকাশ কৰক'}</span>
+                      </div>
+                      <div className="share-divider" />
+                      <div className="share-menu-item danger" onClick={async (e) => { e.preventDefault(); e.stopPropagation(); if (window.confirm('আপুনি নিশ্চিতনে? এই লিখনিটো সমূলি মচি পেলোৱা হ\'ব।')) { const { error } = await supabase.from('posts').delete().eq('id', post.id); if (!error && onUpdate) onUpdate() } }}><Trash2 size={16} /> <span>মচি পেলাওক</span></div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      <div className="post-card-body immersive-post-body" style={{ padding: '1.15rem 1.15rem 1.05rem' }}>
-        <div className="post-author-line">
-          <Avatar profile={post.profiles} size="md" clickable />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.2rem' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{post.profiles?.display_name || 'অতিথি'}</span>
-              <Badge postCount={post.profiles?.post_count || 0} size="sm" />
-            </div>
-            <div className="meta-row">
-              <span>{formatDate(post.created_at)}</span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={12} /> {estimateReadingTime(post.body)}</span>
-              {!post.is_published && <span style={{ color: 'var(--danger)', fontWeight: 700 }}>(অঘোষিত/Hidden)</span>}
-            </div>
-          </div>
-
-          {user && user.id === post.author_id && (
-            <div ref={menuRef} style={{ position: 'relative' }}>
-              <button className="btn-icon" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu) }}>
-                <MoreVertical size={18} />
-              </button>
-              {showMenu && (
-                <div className="share-menu fade-in" style={{ right: 0, top: '100%' }}>
-                  <div className="share-menu-item" onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/write/${post.id}` }}><Edit size={16} /> <span>সম্পাদনা</span></div>
-                  <div className="share-menu-item" onClick={async (e) => { e.preventDefault(); e.stopPropagation(); const { error } = await supabase.from('posts').update({ is_published: !post.is_published }).eq('id', post.id); if (!error && onUpdate) onUpdate(); setShowMenu(false) }}>
-                    {post.is_published ? <EyeOff size={16} /> : <Eye size={16} />}<span>{post.is_published ? 'লুকুৱাই ৰাখক' : 'প্ৰকাশ কৰক'}</span>
-                  </div>
-                  <div className="share-divider" />
-                  <div className="share-menu-item danger" onClick={async (e) => { e.preventDefault(); e.stopPropagation(); if (window.confirm('আপুনি নিশ্চিতনে? এই লিখনিটো সমূলি মচি পেলোৱা হ\'ব।')) { const { error } = await supabase.from('posts').delete().eq('id', post.id); if (!error && onUpdate) onUpdate() } }}><Trash2 size={16} /> <span>মচি পেলাওক</span></div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
+      <div className="post-card-body immersive-post-body" style={{ padding: '1rem 1.15rem 1.05rem' }}>
         <p className={['poem', 'poetry', 'কবিতা'].includes(post.category?.toLowerCase()) ? 'post-excerpt poem-preview' : 'post-excerpt'}>{generateExcerpt(post.body || '', 220)}</p>
 
         <div className="post-actions">

@@ -544,8 +544,8 @@ textarea {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(15, 18, 24, 0.08) 0%, rgba(15, 18, 24, 0.14) 34%, rgba(15, 18, 24, 0.68) 100%),
-    linear-gradient(180deg, transparent 50%, rgba(255, 255, 255, 0.08) 100%);
+    linear-gradient(180deg, rgba(15, 18, 24, 0.08) 0%, rgba(15, 18, 24, 0.18) 28%, rgba(15, 18, 24, 0.78) 100%),
+    linear-gradient(180deg, transparent 44%, rgba(255, 255, 255, 0.06) 100%);
 }
 
 .immersive-cover-content {
@@ -553,14 +553,66 @@ textarea {
   inset-inline: 0;
   bottom: 0;
   z-index: 2;
-  padding: 1.1rem 1.15rem 1rem;
+  padding: 1rem 1.1rem 1rem;
   color: #fff;
+}
+
+.immersive-cover-toprow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.8rem;
 }
 
 .immersive-post-title {
   color: #fff;
-  margin-bottom: 0;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.28);
+  margin-bottom: 0.9rem;
+  text-shadow: 0 4px 22px rgba(0, 0, 0, 0.36);
+}
+
+.immersive-author-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.immersive-author-block {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.immersive-author-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.32);
+}
+
+.immersive-meta-row {
+  color: rgba(255,255,255,0.86);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.26);
+}
+
+.immersive-hidden-flag {
+  color: #ffd1d1;
+  font-weight: 700;
+}
+
+.immersive-menu-btn {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.immersive-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
 }
 
 .immersive-series-tag {
@@ -572,19 +624,19 @@ textarea {
 }
 
 .immersive-post-body {
-  margin-top: -0.35rem;
-  padding-top: 0.85rem !important;
-  border-top-left-radius: 22px;
-  border-top-right-radius: 22px;
+  margin-top: -0.55rem;
+  padding-top: 0.95rem !important;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
   position: relative;
   z-index: 3;
-  background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, var(--surface-raised) 18%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.985) 0%, rgba(255,255,255,0.96) 16%, var(--surface-raised) 32%);
 }
 
 [data-theme='dark'] .immersive-cover-overlay {
   background:
-    linear-gradient(180deg, rgba(5, 7, 10, 0.12) 0%, rgba(5, 7, 10, 0.18) 32%, rgba(5, 7, 10, 0.76) 100%),
-    linear-gradient(180deg, transparent 46%, rgba(0, 0, 0, 0.12) 100%);
+    linear-gradient(180deg, rgba(5, 7, 10, 0.14) 0%, rgba(5, 7, 10, 0.22) 30%, rgba(5, 7, 10, 0.84) 100%),
+    linear-gradient(180deg, transparent 42%, rgba(0, 0, 0, 0.14) 100%);
 }
 
 [data-theme='dark'] .immersive-post-body {
@@ -1387,6 +1439,19 @@ textarea {
 
   .post-card-body {
     padding: 0.95rem 0.95rem 0.9rem !important;
+  }
+
+  .immersive-cover-content {
+    padding: 0.9rem 0.9rem 0.95rem;
+  }
+
+  .immersive-post-title {
+    margin-bottom: 0.75rem;
+  }
+
+  .immersive-author-row,
+  .immersive-author-block {
+    align-items: flex-start;
   }
 
   .post-card-cover {
