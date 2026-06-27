@@ -51,7 +51,7 @@ export default function Reader() {
   const [bookmarked, setBookmarked] = useState(false)
   const [following, setFollowing] = useState(false)
 
-  const [fontSize, setFontSize] = useState(20)
+  const [fontSize, setFontSize] = useState(19)
   const [fontFamily, setFontFamily] = useState('serif')
   const [alignment, setAlignment] = useState('left')
 
@@ -224,7 +224,7 @@ export default function Reader() {
               </button>
 
               {showSettings && (
-                <div className="share-menu fade-in" style={{ right: 0, top: 'calc(100% + 10px)', minWidth: '300px', padding: '1rem' }}>
+                <div className="share-menu fade-in reader-settings-menu" style={{ right: 0, top: 'calc(100% + 10px)', minWidth: '300px', padding: '1rem' }}>
                   <div className="field-group" style={{ marginBottom: '1rem' }}>
                     <label className="field-label">থীম (Theme)</label>
                     <div className="tab-row" style={{ marginBottom: 0 }}>
@@ -244,7 +244,7 @@ export default function Reader() {
 
                   <div className="field-group" style={{ marginBottom: '1rem' }}>
                     <label className="field-label">আকাৰ (Size) · {fontSize}px</label>
-                    <input type="range" min="16" max="32" step="1" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} />
+                    <input type="range" min="16" max="26" step="1" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} />
                   </div>
 
                   <div className="field-group" style={{ marginBottom: 0 }}>

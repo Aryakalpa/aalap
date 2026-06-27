@@ -823,6 +823,8 @@ textarea {
   white-space: pre-wrap;
   line-height: 1.9;
   word-break: break-word;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
 .literature-content p {
@@ -1175,7 +1177,7 @@ textarea {
 
 @media (max-width: 640px) {
   .layout-content {
-    padding: 1rem 1rem calc(var(--nav-height) + 2.75rem + env(safe-area-inset-bottom));
+    padding: 1rem 0.9rem calc(var(--nav-height) + 2.75rem + env(safe-area-inset-bottom));
   }
 
   .top-nav-inner {
@@ -1246,5 +1248,21 @@ textarea {
 
   .post-card-cover {
     aspect-ratio: 16 / 9;
+  }
+
+  .reader-settings-menu {
+    left: 0 !important;
+    right: 0 !important;
+    min-width: 0 !important;
+    width: min(100vw - 1.8rem, 320px);
+  }
+
+  .reader-toolbar {
+    padding-bottom: 0.8rem;
+  }
+
+  .reader-surface {
+    border-radius: 18px;
+    padding: 1rem;
   }
 }
