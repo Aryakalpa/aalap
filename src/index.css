@@ -583,6 +583,12 @@ textarea {
   align-items: center;
   gap: 0.8rem;
   min-width: 0;
+  padding: 0.48rem 0.62rem 0.48rem 0.48rem;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
 }
 
 .immersive-author-name {
@@ -593,8 +599,15 @@ textarea {
 }
 
 .immersive-meta-row {
-  color: rgba(255,255,255,0.86);
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.26);
+  color: rgba(255,255,255,0.94);
+  gap: 0.45rem 0.55rem;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.34);
+}
+
+.immersive-meta-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .immersive-hidden-flag {
@@ -624,13 +637,24 @@ textarea {
 }
 
 .immersive-post-body {
-  margin-top: -0.55rem;
-  padding-top: 0.95rem !important;
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
+  margin-top: -1.25rem;
+  padding-top: 1.55rem !important;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
   position: relative;
   z-index: 3;
-  background: linear-gradient(180deg, rgba(255,255,255,0.985) 0%, rgba(255,255,255,0.96) 16%, var(--surface-raised) 32%);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.72) 18%, rgba(255,255,255,0.94) 42%, var(--surface-raised) 100%);
+}
+
+.immersive-post-body::before {
+  content: '';
+  position: absolute;
+  inset: -1.8rem 0 auto 0;
+  height: 2.4rem;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.88));
+  z-index: -1;
 }
 
 [data-theme='dark'] .immersive-cover-overlay {
@@ -639,12 +663,27 @@ textarea {
     linear-gradient(180deg, transparent 42%, rgba(0, 0, 0, 0.14) 100%);
 }
 
+[data-theme='dark'] .immersive-author-block {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 [data-theme='dark'] .immersive-post-body {
-  background: linear-gradient(180deg, rgba(33,29,25,0.96) 0%, var(--surface-raised) 18%);
+  background:
+    linear-gradient(180deg, rgba(33,29,25,0) 0%, rgba(33,29,25,0.72) 18%, rgba(33,29,25,0.94) 42%, var(--surface-raised) 100%);
+}
+
+[data-theme='dark'] .immersive-post-body::before {
+  background: linear-gradient(180deg, rgba(33,29,25,0), rgba(33,29,25,0.88));
 }
 
 [data-theme='paper'] .immersive-post-body {
-  background: linear-gradient(180deg, rgba(255,250,241,0.97) 0%, var(--surface-raised) 18%);
+  background:
+    linear-gradient(180deg, rgba(255,250,241,0) 0%, rgba(255,250,241,0.72) 18%, rgba(255,250,241,0.94) 42%, var(--surface-raised) 100%);
+}
+
+[data-theme='paper'] .immersive-post-body::before {
+  background: linear-gradient(180deg, rgba(255,250,241,0), rgba(255,250,241,0.88));
 }
 
 .hero-feature {
@@ -1507,9 +1546,13 @@ textarea {
     margin-bottom: 0.75rem;
   }
 
-  .immersive-author-row,
-  .immersive-author-block {
+  .immersive-author-row {
     align-items: flex-start;
+  }
+
+  .immersive-author-block {
+    align-items: center;
+    width: 100%;
   }
 
   .post-card-cover {
