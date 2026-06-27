@@ -3,11 +3,26 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
-import { formatDate, estimateReadingTime, formatNumber } from '../utils/helpers'
+import { formatDate, estimateReadingTime, generateExcerpt } from '../utils/helpers'
 import {
-    Heart, MessageSquare, Bookmark, Share2,
-    MoreVertical, Edit, Trash2, EyeOff, Eye, Image as ImageIcon,
-    Type, Send, AlignLeft, AlignCenter, AlignJustify, ChevronLeft, ChevronRight, BookOpen, List
+  Heart,
+  MessageSquare,
+  Bookmark,
+  MoreVertical,
+  Edit,
+  Trash2,
+  EyeOff,
+  Eye,
+  Image as ImageIcon,
+  Type,
+  Send,
+  AlignLeft,
+  AlignCenter,
+  AlignJustify,
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  List,
 } from 'lucide-react'
 import Avatar from '../components/Avatar'
 import CategoryBadge from '../components/CategoryBadge'
@@ -15,555 +30,396 @@ import ShareButton from '../components/ShareButton'
 import ShareQuoteModal from '../components/ShareQuoteModal'
 
 export default function Reader() {
-    const { id } = useParams()
-    const navigate = useNavigate()
-    const { user } = useAuth()
-    const { theme, setTheme } = useTheme()
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const { theme, setTheme } = useTheme()
 
-    const [post, setPost] = useState(null)
-    const [loading, setLoading] = useState(true)
-    const [comments, setComments] = useState([])
-    const [newComment, setNewComment] = useState('')
-    const [showMenu, setShowMenu] = useState(false)
-    const [showSettings, setShowSettings] = useState(false)
-    const [similarPosts, setSimilarPosts] = useState([])
-    const [seriesPosts, setSeriesPosts] = useState([])
-    const [showPlaylist, setShowPlaylist] = useState(true)
-    const [showQuoteModal, setShowQuoteModal] = useState(false)
-    const [selectedQuote, setSelectedQuote] = useState('')
+  const [post, setPost] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [comments, setComments] = useState([])
+  const [newComment, setNewComment] = useState('')
+  const [showMenu, setShowMenu] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [similarPosts, setSimilarPosts] = useState([])
+  const [seriesPosts, setSeriesPosts] = useState([])
+  const [showQuoteModal, setShowQuoteModal] = useState(false)
+  const [selectedQuote, setSelectedQuote] = useState('')
 
-    const [liked, setLiked] = useState(false)
-    const [bookmarked, setBookmarked] = useState(false)
-    const [following, setFollowing] = useState(false)
-    const [likeAnimating, setLikeAnimating] = useState(false)
+  const [liked, setLiked] = useState(false)
+  const [bookmarked, setBookmarked] = useState(false)
+  const [following, setFollowing] = useState(false)
 
-    // Reader Preferences
-    const [fontSize, setFontSize] = useState(18)
-    const [fontFamily, setFontFamily] = useState('serif') // serif or sans
-    const [alignment, setAlignment] = useState('left')
+  const [fontSize, setFontSize] = useState(20)
+  const [fontFamily, setFontFamily] = useState('serif')
+  const [alignment, setAlignment] = useState('left')
 
-    const menuRef = useRef(null)
-    const settingsRef = useRef(null)
+  const menuRef = useRef(null)
+  const settingsRef = useRef(null)
 
-    useEffect(() => {
-        fetchPost()
-        fetchComments()
-    }, [id])
+  useEffect(() => {
+    fetchPost()
+    fetchComments()
+  }, [id])
 
-    useEffect(() => {
-        if (post) {
-            fetchSimilarPosts()
-            if (post.series_name) {
-                fetchSeriesPosts()
-            } else {
-                setSeriesPosts([])
-            }
-        }
-    }, [post])
-
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (menuRef.current && !menuRef.current.contains(e.target)) {
-                setShowMenu(false)
-            }
-            if (settingsRef.current && !settingsRef.current.contains(e.target)) {
-                setShowSettings(false)
-            }
-        }
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => document.removeEventListener('mousedown', handleClickOutside)
-    }, [])
-
-    useEffect(() => {
-        if (user && post) {
-            checkLiked()
-            checkBookmarked()
-            checkFollowing()
-        }
-    }, [user, post])
-
-    const fetchPost = async (silent = false) => {
-        if (!silent) setLoading(true)
-        try {
-            const { data, error } = await supabase
-                .from('posts')
-                .select('*, profiles(*)')
-                .eq('id', id)
-                .single()
-
-            if (error) throw error
-            setPost(data)
-            if (data.alignment) setAlignment(data.alignment)
-        } catch (error) {
-            console.error('Error fetching post:', error)
-        } finally {
-            setLoading(false)
-        }
+  useEffect(() => {
+    if (post) {
+      fetchSimilarPosts()
+      if (post.series_name) fetchSeriesPosts()
+      else setSeriesPosts([])
     }
+  }, [post])
 
-    const fetchComments = async () => {
-        const { data } = await supabase
-            .from('comments')
-            .select('*, profiles(*)')
-            .eq('post_id', id)
-            .order('created_at', { ascending: true })
-        setComments(data || [])
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false)
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) setShowSettings(false)
     }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
-    const fetchSimilarPosts = async () => {
-        const { data } = await supabase
-            .from('posts')
-            .select('*, profiles(*)')
-            .eq('category', post.category)
-            .neq('id', id)
-            .eq('is_published', true)
-            .limit(3)
-        setSimilarPosts(data || [])
+  useEffect(() => {
+    if (user && post) {
+      checkLiked()
+      checkBookmarked()
+      checkFollowing()
     }
+  }, [user, post])
 
-    const fetchSeriesPosts = async () => {
-        const { data } = await supabase
-            .from('posts')
-            .select('id, title, created_at')
-            .eq('series_name', post.series_name)
-            .eq('author_id', post.author_id)
-            .eq('is_published', true)
-            .order('created_at', { ascending: true })
-        setSeriesPosts(data || [])
+  const fetchPost = async (silent = false) => {
+    if (!silent) setLoading(true)
+    try {
+      const { data, error } = await supabase.from('posts').select('*, profiles(*)').eq('id', id).single()
+      if (error) throw error
+      setPost(data)
+      if (data.alignment) setAlignment(data.alignment)
+    } catch (error) {
+      console.error('Error fetching post:', error)
+    } finally {
+      setLoading(false)
     }
+  }
 
-    const currentIndex = seriesPosts.findIndex(p => p.id === id)
-    const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : null
-    const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : null
+  const fetchComments = async () => {
+    const { data } = await supabase.from('comments').select('*, profiles(*)').eq('post_id', id).order('created_at', { ascending: true })
+    setComments(data || [])
+  }
 
+  const fetchSimilarPosts = async () => {
+    const { data } = await supabase.from('posts').select('*, profiles(*)').eq('category', post.category).neq('id', id).eq('is_published', true).limit(3)
+    setSimilarPosts(data || [])
+  }
 
-    const checkLiked = async () => {
-        const { data } = await supabase
-            .from('likes')
-            .select('*')
-            .match({ user_id: user.id, post_id: id })
-            .single()
-        setLiked(!!data)
+  const fetchSeriesPosts = async () => {
+    const { data } = await supabase
+      .from('posts')
+      .select('id, title, created_at')
+      .eq('series_name', post.series_name)
+      .eq('author_id', post.author_id)
+      .eq('is_published', true)
+      .order('created_at', { ascending: true })
+    setSeriesPosts(data || [])
+  }
+
+  const currentIndex = seriesPosts.findIndex((p) => p.id === id)
+  const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : null
+  const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : null
+
+  const checkLiked = async () => {
+    const { data } = await supabase.from('likes').select('*').match({ user_id: user.id, post_id: id }).single()
+    setLiked(!!data)
+  }
+
+  const checkBookmarked = async () => {
+    const { data } = await supabase.from('bookmarks').select('*').match({ user_id: user.id, post_id: id }).single()
+    setBookmarked(!!data)
+  }
+
+  const checkFollowing = async () => {
+    if (!post) return
+    const { data } = await supabase.from('follows').select('*').match({ follower_id: user.id, following_id: post.author_id }).single()
+    setFollowing(!!data)
+  }
+
+  const handleLike = async () => {
+    if (!user) return alert('পছন্দ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
+    try {
+      if (liked) {
+        await supabase.from('likes').delete().match({ user_id: user.id, post_id: id })
+        setLiked(false)
+      } else {
+        await supabase.from('likes').insert({ user_id: user.id, post_id: id })
+        setLiked(true)
+      }
+      fetchPost(true)
+    } catch (e) {
+      console.error(e)
     }
+  }
 
-    const checkBookmarked = async () => {
-        const { data } = await supabase
-            .from('bookmarks')
-            .select('*')
-            .match({ user_id: user.id, post_id: id })
-            .single()
-        setBookmarked(!!data)
+  const handleBookmark = async () => {
+    if (!user) return alert('সংৰক্ষণ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
+    try {
+      if (bookmarked) {
+        await supabase.from('bookmarks').delete().match({ user_id: user.id, post_id: id })
+        setBookmarked(false)
+      } else {
+        await supabase.from('bookmarks').insert({ user_id: user.id, post_id: id })
+        setBookmarked(true)
+      }
+    } catch (e) {
+      console.error(e)
     }
+  }
 
-    const checkFollowing = async () => {
-        if (!post) return
-        const { data } = await supabase
-            .from('follows')
-            .select('*')
-            .match({ follower_id: user.id, following_id: post.author_id })
-            .single()
-        setFollowing(!!data)
+  const handleFollow = async () => {
+    if (!user) return alert('অনুসৰণ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
+    try {
+      if (following) {
+        await supabase.from('follows').delete().match({ follower_id: user.id, following_id: post.author_id })
+        setFollowing(false)
+      } else {
+        await supabase.from('follows').insert({ follower_id: user.id, following_id: post.author_id })
+        setFollowing(true)
+      }
+    } catch (e) {
+      console.error(e)
     }
+  }
 
-    const handleLike = async () => {
-        if (!user) return alert('পছন্দ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
-        setLikeAnimating(true)
-        setTimeout(() => setLikeAnimating(false), 600)
-        try {
-            if (liked) {
-                await supabase.from('likes').delete().match({ user_id: user.id, post_id: id })
-                setLiked(false)
-            } else {
-                await supabase.from('likes').insert({ user_id: user.id, post_id: id })
-                setLiked(true)
-            }
-            fetchPost(true)
-        } catch (e) { console.error(e) }
+  const handleComment = async (e) => {
+    e.preventDefault()
+    if (!user) return alert('মন্তব্য কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
+    if (!newComment.trim()) return
+
+    const { error } = await supabase.from('comments').insert({ post_id: id, user_id: user.id, body: newComment })
+    if (!error) {
+      setNewComment('')
+      fetchComments()
     }
+  }
 
-    const handleBookmark = async () => {
-        if (!user) return alert('সংৰক্ষণ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
-        try {
-            if (bookmarked) {
-                await supabase.from('bookmarks').delete().match({ user_id: user.id, post_id: id })
-                setBookmarked(false)
-            } else {
-                await supabase.from('bookmarks').insert({ user_id: user.id, post_id: id })
-                setBookmarked(true)
-            }
-        } catch (e) { console.error(e) }
-    }
+  const openQuoteModal = () => {
+    const selection = window.getSelection().toString().trim()
+    if (selection) setSelectedQuote(selection)
+    else setSelectedQuote(generateExcerpt(post.body || '', 150))
+    setShowQuoteModal(true)
+  }
 
-    const handleFollow = async () => {
-        if (!user) return alert('অনুসৰণ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
-        try {
-            if (following) {
-                await supabase.from('follows').delete().match({ follower_id: user.id, following_id: post.author_id })
-                setFollowing(false)
-            } else {
-                await supabase.from('follows').insert({ follower_id: user.id, following_id: post.author_id })
-                setFollowing(true)
-            }
-        } catch (e) { console.error(e) }
-    }
+  if (loading) return <div className="container" style={{ display: 'flex', justifyContent: 'center', padding: '10rem' }}><div className="spinner" /></div>
+  if (!post) return <div className="container-sm" style={{ padding: '5rem', textAlign: 'center' }}><h2>এই লিখনিটো বিচাৰি পোৱা নগ'ল।</h2><Link to="/" className="btn btn-primary">মূল পৃষ্ঠালৈ উভতি যাওক</Link></div>
 
-    const handleComment = async (e) => {
-        e.preventDefault()
-        if (!user) return alert('মন্তব্য কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
-        if (!newComment.trim()) return
+  return (
+    <div className="reading-shell fade-in">
+      <div className="reader-toolbar">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <button onClick={() => navigate(-1)} className="btn-icon"><ChevronLeft size={20} /></button>
 
-        const { error } = await supabase.from('comments').insert({
-            post_id: id,
-            user_id: user.id,
-            body: newComment
-        })
+          <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div ref={settingsRef} style={{ position: 'relative' }}>
+              <button className={`btn-ghost ${showSettings ? 'active' : ''}`} onClick={() => setShowSettings(!showSettings)}>
+                <Type size={18} /> Aa
+              </button>
 
-        if (!error) {
-            setNewComment('')
-            fetchComments()
-        }
-    }
-
-    if (loading) return <div className="container" style={{ display: 'flex', justifyContent: 'center', padding: '10rem' }}><div className="spinner" /></div>
-    const handleShareClick = () => {
-        if (navigator.share) {
-            navigator.share({
-                title: post.title,
-                text: `Read "${post.title}" on Aalap`,
-                url: window.location.href
-            })
-        } else {
-            // Fallback
-        }
-    }
-
-    const openQuoteModal = () => {
-        // Try to get selected text
-        const selection = window.getSelection().toString().trim()
-        if (selection) {
-            setSelectedQuote(selection)
-        } else {
-            // Default to abstract or first paragraph
-            const abstract = post.body.substring(0, 150) + '...'
-            setSelectedQuote(abstract)
-        }
-        setShowQuoteModal(true)
-    }
-
-    if (!post) return <div className="container-sm" style={{ padding: '5rem', textAlign: 'center' }}><h2>বন্ধ কৰক, এই লিখনিটো বিচাৰি পোৱা নগ'ল।</h2><Link to="/" className="btn btn-primary mt-4">মূল পৃষ্ঠালৈ উভতি যাওক</Link></div>
-
-    return (
-        <div className="container-sm">
-            {/* Nav Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 0', position: 'sticky', top: '4.5rem', background: 'var(--bg-primary)', zIndex: 10, borderBottom: '1px solid var(--border-color)' }}>
-                <button onClick={() => navigate(-1)} className="btn-icon">
-                    <ChevronLeft size={24} />
-                </button>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                    {/* Reading Settings Button */}
-                    <div ref={settingsRef} style={{ position: 'relative' }}>
-                        <button
-                            className={`btn-ghost ${showSettings ? 'active' : ''}`}
-                            onClick={() => setShowSettings(!showSettings)}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.4rem',
-                                padding: '0.5rem 0.75rem',
-                                borderRadius: 'var(--radius-md)',
-                                color: showSettings ? 'var(--accent)' : 'var(--text-secondary)',
-                                background: showSettings ? 'var(--accent-light)' : 'transparent',
-                                border: '1px solid ' + (showSettings ? 'var(--accent)' : 'var(--border-color)')
-                            }}
-                        >
-                            <Type size={18} />
-                            <span style={{ fontSize: '0.85rem', fontWeight: '800' }}>Aa</span>
-                        </button>
-
-                        {showSettings && (
-                            <div className="share-menu fade-in" style={{
-                                right: 0,
-                                bottom: 'auto',
-                                top: 'calc(100% + 12px)',
-                                minWidth: '280px',
-                                padding: '1.5rem',
-                                zIndex: 1200,
-                                background: 'rgba(var(--bg-primary-rgb), 0.95)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid var(--border-color)',
-                                boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
-                            }}>
-                                {/* Theme Switcher */}
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.85rem', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>থীম (Theme)</div>
-                                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                        <button
-                                            onClick={() => setTheme('light')}
-                                            style={{ flex: 1, height: '40px', background: '#ffffff', border: theme === 'light' ? '3px solid var(--accent)' : '1px solid #e1e1e1', borderRadius: 'var(--radius-sm)', cursor: 'pointer', transition: '0.2s' }}
-                                        />
-                                        <button
-                                            onClick={() => setTheme('paper')}
-                                            style={{ flex: 1, height: '40px', background: '#f5f2e9', border: theme === 'paper' ? '3px solid var(--accent)' : '1px solid #dcd3b8', borderRadius: 'var(--radius-sm)', cursor: 'pointer', transition: '0.2s' }}
-                                        />
-                                        <button
-                                            onClick={() => setTheme('dark')}
-                                            style={{ flex: 1, height: '40px', background: '#000000', border: theme === 'dark' ? '3px solid var(--accent)' : '1px solid #333', borderRadius: 'var(--radius-sm)', cursor: 'pointer', transition: '0.2s' }}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Font Choice */}
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.85rem', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>ফণ্ট (Font)</div>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <button
-                                            className={`btn ${fontFamily === 'serif' ? 'btn-primary' : 'btn-secondary'}`}
-                                            onClick={() => setFontFamily('serif')}
-                                            style={{ flex: 1, fontSize: '0.8rem', padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
-                                        >Tiro</button>
-                                        <button
-                                            className={`btn ${fontFamily === 'sans' ? 'btn-primary' : 'btn-secondary'}`}
-                                            onClick={() => setFontFamily('sans')}
-                                            style={{ flex: 1, fontSize: '0.8rem', padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
-                                        >Siliguri</button>
-                                    </div>
-                                </div>
-
-                                {/* Font Size */}
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>আকাৰ (Size)</div>
-                                        <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--accent)' }}>{fontSize}px</span>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <span style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>A</span>
-                                        <input
-                                            type="range"
-                                            min="16" max="32" step="1"
-                                            value={fontSize}
-                                            onChange={(e) => setFontSize(parseInt(e.target.value))}
-                                            style={{ flex: 1, cursor: 'pointer', background: 'var(--accent-light)' }}
-                                        />
-                                        <span style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>A</span>
-                                    </div>
-                                </div>
-
-                                {/* Alignment */}
-                                <div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.85rem', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>শাৰীবদ্ধতা (Alignment)</div>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <button
-                                            className={`btn ${alignment === 'left' ? 'btn-primary' : 'btn-secondary'}`}
-                                            onClick={() => setAlignment('left')}
-                                            style={{ flex: 1, padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
-                                        ><AlignLeft size={18} /></button>
-                                        <button
-                                            className={`btn ${alignment === 'center' ? 'btn-primary' : 'btn-secondary'}`}
-                                            onClick={() => setAlignment('center')}
-                                            style={{ flex: 1, padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
-                                        ><AlignCenter size={18} /></button>
-                                        {!['poem', 'poetry'].includes(post.category?.toLowerCase()) && (
-                                            <button
-                                                className={`btn ${alignment === 'justify' ? 'btn-primary' : 'btn-secondary'}`}
-                                                onClick={() => setAlignment('justify')}
-                                                style={{ flex: 1, padding: '0.5rem', borderRadius: 'var(--radius-md)' }}
-                                            ><AlignJustify size={18} /></button>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+              {showSettings && (
+                <div className="share-menu fade-in" style={{ right: 0, top: 'calc(100% + 10px)', minWidth: '300px', padding: '1rem' }}>
+                  <div className="field-group" style={{ marginBottom: '1rem' }}>
+                    <label className="field-label">Theme</label>
+                    <div className="tab-row" style={{ marginBottom: 0 }}>
+                      <button className={`tab-btn ${theme === 'light' ? 'active' : ''}`} onClick={() => setTheme('light')}>Light</button>
+                      <button className={`tab-btn ${theme === 'paper' ? 'active' : ''}`} onClick={() => setTheme('paper')}>Paper</button>
+                      <button className={`tab-btn ${theme === 'dark' ? 'active' : ''}`} onClick={() => setTheme('dark')}>Dark</button>
                     </div>
+                  </div>
 
-                    <button className="btn-ghost" onClick={openQuoteModal} title="Create Quote Card">
-                        <ImageIcon size={20} />
-                    </button>
-                    <ShareButton title={post.title} postId={post.id} direction="down" />
-                    {user && user.id === post.author_id && (
-                        <div ref={menuRef} style={{ position: 'relative' }}>
-                            <button className="btn-icon" onClick={() => setShowMenu(!showMenu)}><MoreVertical size={20} /></button>
-                            {showMenu && (
-                                <div className="share-menu fade-in" style={{ right: 0, top: 'calc(100% + 10px)', bottom: 'auto', minWidth: '180px', zIndex: 1200 }}>
-                                    <div className="share-menu-item" onClick={() => navigate(`/write/${post.id}`)}><Edit size={16} /> <span>সম্পাদনা</span></div>
-                                    <div className="share-menu-item" onClick={async () => {
-                                        await supabase.from('posts').update({ is_published: !post.is_published }).eq('id', post.id)
-                                        fetchPost()
-                                        setShowMenu(false)
-                                    }}>
-                                        {post.is_published ? <EyeOff size={16} /> : <Eye size={16} />}
-                                        <span>{post.is_published ? 'লুকুৱাই ৰাখক' : 'প্ৰকাশ কৰক'}</span>
-                                    </div>
-                                    <div className="share-divider" />
-                                    <div className="share-menu-item danger" onClick={async () => {
-                                        if (window.confirm('মচি পেলাব বিচাৰিছেনে?')) {
-                                            await supabase.from('posts').delete().eq('id', post.id)
-                                            navigate('/')
-                                        }
-                                    }}><Trash2 size={16} /> <span>মচি পেলাওক</span></div>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                  <div className="field-group" style={{ marginBottom: '1rem' }}>
+                    <label className="field-label">Font</label>
+                    <div className="tab-row" style={{ marginBottom: 0 }}>
+                      <button className={`tab-btn ${fontFamily === 'serif' ? 'active' : ''}`} onClick={() => setFontFamily('serif')}>Tiro</button>
+                      <button className={`tab-btn ${fontFamily === 'sans' ? 'active' : ''}`} onClick={() => setFontFamily('sans')}>Siliguri</button>
+                    </div>
+                  </div>
+
+                  <div className="field-group" style={{ marginBottom: '1rem' }}>
+                    <label className="field-label">Size · {fontSize}px</label>
+                    <input type="range" min="16" max="32" step="1" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} />
+                  </div>
+
+                  <div className="field-group" style={{ marginBottom: 0 }}>
+                    <label className="field-label">Alignment</label>
+                    <div className="tab-row" style={{ marginBottom: 0 }}>
+                      <button className={`tab-btn ${alignment === 'left' ? 'active' : ''}`} onClick={() => setAlignment('left')}><AlignLeft size={16} /></button>
+                      <button className={`tab-btn ${alignment === 'center' ? 'active' : ''}`} onClick={() => setAlignment('center')}><AlignCenter size={16} /></button>
+                      {!['poem', 'poetry'].includes(post.category?.toLowerCase()) && (
+                        <button className={`tab-btn ${alignment === 'justify' ? 'active' : ''}`} onClick={() => setAlignment('justify')}><AlignJustify size={16} /></button>
+                      )}
+                    </div>
+                  </div>
                 </div>
+              )}
             </div>
 
-            {/* Post Layout */}
-            <article style={{ padding: '2rem 0' }}>
-                {post.cover_image && (
-                    <div style={{ marginBottom: '2.5rem', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-                        <img src={post.cover_image} alt="" style={{ width: '100%', maxHeight: '500px', objectFit: 'cover' }} />
+            <button className="btn-ghost" onClick={openQuoteModal} title="Create Quote Card"><ImageIcon size={18} /></button>
+            <ShareButton title={post.title} postId={post.id} direction="down" />
+
+            {user && user.id === post.author_id && (
+              <div ref={menuRef} style={{ position: 'relative' }}>
+                <button className="btn-icon" onClick={() => setShowMenu(!showMenu)}><MoreVertical size={18} /></button>
+                {showMenu && (
+                  <div className="share-menu fade-in" style={{ right: 0, top: 'calc(100% + 10px)', minWidth: '180px' }}>
+                    <div className="share-menu-item" onClick={() => navigate(`/write/${post.id}`)}><Edit size={16} /> <span>সম্পাদনা</span></div>
+                    <div className="share-menu-item" onClick={async () => {
+                      await supabase.from('posts').update({ is_published: !post.is_published }).eq('id', post.id)
+                      fetchPost()
+                      setShowMenu(false)
+                    }}>
+                      {post.is_published ? <EyeOff size={16} /> : <Eye size={16} />}
+                      <span>{post.is_published ? 'লুকুৱাই ৰাখক' : 'প্ৰকাশ কৰক'}</span>
                     </div>
+                    <div className="share-divider" />
+                    <div className="share-menu-item danger" onClick={async () => {
+                      if (window.confirm('মচি পেলাব বিচাৰিছেনে?')) {
+                        await supabase.from('posts').delete().eq('id', post.id)
+                        navigate('/')
+                      }
+                    }}><Trash2 size={16} /> <span>মচি পেলাওক</span></div>
+                  </div>
                 )}
-                <div style={{ marginBottom: '1rem' }}><CategoryBadge category={post.category} size="md" /></div>
-                <h1 style={{ fontSize: 'clamp(2rem, 8vw, 3.5rem)', fontWeight: '800', lineHeight: '1.2', marginBottom: '1.5rem', textAlign: alignment === 'center' ? 'center' : 'left' }} className="gradient-text">
-                    {post.title}
-                </h1>
-
-                {post.series_name && (
-                    <div className="series-tag">
-                        <BookOpen size={14} /> ধাৰাবাহিক: {post.series_name}
-                    </div>
-                )}
-
-                {/* Author simplified */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3rem', padding: '1rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <Avatar profile={post.profiles} size="md" clickable showBadge authorId={post.author_id} />
-                        <div>
-                            <Link to={`/profile/${post.author_id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>{post.profiles?.display_name || 'অতিথি'}</h3>
-                            </Link>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>{formatDate(post.created_at)} • {estimateReadingTime(post.body)}</div>
-                        </div>
-                    </div>
-                    {user && user.id !== post.author_id && (
-                        <button className={`btn ${following ? 'btn-secondary' : 'btn-primary'}`} onClick={handleFollow} style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem', borderRadius: '2rem' }}>
-                            {following ? 'অনুসৰণ কৰা হৈছে' : 'অনুসৰণ কৰক'}
-                        </button>
-                    )}
-                </div>
-
-                <div
-                    className={`literature-content ${fontFamily === 'serif' ? 'font-serif' : 'font-display'} text-${alignment} ${['poem', 'poetry'].includes(post.category?.toLowerCase()) ? 'poem-content' : ''}`}
-                    style={{ fontSize: `${fontSize}px`, marginBottom: '4rem' }}
-                >
-                    {post.body}
-                </div>
-
-                {/* Playlist / Collection Section */}
-                {seriesPosts.length > 1 && (
-                    <div className="playlist-panel fade-in">
-                        <div className="playlist-header">
-                            <div className="playlist-name-container">
-                                <List size={20} />
-                                <span>{post.series_name}</span>
-                            </div>
-                            <div className="playlist-progress-badge">
-                                {currentIndex + 1} / {seriesPosts.length}
-                            </div>
-                        </div>
-
-                        <div className="playlist-navigation-bar">
-                            <button
-                                className="playlist-nav-button"
-                                onClick={() => navigate(`/post/${prevPost.id}`)}
-                                disabled={!prevPost}
-                            >
-                                <ChevronLeft size={18} /> আগৰ খণ্ড
-                            </button>
-                            <button
-                                className="playlist-nav-button"
-                                onClick={() => navigate(`/post/${nextPost.id}`)}
-                                disabled={!nextPost}
-                            >
-                                পৰৱৰ্তী খণ্ড <ChevronRight size={18} />
-                            </button>
-                        </div>
-
-                        <div className="playlist-items-list">
-                            {seriesPosts.map((p, i) => (
-                                <Link
-                                    key={p.id}
-                                    to={`/post/${p.id}`}
-                                    className={`playlist-list-item ${p.id === id ? 'is-active' : ''}`}
-                                >
-                                    <div className="playlist-item-rank">{i + 1}</div>
-                                    <div className="playlist-item-label">{p.title}</div>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </article>
-
-            {/* Footer Stats */}
-            <div style={{ borderTop: '2px solid var(--border-color)', padding: '2rem 0', display: 'flex', justifyContent: 'space-between', marginBottom: '3rem' }}>
-                <div style={{ display: 'flex', gap: '2rem' }}>
-                    <button onClick={handleLike} className={`btn-ghost ${liked ? 'text-danger' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', animation: likeAnimating ? 'heartBeat 0.6s ease' : 'none' }}>
-                        <Heart size={24} fill={liked ? 'currentColor' : 'none'} /> <b>{post.likes_count || 0}</b>
-                    </button>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-tertiary)' }}><MessageSquare size={24} /> <b>{comments.length}</b></div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-tertiary)' }}><BookOpen size={24} /> <b>{post.views_count || 0}</b></div>
-                </div>
-                <button onClick={handleBookmark} className={`btn-ghost ${bookmarked ? 'text-accent-blue' : ''}`}><Bookmark size={24} fill={bookmarked ? 'currentColor' : 'none'} /></button>
-            </div>
-
-            {/* Comments */}
-            <section style={{ paddingBottom: '5rem' }}>
-                <h3 style={{ marginBottom: '2rem' }}>মন্তব্য ({comments.length})</h3>
-                {user ? (
-                    <form onSubmit={handleComment} style={{ marginBottom: '3rem', position: 'relative' }}>
-                        <textarea className="comment-area" placeholder="মতামত লিখক..." value={newComment} onChange={(e) => setNewComment(e.target.value)} />
-                        <button type="submit" className="btn-primary" style={{ position: 'absolute', bottom: '1rem', right: '1rem', padding: '0.5rem 1rem', borderRadius: 'var(--radius-md)' }}><Send size={18} /></button>
-                    </form>
-                ) : (
-                    <div className="card" style={{ textAlign: 'center', padding: '2rem', marginBottom: '2rem' }}><p>মন্তব্য কৰিবলৈ লগ ইন কৰক।</p></div>
-                )}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    {comments.map(c => (
-                        <div key={c.id} className="card" style={{ display: 'flex', gap: '1rem' }}>
-                            <Avatar profile={c.profiles} size="sm" clickable />
-                            <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                                    <b>{c.profiles?.display_name}</b> <small style={{ color: 'var(--text-tertiary)' }}>{formatDate(c.created_at)}</small>
-                                </div>
-                                <p style={{ fontSize: '0.95rem' }}>{c.body}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Similar Articles */}
-            {similarPosts.length > 0 && (
-                <section style={{ paddingBottom: '8rem', borderTop: '1px solid var(--border-color)', paddingTop: '3rem' }}>
-                    <h3 style={{ marginBottom: '2rem' }}>আপুনি ভাল পাব পৰা অন্যান্য লিখনি</h3>
-                    <div className="grid">
-                        {similarPosts.map(p => (
-                            <Link key={p.id} to={`/post/${p.id}`} className="card" style={{ display: 'flex', gap: '1rem', textDecoration: 'none', color: 'inherit' }}>
-                                {p.cover_image && (
-                                    <img src={p.cover_image} alt="" style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-md)', objectFit: 'cover' }} />
-                                )}
-                                <div style={{ flex: 1 }}>
-                                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem' }}>{p.title}</h4>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
-                                        {p.profiles?.display_name} • {formatDate(p.created_at)}
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </section>
+              </div>
             )}
-            {/* Share Quote Modal */}
-            <ShareQuoteModal
-                isOpen={showQuoteModal}
-                onClose={() => setShowQuoteModal(false)}
-                text={selectedQuote}
-                title={post.title}
-                author={post.profiles?.display_name}
-                postId={post.id}
-            />
+          </div>
         </div>
-    )
+      </div>
+
+      <article className="reader-surface">
+        {post.cover_image && (
+          <div style={{ marginBottom: '2rem', borderRadius: '18px', overflow: 'hidden' }}>
+            <img src={post.cover_image} alt="" style={{ width: '100%', maxHeight: '480px', objectFit: 'cover' }} />
+          </div>
+        )}
+
+        <div style={{ marginBottom: '1rem' }}><CategoryBadge category={post.category} size="md" /></div>
+        <h1 className="reader-article-title" style={{ textAlign: alignment === 'center' ? 'center' : 'left' }}>{post.title}</h1>
+
+        {post.series_name && <div className="series-tag" style={{ marginBottom: '1.2rem' }}><BookOpen size={14} /> ধাৰাবাহিক: {post.series_name}</div>}
+
+        <div className="panel" style={{ padding: '1rem', marginBottom: '2rem', background: 'var(--bg-secondary)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <Avatar profile={post.profiles} size="md" clickable showBadge authorId={post.author_id} />
+              <div>
+                <Link to={`/profile/${post.author_id}`}><h3 style={{ fontSize: '1.1rem', margin: 0 }}>{post.profiles?.display_name || 'অতিথি'}</h3></Link>
+                <div className="meta-row">
+                  <span>{formatDate(post.created_at)}</span>
+                  <span>{estimateReadingTime(post.body)}</span>
+                </div>
+              </div>
+            </div>
+            {user && user.id !== post.author_id && (
+              <button className={`btn ${following ? 'btn-secondary' : 'btn-primary'}`} onClick={handleFollow}>
+                {following ? 'অনুসৰণ কৰা হৈছে' : 'অনুসৰণ কৰক'}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className={`literature-content ${fontFamily === 'serif' ? 'font-serif' : 'font-display'} text-${alignment} ${['poem', 'poetry'].includes(post.category?.toLowerCase()) ? 'poem-content' : ''}`} style={{ fontSize: `${fontSize}px`, marginBottom: '3rem' }}>
+          {post.body}
+        </div>
+
+        {seriesPosts.length > 1 && (
+          <div className="playlist-panel fade-in">
+            <div className="playlist-header">
+              <div className="playlist-name-container"><List size={20} /><span>{post.series_name}</span></div>
+              <div className="playlist-progress-badge">{currentIndex + 1} / {seriesPosts.length}</div>
+            </div>
+            <div className="playlist-navigation-bar">
+              <button className="playlist-nav-button" onClick={() => navigate(`/post/${prevPost.id}`)} disabled={!prevPost}><ChevronLeft size={18} /> আগৰ খণ্ড</button>
+              <button className="playlist-nav-button" onClick={() => navigate(`/post/${nextPost.id}`)} disabled={!nextPost}>পৰৱৰ্তী খণ্ড <ChevronRight size={18} /></button>
+            </div>
+            <div className="playlist-items-list">
+              {seriesPosts.map((p, i) => (
+                <Link key={p.id} to={`/post/${p.id}`} className={`playlist-list-item ${p.id === id ? 'is-active' : ''}`}>
+                  <div className="playlist-item-rank">{i + 1}</div>
+                  <div className="playlist-item-label">{p.title}</div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="post-actions" style={{ marginTop: '2rem' }}>
+          <div className="inline-stats">
+            <button onClick={handleLike} className={`btn-ghost ${liked ? 'text-danger' : ''}`}><Heart size={20} fill={liked ? 'currentColor' : 'none'} /> {post.likes_count || 0}</button>
+            <span className="inline-stat"><MessageSquare size={20} /> {comments.length}</span>
+            <span className="inline-stat"><BookOpen size={20} /> {post.views_count || 0}</span>
+          </div>
+          <button onClick={handleBookmark} className={`btn-ghost ${bookmarked ? 'text-accent-blue' : ''}`}><Bookmark size={20} fill={bookmarked ? 'currentColor' : 'none'} /></button>
+        </div>
+      </article>
+
+      <section style={{ padding: '2.5rem 0' }}>
+        <div className="section-header">
+          <div>
+            <div className="section-kicker">Conversation</div>
+            <h3 className="section-title">মন্তব্য ({comments.length})</h3>
+          </div>
+        </div>
+
+        {user ? (
+          <form onSubmit={handleComment} className="panel" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
+            <textarea placeholder="মতামত লিখক..." value={newComment} onChange={(e) => setNewComment(e.target.value)} rows={4} style={{ marginBottom: '0.75rem' }} />
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button type="submit" className="btn btn-primary"><Send size={16} /> পঠাওক</button>
+            </div>
+          </form>
+        ) : (
+          <div className="empty-state card" style={{ marginBottom: '1.5rem' }}>
+            <p className="empty-state-desc">মন্তব্য কৰিবলৈ লগ ইন কৰক।</p>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {comments.map((c) => (
+            <div key={c.id} className="card" style={{ display: 'flex', gap: '1rem' }}>
+              <Avatar profile={c.profiles} size="sm" clickable />
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+                  <strong>{c.profiles?.display_name}</strong>
+                  <small style={{ color: 'var(--text-tertiary)' }}>{formatDate(c.created_at)}</small>
+                </div>
+                <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>{c.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {similarPosts.length > 0 && (
+        <section style={{ paddingBottom: '7rem' }}>
+          <div className="section-header">
+            <div>
+              <div className="section-kicker">Keep reading</div>
+              <h3 className="section-title">আপুনি ভাল পাব পৰা অন্যান্য লিখনি</h3>
+            </div>
+          </div>
+          <div className="feed-list">
+            {similarPosts.map((p) => (
+              <Link key={p.id} to={`/post/${p.id}`} className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                {p.cover_image && <img src={p.cover_image} alt="" style={{ width: '88px', height: '88px', borderRadius: '14px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />}
+                <div style={{ flex: 1 }}>
+                  <h4 style={{ margin: '0 0 0.35rem 0', fontSize: '1.1rem' }}>{p.title}</h4>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>{p.profiles?.display_name} • {formatDate(p.created_at)}</div>
+                  <p style={{ marginTop: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.92rem' }}>{generateExcerpt(p.body || '', 110)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <ShareQuoteModal isOpen={showQuoteModal} onClose={() => setShowQuoteModal(false)} text={selectedQuote} title={post.title} author={post.profiles?.display_name} postId={post.id} />
+    </div>
+  )
 }

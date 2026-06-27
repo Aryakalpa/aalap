@@ -77,6 +77,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         signInWithGoogle,
         signOut,
+        fetchProfile,
         refreshProfile: () => user && fetchProfile(user.id)
     }
 

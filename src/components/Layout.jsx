@@ -1,119 +1,136 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import logo from '../logo/namelogo.png'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { supabase } from '../supabase'
 import { useState, useEffect } from 'react'
-import { Home, TrendingUp, PenTool, Bell, User, Search, Moon, Sun, LogOut } from 'lucide-react'
+import { Home, TrendingUp, PenTool, Bell, User, Search, Moon, Sun, BookOpen, LogOut, FilePenLine } from 'lucide-react'
 
 export default function Layout({ children }) {
-    const { user, profile, signInWithGoogle, signOut } = useAuth()
-    const { theme, toggleTheme } = useTheme()
-    const location = useLocation()
-    const [unreadCount, setUnreadCount] = useState(0)
+  const { user, signInWithGoogle, signOut } = useAuth()
+  const { theme, toggleTheme } = useTheme()
+  const location = useLocation()
+  const [unreadCount, setUnreadCount] = useState(0)
 
-    useEffect(() => {
-        if (user) {
-            fetchUnreadCount()
-            const subscription = supabase
-                .channel('notifications')
-                .on('postgres_changes', {
-                    event: '*',
-                    schema: 'public',
-                    table: 'notifications',
-                    filter: `recipient_id=eq.${user.id}`
-                }, () => fetchUnreadCount())
-                .subscribe()
-            return () => subscription.unsubscribe()
-        }
-    }, [user])
-
-    const fetchUnreadCount = async () => {
-        const { count } = await supabase
-            .from('notifications')
-            .select('*', { count: 'exact', head: true })
-            .eq('recipient_id', user.id)
-            .eq('is_read', false)
-        setUnreadCount(count || 0)
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount()
+      const subscription = supabase
+        .channel('notifications')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'notifications',
+            filter: `recipient_id=eq.${user.id}`,
+          },
+          () => fetchUnreadCount(),
+        )
+        .subscribe()
+      return () => subscription.unsubscribe()
     }
+  }, [user])
 
-    const isActive = (path) => {
-        if (path === '/') return location.pathname === '/'
-        return location.pathname.startsWith(path)
+  const fetchUnreadCount = async () => {
+    const { count } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('recipient_id', user.id)
+      .eq('is_read', false)
+    setUnreadCount(count || 0)
+  }
+
+  const isActive = (path) => {
+    if (path === '/') return location.pathname === '/'
+    return location.pathname.startsWith(path)
+  }
+
+  const handleProtectedClick = (e) => {
+    if (!user) {
+      e.preventDefault()
+      alert('আপোনাৰ সৃষ্টিশীল যাত্ৰা আৰম্ভ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
+      signInWithGoogle()
     }
+  }
 
-    const handleProtectedClick = (e, path) => {
-        if (!user) {
-            e.preventDefault()
-            alert('আপোনাৰ সৃষ্টিশীল যাত্ৰা আৰম্ভ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক। (Please log in to start your writing journey.)')
-            signInWithGoogle()
-        }
-    }
+  return (
+    <div className="layout-main">
+      <nav className="top-nav">
+        <div className="top-nav-inner">
+          <Link to="/" className="nav-brand">
+            <img src={logo} alt="Aalap Logo" className="nav-logo" />
+            <div className="nav-wordmark">
+              <span className="nav-kicker">Assamese literature</span>
+              <span className="nav-title">Read, write, return</span>
+            </div>
+          </Link>
 
-    return (
-        <div className="layout-main">
-            <nav className="top-nav">
-                <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '4.5rem' }}>
-                    <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
-                        <img src={logo} alt="Aalap Logo" className="nav-logo" />
-                    </Link>
+          <div className="top-nav-links">
+            <Link to="/" className={`top-nav-link ${isActive('/') ? 'active' : ''}`}>
+              <BookOpen size={16} /> পাঠাগাৰ
+            </Link>
+            <Link to="/trending" className={`top-nav-link ${isActive('/trending') ? 'active' : ''}`}>
+              <TrendingUp size={16} /> জনপ্ৰিয়
+            </Link>
+            <Link to="/search" className={`top-nav-link ${isActive('/search') ? 'active' : ''}`}>
+              <Search size={16} /> সন্ধান
+            </Link>
+            <Link to="/write" onClick={handleProtectedClick} className={`top-nav-link ${isActive('/write') ? 'active' : ''}`}>
+              <FilePenLine size={16} /> লিখক
+            </Link>
+          </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Link to="/search" className="btn-icon">
-                            <Search size={22} />
-                        </Link>
+          <div className="top-nav-actions">
+            <Link to="/search" className="btn-icon" title="Search">
+              <Search size={20} />
+            </Link>
 
-                        <button className="btn-icon" onClick={toggleTheme}>
-                            {theme === 'light' ? <Moon size={22} /> : <Sun size={22} />}
-                        </button>
+            <button className="btn-icon" onClick={toggleTheme} title="Theme">
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
 
-                        {user ? (
-                            <button className="btn-icon" onClick={signOut} title="Log Out">
-                                <LogOut size={20} />
-                            </button>
-                        ) : (
-                            <button className="btn btn-primary" onClick={signInWithGoogle} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', marginLeft: '0.5rem' }}>
-                                সোমাওঁক
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </nav>
-
-            <main className="layout-content">
-                {children}
-            </main>
-
-            <nav className="bottom-nav">
-                <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>
-                    <Home className="nav-icon" />
-                    <div className="nav-indicator" />
-                </Link>
-                <Link to="/trending" className={`nav-item ${isActive('/trending') ? 'active' : ''}`}>
-                    <TrendingUp className="nav-icon" />
-                    <div className="nav-indicator" />
-                </Link>
-                <Link to="/write" onClick={handleProtectedClick} className={`nav-item ${isActive('/write') ? 'active' : ''}`}>
-                    <div className="nav-write-btn">
-                        <PenTool className="nav-icon" style={{ color: 'white' }} />
-                    </div>
-                </Link>
-                <Link to="/notifications" onClick={handleProtectedClick} className={`nav-item ${isActive('/notifications') ? 'active' : ''}`}>
-                    <div style={{ position: 'relative' }}>
-                        <Bell className="nav-icon" />
-                        {unreadCount > 0 && <span className="notification-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
-                    </div>
-                    <div className="nav-indicator" />
-                </Link>
-                <Link
-                    to={user ? `/profile/${user.id}` : '/login'}
-                    onClick={handleProtectedClick}
-                    className={`nav-item ${isActive(`/profile`) ? 'active' : ''}`}
-                >
-                    <User className="nav-icon" />
-                    <div className="nav-indicator" />
-                </Link>
-            </nav>
+            {user ? (
+              <button className="btn-icon" onClick={signOut} title="Log Out">
+                <LogOut size={18} />
+              </button>
+            ) : (
+              <button className="btn btn-primary" onClick={signInWithGoogle} style={{ padding: '0.72rem 1rem' }}>
+                সোমাওঁক
+              </button>
+            )}
+          </div>
         </div>
-    )
+      </nav>
+
+      <main className="layout-content">{children}</main>
+
+      <nav className="bottom-nav">
+        <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>
+          <Home className="nav-icon" />
+          <div className="nav-indicator" />
+        </Link>
+        <Link to="/trending" className={`nav-item ${isActive('/trending') ? 'active' : ''}`}>
+          <TrendingUp className="nav-icon" />
+          <div className="nav-indicator" />
+        </Link>
+        <Link to="/write" onClick={handleProtectedClick} className={`nav-item ${isActive('/write') ? 'active' : ''}`}>
+          <div className="nav-write-btn">
+            <PenTool className="nav-icon" style={{ color: 'inherit' }} />
+          </div>
+        </Link>
+        <Link to="/notifications" onClick={handleProtectedClick} className={`nav-item ${isActive('/notifications') ? 'active' : ''}`}>
+          <div style={{ position: 'relative' }}>
+            <Bell className="nav-icon" />
+            {unreadCount > 0 && <span className="notification-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
+          </div>
+          <div className="nav-indicator" />
+        </Link>
+        <Link to={user ? `/profile/${user.id}` : '/login'} onClick={handleProtectedClick} className={`nav-item ${isActive('/profile') ? 'active' : ''}`}>
+          <User className="nav-icon" />
+          <div className="nav-indicator" />
+        </Link>
+      </nav>
+    </div>
+  )
 }

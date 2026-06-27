@@ -5,234 +5,143 @@ import { useAuth } from '../contexts/AuthContext'
 import PostCard from '../components/PostCard'
 import ProfileBadge from '../components/ProfileBadge'
 import Avatar from '../components/Avatar'
-import { getBadgeLevel, getAchievements, formatNumber, getAvatarUrl } from '../utils/helpers'
-import { Settings, Globe, MessageCircle, UserPlus, UserMinus } from 'lucide-react'
+import { getBadgeLevel, getAchievements, formatNumber } from '../utils/helpers'
+import { Settings, Globe, UserPlus, UserMinus } from 'lucide-react'
 
 export default function Profile() {
-    const { id } = useParams()
-    const { user, profile: authProfile } = useAuth()
-    const [profile, setProfile] = useState(null)
-    const [posts, setPosts] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [following, setFollowing] = useState(false)
+  const { id } = useParams()
+  const { user } = useAuth()
+  const [profile, setProfile] = useState(null)
+  const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [following, setFollowing] = useState(false)
 
-    useEffect(() => {
-        fetchProfile()
-        fetchUserPosts()
-    }, [id])
+  useEffect(() => {
+    fetchProfile()
+    fetchUserPosts()
+  }, [id])
 
-    useEffect(() => {
-        if (user && profile) {
-            checkFollowing()
-        }
-    }, [user, profile])
+  useEffect(() => {
+    if (user && profile) checkFollowing()
+  }, [user, profile])
 
-    const fetchProfile = async () => {
-        if (!id || id === 'undefined') {
-            setLoading(false)
-            return
-        }
-
-        // Decode URL parameter in case of spaces/special chars
-        const decodedId = decodeURIComponent(id)
-
-        setLoading(true)
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .or(`username.eq.${decodedId},id.eq.${decodedId}`)
-                .single()
-
-            if (error) throw error
-            setProfile(data)
-        } catch (error) {
-            console.error('Error fetching profile:', error)
-        } finally {
-            setLoading(false)
-        }
+  const fetchProfile = async () => {
+    if (!id || id === 'undefined') {
+      setLoading(false)
+      return
     }
 
-    const fetchUserPosts = async () => {
-        if (!id || id === 'undefined') {
-            return
-        }
-
-        const decodedId = decodeURIComponent(id)
-
-        try {
-            const { data } = await supabase
-                .from('posts')
-                .select('*, profiles(*)')
-                .eq('author_id', decodedId)
-                .eq('is_published', true)
-                .order('created_at', { ascending: false })
-            setPosts(data || [])
-        } catch (e) { console.error(e) }
+    const decodedId = decodeURIComponent(id)
+    setLoading(true)
+    try {
+      const { data, error } = await supabase.from('profiles').select('*').or(`username.eq.${decodedId},id.eq.${decodedId}`).single()
+      if (error) throw error
+      setProfile(data)
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+    } finally {
+      setLoading(false)
     }
+  }
 
-    const checkFollowing = async () => {
-        if (!profile || !profile.id) return
-        const { data } = await supabase
-            .from('follows')
-            .select('*')
-            .match({ follower_id: user.id, following_id: profile.id })
-            .single()
-        setFollowing(!!data)
+  const fetchUserPosts = async () => {
+    if (!id || id === 'undefined') return
+    const decodedId = decodeURIComponent(id)
+    try {
+      const { data } = await supabase.from('posts').select('*, profiles(*)').eq('author_id', decodedId).eq('is_published', true).order('created_at', { ascending: false })
+      setPosts(data || [])
+    } catch (e) {
+      console.error(e)
     }
+  }
 
-    const handleFollow = async () => {
-        if (!user) return alert('অনুসৰণ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
-        try {
-            if (following) {
-                await supabase.from('follows').delete().match({ follower_id: user.id, following_id: profile.id })
-                setFollowing(false)
-            } else {
-                await supabase.from('follows').insert({ follower_id: user.id, following_id: profile.id })
-                setFollowing(true)
-            }
-            fetchProfile()
-        } catch (e) { console.error(e) }
+  const checkFollowing = async () => {
+    if (!profile?.id) return
+    const { data } = await supabase.from('follows').select('*').match({ follower_id: user.id, following_id: profile.id }).single()
+    setFollowing(!!data)
+  }
+
+  const handleFollow = async () => {
+    if (!user) return alert('অনুসৰণ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
+    try {
+      if (following) {
+        await supabase.from('follows').delete().match({ follower_id: user.id, following_id: profile.id })
+        setFollowing(false)
+      } else {
+        await supabase.from('follows').insert({ follower_id: user.id, following_id: profile.id })
+        setFollowing(true)
+      }
+      fetchProfile()
+    } catch (e) {
+      console.error(e)
     }
+  }
 
-    if (loading) return <div className="container" style={{ display: 'flex', justifyContent: ' center', padding: '10rem' }}><div className="spinner" /></div>
-    if (!profile) return <div className="container" style={{ textAlign: 'center', padding: '5rem' }}><h2>প্ৰ'ফাইল বিচাৰি পোৱা নগ'ল।</h2></div>
+  if (loading) return <div className="container" style={{ display: 'flex', justifyContent: 'center', padding: '10rem' }}><div className="spinner" /></div>
+  if (!profile) return <div className="container" style={{ textAlign: 'center', padding: '5rem' }}><h2>প্ৰ'ফাইল বিচাৰি পোৱা নগ'ল।</h2></div>
 
-    const isOwnProfile = user?.id === profile.id
-    const badge = getBadgeLevel(profile.post_count || 0)
-    const achievements = getAchievements(profile)
+  const isOwnProfile = user?.id === profile.id
+  const badge = getBadgeLevel(profile.post_count || 0)
+  const achievements = getAchievements(profile)
 
-    return (
-        <div className="container-sm fade-in">
-            {/* Profile Header */}
-            <div className="card" style={{
-                padding: 'var(--card-padding, 3rem)',
-                marginBottom: '3rem',
-                background: `linear-gradient(135deg, ${badge.color}08, transparent)`,
-                border: '2px solid var(--border-color)',
-                textAlign: 'center'
-            }}>
-                {/* Avatar */}
-                <div style={{ position: 'relative', display: 'inline-block', marginBottom: '1.5rem' }}>
-                    <div style={{ padding: '4px', background: 'var(--bg-primary)', borderRadius: '50%', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
-                        <Avatar profile={profile} size="xl" />
-                    </div>
-                    {/* Badge Dot Overlay */}
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '8px',
-                        right: '8px',
-                        width: '24px',
-                        height: '24px',
-                        background: badge.color,
-                        borderRadius: '50%',
-                        border: '4px solid var(--bg-primary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        boxShadow: 'var(--shadow-md)'
-                    }} title={badge.name}>
-                        <div style={{ width: '8px', height: '8px', background: 'white', borderRadius: '50%' }} />
-                    </div>
-                </div>
-
-                <h1 style={{ marginBottom: '0.5rem', fontSize: '2rem' }}>{profile.display_name}</h1>
-                <p style={{ color: 'var(--text-tertiary)', marginBottom: '1.5rem', fontSize: '1rem' }}>@{profile.username}</p>
-
-                {/* Stats */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem', marginBottom: '2rem' }}>
-                    <div>
-                        <div style={{ fontWeight: '800', fontSize: '1.75rem', color: 'var(--accent)' }}>{formatNumber(profile.post_count || 0)}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', fontWeight: '600' }}>লিখনি (Posts)</div>
-                    </div>
-                    <div>
-                        <div style={{ fontWeight: '800', fontSize: '1.75rem', color: 'var(--accent-purple)' }}>{formatNumber(profile.followers_count || 0)}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', fontWeight: '600' }}>অনুসৰণকাৰী</div>
-                    </div>
-                    <div>
-                        <div style={{ fontWeight: '800', fontSize: '1.75rem', color: 'var(--accent-blue)' }}>{formatNumber(profile.following_count || 0)}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', fontWeight: '600' }}>অনুসৰণ</div>
-                    </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                    {isOwnProfile ? (
-                        <Link to="/settings" className="btn btn-secondary">
-                            <Settings size={18} /> প্ৰ'ফাইল সম্পাদনা
-                        </Link>
-                    ) : (
-                        <>
-                            <button
-                                className={`btn ${following ? 'btn-secondary' : 'btn-primary'}`}
-                                onClick={handleFollow}
-                            >
-                                {following ? (
-                                    <><UserMinus size={18} /> অনুসৰণ কৰা হৈছে</>
-                                ) : (
-                                    <><UserPlus size={18} /> অনুসৰণ কৰক</>
-                                )}
-                            </button>
-                        </>
-                    )}
-                </div>
-
-                {/* Bio */}
-                {profile.bio && (
-                    <p style={{
-                        maxWidth: '600px',
-                        margin: '0 auto 2rem',
-                        lineHeight: '1.7',
-                        fontSize: '1.05rem',
-                        color: 'var(--text-secondary)'
-                    }}>
-                        {profile.bio}
-                    </p>
-                )}
-
-                {/* Social Links */}
-                {(profile.website || profile.twitter || profile.instagram) && (
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-                        {profile.website && (
-                            <a
-                                href={profile.website}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="btn-icon"
-                                style={{ background: 'var(--depth-100)' }}
-                            >
-                                <Globe size={18} />
-                            </a>
-                        )}
-                    </div>
-                )}
-            </div>
-
-            {/* Achievements Section */}
-            <div style={{ marginBottom: '4rem' }}>
-                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.75rem' }}>
-                    <span className="gradient-text">অৰ্জনসমূহ</span>
-                </h3>
-                <ProfileBadge badge={badge} achievements={achievements} />
-            </div>
-
-            {/* Published Works */}
-            <div>
-                <h3 style={{ marginBottom: '2rem', fontSize: '1.75rem' }}>
-                    প্ৰকাশিত লিখনিসমূহ ({posts.length})
-                </h3>
-                <div className="grid" style={{ gridTemplateColumns: '1fr', gap: '2rem' }}>
-                    {posts.map(post => <PostCard key={post.id} post={post} onUpdate={fetchUserPosts} />)}
-                    {posts.length === 0 && (
-                        <div className="card" style={{ textAlign: 'center', padding: '4rem' }}>
-                            <p style={{ color: 'var(--text-tertiary)', fontSize: '1.1rem' }}>
-                                এতিয়ালৈকে কোনো লিখনি প্ৰকাশ কৰা নাই।
-                            </p>
-                        </div>
-                    )}
-                </div>
-            </div>
+  return (
+    <div className="page-shell fade-in">
+      <div className="panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+          <Avatar profile={profile} size="xl" />
+          <div style={{ flex: 1, minWidth: '220px' }}>
+            <div className="section-kicker">Writer profile</div>
+            <h1 style={{ marginBottom: '0.35rem', fontSize: '2.2rem' }}>{profile.display_name}</h1>
+            <p style={{ color: 'var(--text-tertiary)', marginBottom: '1rem' }}>@{profile.username}</p>
+            {profile.bio && <p style={{ color: 'var(--text-secondary)', maxWidth: '52ch' }}>{profile.bio}</p>}
+          </div>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {isOwnProfile ? (
+              <Link to="/settings" className="btn btn-secondary"><Settings size={18} /> প্ৰ'ফাইল সম্পাদনা</Link>
+            ) : (
+              <button className={`btn ${following ? 'btn-secondary' : 'btn-primary'}`} onClick={handleFollow}>
+                {following ? <><UserMinus size={18} /> অনুসৰণ কৰা হৈছে</> : <><UserPlus size={18} /> অনুসৰণ কৰক</>}
+              </button>
+            )}
+            {profile.website && <a href={profile.website} target="_blank" rel="noreferrer" className="btn btn-secondary"><Globe size={18} /> Website</a>}
+          </div>
         </div>
-    )
+
+        <div className="stats-strip">
+          <div className="stat-box"><div className="stat-label">লিখনি</div><div className="stat-value">{formatNumber(profile.post_count || 0)}</div></div>
+          <div className="stat-box"><div className="stat-label">অনুসৰণকাৰী</div><div className="stat-value">{formatNumber(profile.followers_count || 0)}</div></div>
+          <div className="stat-box"><div className="stat-label">অনুসৰণ</div><div className="stat-value">{formatNumber(profile.following_count || 0)}</div></div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '3rem' }}>
+        <div className="section-header">
+          <div>
+            <div className="section-kicker">Recognition</div>
+            <h2 className="section-title">অৰ্জনসমূহ</h2>
+          </div>
+        </div>
+        <ProfileBadge badge={badge} achievements={achievements} />
+      </div>
+
+      <div>
+        <div className="section-header">
+          <div>
+            <div className="section-kicker">Published works</div>
+            <h2 className="section-title">প্ৰকাশিত লিখনিসমূহ ({posts.length})</h2>
+          </div>
+        </div>
+
+        <div className="feed-list">
+          {posts.map(post => <PostCard key={post.id} post={post} onUpdate={fetchUserPosts} />)}
+          {posts.length === 0 && (
+            <div className="empty-state card">
+              <h3 className="empty-state-title">এতিয়ালৈকে কোনো লিখনি প্ৰকাশ কৰা নাই</h3>
+              <p className="empty-state-desc">নতুন লিখনি আহিলে ইয়াত দেখা যাব।</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }
