@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { supabase } from '../supabase'
+import { fetchPublishedPosts } from '../services/posts'
 import PostCard from '../components/PostCard'
 import { CATEGORIES } from '../utils/helpers'
 import { Link } from 'react-router-dom'
@@ -20,22 +20,10 @@ export default function Home() {
   const fetchPosts = async () => {
     setLoading(true)
     try {
-      let query = supabase
-        .from('posts')
-        .select('*, profiles(*)')
-        .eq('is_published', true)
-        .order('created_at', { ascending: false })
-        .limit(50)
-
-      if (filter !== 'all') {
-        const category = CATEGORIES.find(c => c.id === filter)
-        const possibleValues = category ? [category.id, ...(category.aliases || [])] : [filter]
-        query = query.in('category', possibleValues)
-      }
-
-      const { data, error } = await query
-      if (error) throw error
-      setPosts(data || [])
+      const category = filter !== 'all' ? CATEGORIES.find(c => c.id === filter) : null
+      const possibleValues = category ? [category.id, ...(category.aliases || [])] : filter !== 'all' ? [filter] : undefined
+      const data = await fetchPublishedPosts({ categoryValues: possibleValues })
+      setPosts(data)
     } catch (error) {
       console.error('Error fetching posts:', error)
     } finally {

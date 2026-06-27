@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../supabase'
+import { fetchProfileByIdOrUsername } from '../services/profiles'
 import { useAuth } from '../contexts/AuthContext'
 import PostCard from '../components/PostCard'
 import Avatar from '../components/Avatar'
@@ -33,8 +34,7 @@ export default function Profile() {
     const decodedId = decodeURIComponent(id)
     setLoading(true)
     try {
-      const { data, error } = await supabase.from('profiles').select('*').or(`username.eq.${decodedId},id.eq.${decodedId}`).single()
-      if (error) throw error
+      const data = await fetchProfileByIdOrUsername(decodedId)
       setProfile(data)
     } catch (error) {
       console.error('Error fetching profile:', error)

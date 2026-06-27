@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { supabase } from '../supabase'
+import { fetchProfileByUserId } from '../services/profiles'
 
 const AuthContext = createContext()
 
@@ -41,13 +42,7 @@ export const AuthProvider = ({ children }) => {
 
     const fetchProfile = async (userId) => {
         try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', userId)
-                .single()
-
-            if (error) throw error
+            const data = await fetchProfileByUserId(userId)
             setProfile(data)
         } catch (error) {
             console.error('Error fetching profile:', error)

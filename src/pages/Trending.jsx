@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../supabase'
+import { fetchTrendingPosts as fetchTrendingPostsService } from '../services/posts'
 import PostCard from '../components/PostCard'
 import { TrendingUp } from 'lucide-react'
 
@@ -22,16 +22,8 @@ export default function Trending() {
       else if (timeframe === 'week') startDate.setDate(now.getDate() - 7)
       else if (timeframe === 'month') startDate.setMonth(now.getMonth() - 1)
 
-      const { data, error } = await supabase
-        .from('posts')
-        .select('*, profiles(*)')
-        .eq('is_published', true)
-        .gte('created_at', startDate.toISOString())
-        .order('likes_count', { ascending: false })
-        .limit(20)
-
-      if (error) throw error
-      setPosts(data || [])
+      const data = await fetchTrendingPostsService(startDate)
+      setPosts(data)
     } catch (error) {
       console.error('Error fetching trending posts:', error)
     } finally {

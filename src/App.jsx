@@ -11,15 +11,14 @@ import Profile from './pages/Profile'
 import Reader from './pages/Reader'
 import Search from './pages/Search'
 import { useEffect } from 'react'
+import { APP_VERSION } from './constants/app'
 
 export default function App() {
     // Force refresh for mobile users on new version
     useEffect(() => {
-        const APP_VERSION = 'v1.0.5'; // Increment this to force a mobile refresh
         if (localStorage.getItem('aalap_version') !== APP_VERSION) {
-            localStorage.setItem('aalap_version', APP_VERSION);
-            // Wait a tiny bit and reload
-            window.location.reload(true);
+            localStorage.setItem('aalap_version', APP_VERSION)
+            window.location.reload()
         }
     }, [])
 

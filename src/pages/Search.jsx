@@ -1,41 +1,34 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../supabase'
 import PostCard from '../components/PostCard'
 import { Search as SearchIcon, Users, FileText, ChevronRight, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Avatar from '../components/Avatar'
+import useDebouncedValue from '../hooks/useDebouncedValue'
+import { SEARCH_DEBOUNCE_MS } from '../constants/app'
+import { searchPosts } from '../services/posts'
+import { searchProfiles } from '../services/profiles'
 
 export default function Search() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState({ posts: [], profiles: [] })
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('posts')
+  const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (query.trim().length > 1) handleSearch()
-      else setResults({ posts: [], profiles: [] })
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [query])
+    if (debouncedQuery.trim().length > 1) handleSearch(debouncedQuery)
+    else setResults({ posts: [], profiles: [] })
+  }, [debouncedQuery])
 
-  const handleSearch = async () => {
+  const handleSearch = async (searchTerm) => {
     setLoading(true)
     try {
-      const { data: posts } = await supabase
-        .from('posts')
-        .select('*, profiles(*)')
-        .eq('is_published', true)
-        .or(`title.ilike.%${query}%,body.ilike.%${query}%`)
-        .limit(10)
+      const [posts, profiles] = await Promise.all([
+        searchPosts(searchTerm),
+        searchProfiles(searchTerm),
+      ])
 
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('*')
-        .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
-        .limit(10)
-
-      setResults({ posts: posts || [], profiles: profiles || [] })
+      setResults({ posts, profiles })
     } catch (e) {
       console.error(e)
     } finally {
