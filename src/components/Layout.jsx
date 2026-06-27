@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { supabase } from '../supabase'
 import { useState, useEffect } from 'react'
-import { Home, TrendingUp, PenTool, Bell, User, Search, Moon, Sun, BookOpen, LogOut, FilePenLine } from 'lucide-react'
+import { Home, TrendingUp, PenTool, Bell, User, Search, Moon, Sun, LogOut } from 'lucide-react'
 
 export default function Layout({ children }) {
   const { user, signInWithGoogle, signOut } = useAuth()
@@ -49,7 +49,7 @@ export default function Layout({ children }) {
   const handleProtectedClick = (e) => {
     if (!user) {
       e.preventDefault()
-      alert('আপোনাৰ সৃষ্টিশীল যাত্ৰা আৰম্ভ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
+      alert('আপোনাৰ সৃষ্টিশীল যাত্ৰা আৰম্ভ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক। (Please log in to start your writing journey.)')
       signInWithGoogle()
     }
   }
@@ -60,33 +60,14 @@ export default function Layout({ children }) {
         <div className="top-nav-inner">
           <Link to="/" className="nav-brand">
             <img src={logo} alt="Aalap Logo" className="nav-logo" />
-            <div className="nav-wordmark">
-              <span className="nav-kicker">Assamese literature</span>
-              <span className="nav-title">Read, write, return</span>
-            </div>
           </Link>
 
-          <div className="top-nav-links">
-            <Link to="/" className={`top-nav-link ${isActive('/') ? 'active' : ''}`}>
-              <BookOpen size={16} /> পাঠাগাৰ
-            </Link>
-            <Link to="/trending" className={`top-nav-link ${isActive('/trending') ? 'active' : ''}`}>
-              <TrendingUp size={16} /> জনপ্ৰিয়
-            </Link>
-            <Link to="/search" className={`top-nav-link ${isActive('/search') ? 'active' : ''}`}>
-              <Search size={16} /> সন্ধান
-            </Link>
-            <Link to="/write" onClick={handleProtectedClick} className={`top-nav-link ${isActive('/write') ? 'active' : ''}`}>
-              <FilePenLine size={16} /> লিখক
-            </Link>
-          </div>
-
           <div className="top-nav-actions">
-            <Link to="/search" className="btn-icon" title="Search">
+            <Link to="/search" className="btn-icon">
               <Search size={20} />
             </Link>
 
-            <button className="btn-icon" onClick={toggleTheme} title="Theme">
+            <button className="btn-icon" onClick={toggleTheme}>
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
 

@@ -208,7 +208,7 @@ export default function Reader() {
   }
 
   if (loading) return <div className="container" style={{ display: 'flex', justifyContent: 'center', padding: '10rem' }}><div className="spinner" /></div>
-  if (!post) return <div className="container-sm" style={{ padding: '5rem', textAlign: 'center' }}><h2>এই লিখনিটো বিচাৰি পোৱা নগ'ল।</h2><Link to="/" className="btn btn-primary">মূল পৃষ্ঠালৈ উভতি যাওক</Link></div>
+  if (!post) return <div className="container-sm" style={{ padding: '5rem', textAlign: 'center' }}><h2>বন্ধ কৰক, এই লিখনিটো বিচাৰি পোৱা নগ'ল।</h2><Link to="/" className="btn btn-primary">মূল পৃষ্ঠালৈ উভতি যাওক</Link></div>
 
   return (
     <div className="reading-shell fade-in">
@@ -225,7 +225,7 @@ export default function Reader() {
               {showSettings && (
                 <div className="share-menu fade-in" style={{ right: 0, top: 'calc(100% + 10px)', minWidth: '300px', padding: '1rem' }}>
                   <div className="field-group" style={{ marginBottom: '1rem' }}>
-                    <label className="field-label">Theme</label>
+                    <label className="field-label">থীম (Theme)</label>
                     <div className="tab-row" style={{ marginBottom: 0 }}>
                       <button className={`tab-btn ${theme === 'light' ? 'active' : ''}`} onClick={() => setTheme('light')}>Light</button>
                       <button className={`tab-btn ${theme === 'paper' ? 'active' : ''}`} onClick={() => setTheme('paper')}>Paper</button>
@@ -234,7 +234,7 @@ export default function Reader() {
                   </div>
 
                   <div className="field-group" style={{ marginBottom: '1rem' }}>
-                    <label className="field-label">Font</label>
+                    <label className="field-label">ফণ্ট (Font)</label>
                     <div className="tab-row" style={{ marginBottom: 0 }}>
                       <button className={`tab-btn ${fontFamily === 'serif' ? 'active' : ''}`} onClick={() => setFontFamily('serif')}>Tiro</button>
                       <button className={`tab-btn ${fontFamily === 'sans' ? 'active' : ''}`} onClick={() => setFontFamily('sans')}>Siliguri</button>
@@ -242,12 +242,12 @@ export default function Reader() {
                   </div>
 
                   <div className="field-group" style={{ marginBottom: '1rem' }}>
-                    <label className="field-label">Size · {fontSize}px</label>
+                    <label className="field-label">আকাৰ (Size) · {fontSize}px</label>
                     <input type="range" min="16" max="32" step="1" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value))} />
                   </div>
 
                   <div className="field-group" style={{ marginBottom: 0 }}>
-                    <label className="field-label">Alignment</label>
+                    <label className="field-label">শাৰীবদ্ধতা (Alignment)</label>
                     <div className="tab-row" style={{ marginBottom: 0 }}>
                       <button className={`tab-btn ${alignment === 'left' ? 'active' : ''}`} onClick={() => setAlignment('left')}><AlignLeft size={16} /></button>
                       <button className={`tab-btn ${alignment === 'center' ? 'active' : ''}`} onClick={() => setAlignment('center')}><AlignCenter size={16} /></button>
@@ -362,7 +362,6 @@ export default function Reader() {
       <section style={{ padding: '2.5rem 0' }}>
         <div className="section-header">
           <div>
-            <div className="section-kicker">Conversation</div>
             <h3 className="section-title">মন্তব্য ({comments.length})</h3>
           </div>
         </div>
@@ -371,7 +370,7 @@ export default function Reader() {
           <form onSubmit={handleComment} className="panel" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
             <textarea placeholder="মতামত লিখক..." value={newComment} onChange={(e) => setNewComment(e.target.value)} rows={4} style={{ marginBottom: '0.75rem' }} />
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button type="submit" className="btn btn-primary"><Send size={16} /> পঠাওক</button>
+              <button type="submit" className="btn btn-primary"><Send size={16} /></button>
             </div>
           </form>
         ) : (
@@ -400,7 +399,6 @@ export default function Reader() {
         <section style={{ paddingBottom: '7rem' }}>
           <div className="section-header">
             <div>
-              <div className="section-kicker">Keep reading</div>
               <h3 className="section-title">আপুনি ভাল পাব পৰা অন্যান্য লিখনি</h3>
             </div>
           </div>

@@ -42,9 +42,10 @@ export default function Trending() {
   return (
     <div className="page-shell fade-in">
       <header className="page-header">
-        <div className="section-kicker">Popular now</div>
-        <h1 className="page-title">জনপ্ৰিয় আলাপ</h1>
-        <p className="page-subtitle">এই তালিকা লিখনিৰ সঁহাৰি, পছন্দ, আৰু সাম্প্ৰতিক সক্ৰিয়তাৰ ভিত্তিত সজোৱা হৈছে।</p>
+        <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <TrendingUp size={28} />
+          জনপ্ৰিয় আলাপ
+        </h1>
       </header>
 
       <div className="tab-row" style={{ marginBottom: '2rem' }}>
@@ -57,9 +58,9 @@ export default function Trending() {
         <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}><div className="spinner" /></div>
       ) : posts.length === 0 ? (
         <div className="empty-state card">
-          <div className="empty-state-icon"><TrendingUp /></div>
+          <div className="empty-state-icon">📈</div>
           <h3 className="empty-state-title">এতিয়ালৈকে কোনো জনপ্ৰিয় লিখনি নাই</h3>
-          <p className="empty-state-desc">এই সময়ছোৱাত কোনো লিখনিয়ে এতিয়ালৈকে বিশেষ সঁহাৰি লাভ কৰা নাই। অলপ পিছত আকৌ চেষ্টা কৰিব।</p>
+          <p className="empty-state-desc">এই সময়ছোৱাত কোনো লিখনিয়ে এতিয়ালৈকে জনপ্ৰিয়তা লাভ কৰা নাই। অলপ পিছত আকৌ চেষ্টা কৰিব।</p>
         </div>
       ) : (
         <div className="feed-list">

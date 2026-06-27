@@ -4,7 +4,7 @@ import PostCard from '../components/PostCard'
 import { CATEGORIES } from '../utils/helpers'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { BookOpen, PenTool, ArrowRight } from 'lucide-react'
+import { Sparkles, PenTool, ArrowRight } from 'lucide-react'
 import CategoryBadge from '../components/CategoryBadge'
 
 export default function Home() {
@@ -55,14 +55,6 @@ export default function Home() {
 
   return (
     <div className="page-shell fade-in">
-      <header className="page-header">
-        <div className="section-kicker">A digital adda for literature</div>
-        <h1 className="page-title">অসমীয়া সাহিত্যৰ বাবে এক শান্ত, কৌতূহলী, ঘূৰি অহা ঠাই।</h1>
-        <p className="page-subtitle">
-          নতুন লিখনি পঢ়ক, প্ৰিয় লেখক বিচাৰক, আৰু নিজৰ ভাষাত নিজৰ কথা লিখক। আলাপক আমি ফিডৰ দৰে নহয়, পাঠাগাৰৰ দৰে অনুভৱ কৰাব বিচাৰিছোঁ।
-        </p>
-      </header>
-
       {featuredPost && (
         <section className="editorial-hero">
           <Link
@@ -76,28 +68,20 @@ export default function Home() {
             </div>
             <h2 className="hero-title">{featuredPost.title}</h2>
             <p className="hero-excerpt">{featuredPost.body?.replace(/<[^>]*>/g, '').slice(0, 240)}...</p>
-            <div className="hero-meta">
-              <span>আজিৰ পাঠ</span>
-              <span>•</span>
-              <span>Continue reading</span>
-            </div>
           </Link>
 
           <div className="hero-side">
             <div className="panel card">
-              <div className="section-kicker">Why Aalap</div>
-              <h3 className="section-title" style={{ fontSize: '1.6rem', marginBottom: '0.7rem' }}>Read with more calm, write with more care.</h3>
-              <p className="section-desc" style={{ marginBottom: '1.25rem' }}>
-                কম বিভ্ৰান্তি, অধিক পাঠযোগ্যতা, আৰু ভাষাৰ নিজস্ব মৰ্যাদাক কেন্দ্ৰ কৰি গঢ়া অভিজ্ঞতা।
-              </p>
+              <h1 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Sparkles size={28} />
+                শেহতীয়া আলাপ
+              </h1>
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <Link to="/search" className="btn btn-secondary"><BookOpen size={16} /> বিচাৰক</Link>
-                <Link to="/write" className="btn btn-primary"><PenTool size={16} /> লিখক</Link>
+                <Link to="/write" className="btn btn-primary"><PenTool size={16} /> নতুন লিখনি আৰম্ভ কৰক</Link>
               </div>
             </div>
 
             <div className="panel card">
-              <div className="section-kicker">Browse by form</div>
               <div className="shelf-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
                 {categoryCounts.slice(0, 4).map(cat => (
                   <button key={cat.id} className="shelf-item" onClick={() => setFilter(cat.id)}>
@@ -115,13 +99,6 @@ export default function Home() {
       )}
 
       <section style={{ marginBottom: '2rem' }}>
-        <div className="section-header">
-          <div>
-            <div className="section-kicker">Shelves</div>
-            <h2 className="section-title">ধৰণ অনুসৰি চাওক</h2>
-          </div>
-        </div>
-
         <div className="filter-bar">
           <button className={`filter-chip ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>সকলো</button>
           {CATEGORIES.map(cat => (
@@ -133,13 +110,6 @@ export default function Home() {
       </section>
 
       <section>
-        <div className="section-header">
-          <div>
-            <div className="section-kicker">Fresh writings</div>
-            <h2 className="section-title">শেহতীয়া আলাপ</h2>
-          </div>
-        </div>
-
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}><div className="spinner" /></div>
         ) : posts.length === 0 ? (
@@ -147,7 +117,7 @@ export default function Home() {
             <div className="empty-state-icon">📚</div>
             <h3 className="empty-state-title">এই শিতানত এতিয়ালৈকে কোনো লিখনি নাই</h3>
             <p className="empty-state-desc">
-              {user ? 'আপোনাৰ সৃষ্টিশীল লিখনি এই শিতানত প্ৰথম হ\'ব পাৰে।' : 'নতুন লিখনি পঢ়িবলৈ অপেক্ষা কৰক অথবা নিজা লিখনি যোগ দিবলৈ লগ ইন কৰক।'}
+              {user ? 'আপোনাৰ সৃষ্টিশীল লিখনি এই শিতানত প্ৰথম হ\'ব পাৰে!' : 'নতুন লিখনি পঢ়িবলৈ অপেক্ষা কৰক অথবা নিজা লিখনি যোগ দিবলৈ লগ ইন কৰক।'}
             </p>
             {user && (
               <Link to="/write" className="btn btn-primary" style={{ marginTop: '1.25rem' }}>

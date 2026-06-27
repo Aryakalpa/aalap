@@ -94,7 +94,7 @@ export default function PostCard({ post, onUpdate }) {
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
                   <Clock size={12} /> {estimateReadingTime(post.body)}
                 </span>
-                {!post.is_published && <span style={{ color: 'var(--danger)', fontWeight: 700 }}>খচৰা</span>}
+                {!post.is_published && <span style={{ color: 'var(--danger)', fontWeight: 700 }}>(অঘোষিত/Hidden)</span>}
               </div>
             </div>
 
@@ -129,7 +129,7 @@ export default function PostCard({ post, onUpdate }) {
                     <div className="share-divider" />
                     <div className="share-menu-item danger" onClick={async (e) => {
                       e.preventDefault(); e.stopPropagation()
-                      if (window.confirm('আপুনি নিশ্চিতনে?')) {
+                      if (window.confirm('আপুনি নিশ্চিতনে? এই লিখনিটো সমূলি মচি পেলোৱা হ\'ব।')) {
                         const { error } = await supabase.from('posts').delete().eq('id', post.id)
                         if (!error && onUpdate) onUpdate()
                       }

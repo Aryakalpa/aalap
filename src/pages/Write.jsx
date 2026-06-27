@@ -46,7 +46,7 @@ export default function Write() {
 
   const handlePublish = async (publish = true) => {
     if (!title.trim() || !body.trim() || !category) {
-      alert('অনুগ্ৰহ কৰি শিৰোনাম, বিষয়বস্তু আৰু বিভাগ পূৰণ কৰক।')
+      alert('অনুগ্ৰহ কৰি সঠিকভাৱে শিৰোনাম, বিষয়বস্তু আৰু বিভাগ বাছনি কৰক।')
       return
     }
 
@@ -79,7 +79,7 @@ export default function Write() {
       }
     } catch (error) {
       console.error('Error saving:', error)
-      alert(error.message || 'সংৰক্ষণ কৰিবলৈ অসুবিধা হৈছে।')
+      alert(error.message || 'সংৰক্ষণ কৰিবলৈ অসুবিধা হৈছে। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।')
     } finally {
       setSaving(false)
     }
@@ -91,15 +91,12 @@ export default function Write() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <button onClick={() => navigate(-1)} className="btn-icon"><ChevronLeft size={20} /></button>
-            <div>
-              <div className="section-kicker">Writing studio</div>
-              <h1 style={{ fontSize: '1.5rem', margin: 0 }}>লিখন কক্ষ</h1>
-            </div>
+            <h1 style={{ fontSize: '1.5rem', margin: 0 }}>লিখন কক্ষ</h1>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             <span style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
-              {lastSaved ? `শেহতীয়া সংৰক্ষণ: ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : isDraft ? 'খচৰা' : 'প্ৰকাশিত'}
+              {lastSaved ? `শেহতীয়া: ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : isDraft ? 'খচৰা (Draft)' : 'প্ৰকাশিত (Published)'}
             </span>
             <button className="btn btn-secondary" onClick={handleSaveDraft} disabled={saving}><Save size={16} /> খচৰা</button>
             <button className="btn btn-primary" onClick={() => handlePublish(true)} disabled={saving}>{saving ? 'প্ৰকাশ হৈ আছে...' : 'প্ৰকাশ কৰক'}</button>
@@ -111,35 +108,24 @@ export default function Write() {
         <div className="panel writer-canvas">
           <div className="field-group">
             <label className="field-label">শিৰোনাম</label>
-            <input
-              type="text"
-              placeholder="আপোনাৰ লিখনৰ শিৰোনাম..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              style={{ fontSize: '2rem', fontWeight: '800', border: 'none', background: 'transparent', padding: '0.25rem 0', boxShadow: 'none' }}
-            />
+            <input type="text" placeholder="আপোনাৰ লিখনৰ শিৰোনাম..." value={title} onChange={(e) => setTitle(e.target.value)} style={{ fontSize: '2rem', fontWeight: '800', border: 'none', background: 'transparent', padding: '0.25rem 0', boxShadow: 'none' }} />
           </div>
 
           <div className="stats-strip" style={{ marginBottom: '1.25rem' }}>
             <div className="stat-box"><div className="stat-label">শব্দ</div><div className="stat-value">{countWords(body)}</div></div>
-            <div className="stat-box"><div className="stat-label">পঢ়াৰ সময়</div><div className="stat-value" style={{ fontSize: '1.1rem' }}>{estimateReadingTime(body)}</div></div>
-            <div className="stat-box"><div className="stat-label">অৱস্থা</div><div className="stat-value" style={{ fontSize: '1.1rem' }}>{isDraft ? 'খচৰা' : 'প্ৰকাশিত'}</div></div>
+            <div className="stat-box"><div className="stat-label">পঢ়িবলৈ</div><div className="stat-value" style={{ fontSize: '1.1rem' }}>{estimateReadingTime(body)}</div></div>
+            <div className="stat-box"><div className="stat-label">অৱস্থা</div><div className="stat-value" style={{ fontSize: '1.1rem' }}>{isDraft ? 'খচৰা (Draft)' : 'প্ৰকাশিত (Published)'}</div></div>
           </div>
 
           <div className="field-group">
-            <label className="field-label">লিখন</label>
-            <textarea
-              placeholder="আপোনাৰ মনৰ কথা লিখিবলৈ আৰম্ভ কৰক..."
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              style={{ minHeight: '70vh', fontSize: '1.16rem', lineHeight: '1.95', border: 'none', background: 'transparent', padding: 0, boxShadow: 'none', color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', textAlign: alignment }}
-            />
+            <label className="field-label">লিখনি আৰম্ভ কৰক</label>
+            <textarea placeholder="আপোনাৰ মনৰ কথা লিখিবলৈ আৰম্ভ কৰক..." value={body} onChange={(e) => setBody(e.target.value)} style={{ minHeight: '70vh', fontSize: '1.16rem', lineHeight: '1.95', border: 'none', background: 'transparent', padding: 0, boxShadow: 'none', color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', textAlign: alignment }} />
           </div>
         </div>
 
         <aside className="panel writer-sidebar">
           <div className="field-group">
-            <label className="field-label"><CheckCircle size={14} style={{ marginRight: 6 }} />বিভাগ</label>
+            <label className="field-label"><CheckCircle size={14} style={{ marginRight: 6 }} />বিভাগ বাছনি কৰক</label>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               {CATEGORIES.map(cat => (
                 <button key={cat.id} className={`filter-chip ${category === cat.id ? 'active' : ''}`} onClick={() => setCategory(cat.id)}>
@@ -150,7 +136,7 @@ export default function Write() {
           </div>
 
           <div className="field-group">
-            <label className="field-label"><AlignLeft size={14} style={{ marginRight: 6 }} />Alignment</label>
+            <label className="field-label"><AlignLeft size={14} style={{ marginRight: 6 }} />লিখনিৰ ধৰণ (Alignment)</label>
             <div className="tab-row">
               <button className={`tab-btn ${alignment === 'left' ? 'active' : ''}`} onClick={() => setAlignment('left')}><AlignLeft size={16} /></button>
               <button className={`tab-btn ${alignment === 'center' ? 'active' : ''}`} onClick={() => setAlignment('center')}><AlignCenter size={16} /></button>
@@ -159,19 +145,19 @@ export default function Write() {
           </div>
 
           <div className="field-group">
-            <label className="field-label"><BookOpen size={14} style={{ marginRight: 6 }} />ধাৰাবাহিকৰ নাম</label>
+            <label className="field-label"><BookOpen size={14} style={{ marginRight: 6 }} />ধাৰাবাহিকৰ নাম (ঐচ্ছিক)</label>
             <input type="text" placeholder="ধাৰাবাহিকৰ নাম লিখক..." value={seriesName} onChange={(e) => setSeriesName(e.target.value)} />
           </div>
 
           <div className="field-group">
-            <label className="field-label"><Image size={14} style={{ marginRight: 6 }} />বেটুপাতৰ লিংক</label>
+            <label className="field-label"><Image size={14} style={{ marginRight: 6 }} />বেটুপাতৰ লিংক (ঐচ্ছিক)</label>
             <input type="url" placeholder="https://example.com/image.jpg" value={coverImage} onChange={(e) => setCoverImage(e.target.value)} />
           </div>
 
           <div className="field-group" style={{ marginBottom: 0 }}>
-            <label className="field-label"><FileText size={14} style={{ marginRight: 6 }} />Editorial note</label>
+            <label className="field-label"><PenTool size={14} style={{ marginRight: 6 }} />লিখন কক্ষ</label>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.94rem', lineHeight: '1.75' }}>
-              প্ৰথমে লিখনটোৰ কণ্ঠ, তাল, আৰু গতি ধৰি ৰাখক। Metadata পিছতও ঠিক কৰিব পাৰি।
+              আপোনাৰ লিখনি লিখক, খচৰা হিচাপে ৰাখক, বা প্ৰকাশ কৰক।
             </p>
           </div>
         </aside>

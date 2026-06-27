@@ -90,7 +90,6 @@ export default function Profile() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
           <Avatar profile={profile} size="xl" />
           <div style={{ flex: 1, minWidth: '220px' }}>
-            <div className="section-kicker">Writer profile</div>
             <h1 style={{ marginBottom: '0.35rem', fontSize: '2.2rem' }}>{profile.display_name}</h1>
             <p style={{ color: 'var(--text-tertiary)', marginBottom: '1rem' }}>@{profile.username}</p>
             {profile.bio && <p style={{ color: 'var(--text-secondary)', maxWidth: '52ch' }}>{profile.bio}</p>}
@@ -108,7 +107,7 @@ export default function Profile() {
         </div>
 
         <div className="stats-strip">
-          <div className="stat-box"><div className="stat-label">লিখনি</div><div className="stat-value">{formatNumber(profile.post_count || 0)}</div></div>
+          <div className="stat-box"><div className="stat-label">লিখনি (Posts)</div><div className="stat-value">{formatNumber(profile.post_count || 0)}</div></div>
           <div className="stat-box"><div className="stat-label">অনুসৰণকাৰী</div><div className="stat-value">{formatNumber(profile.followers_count || 0)}</div></div>
           <div className="stat-box"><div className="stat-label">অনুসৰণ</div><div className="stat-value">{formatNumber(profile.following_count || 0)}</div></div>
         </div>
@@ -117,7 +116,6 @@ export default function Profile() {
       <div style={{ marginBottom: '3rem' }}>
         <div className="section-header">
           <div>
-            <div className="section-kicker">Recognition</div>
             <h2 className="section-title">অৰ্জনসমূহ</h2>
           </div>
         </div>
@@ -127,7 +125,6 @@ export default function Profile() {
       <div>
         <div className="section-header">
           <div>
-            <div className="section-kicker">Published works</div>
             <h2 className="section-title">প্ৰকাশিত লিখনিসমূহ ({posts.length})</h2>
           </div>
         </div>
@@ -136,8 +133,7 @@ export default function Profile() {
           {posts.map(post => <PostCard key={post.id} post={post} onUpdate={fetchUserPosts} />)}
           {posts.length === 0 && (
             <div className="empty-state card">
-              <h3 className="empty-state-title">এতিয়ালৈকে কোনো লিখনি প্ৰকাশ কৰা নাই</h3>
-              <p className="empty-state-desc">নতুন লিখনি আহিলে ইয়াত দেখা যাব।</p>
+              <h3 className="empty-state-title">এতিয়ালৈকে কোনো লিখনি প্ৰকাশ কৰা নাই।</h3>
             </div>
           )}
         </div>

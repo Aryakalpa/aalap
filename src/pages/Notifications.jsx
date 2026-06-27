@@ -59,16 +59,15 @@ export default function Notifications() {
   return (
     <div className="page-shell fade-in">
       <header className="page-header">
-        <div className="section-kicker">Inbox</div>
-        <h1 className="page-title">জাননীসমূহ</h1>
-        <p className="page-subtitle">আপোনাৰ লিখনি, পাঠক, আৰু সম্পৰ্কৰ নৱতম সঁহাৰিসমূহ।</p>
+        <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Bell size={28} />
+          জাননীসমূহ
+        </h1>
       </header>
 
       {notifications.length === 0 ? (
         <div className="empty-state card">
-          <div className="empty-state-icon">🔔</div>
-          <h3 className="empty-state-title">এতিয়ালৈকে কোনো জাননী নাই</h3>
-          <p className="empty-state-desc">নতুন পছন্দ, মন্তব্য, বা অনুসৰণ আহিলে ইয়াত দেখা যাব।</p>
+          <h3 className="empty-state-title">আপোনাৰ এতিয়ালৈকে কোনো জাননী নাই।</h3>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
