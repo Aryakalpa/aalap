@@ -56,11 +56,11 @@ export default function Home() {
   return (
     <div className="page-shell fade-in">
       {featuredPost && (
-        <section className="editorial-hero">
+        <section className="editorial-hero editorial-hero-quiet">
           <Link
             to={`/post/${featuredPost.id}`}
             className={`panel hero-feature ${featuredPost.cover_image ? 'has-image' : ''}`}
-            style={featuredPost.cover_image ? { backgroundImage: `linear-gradient(180deg, rgba(15,10,8,0.1), rgba(15,10,8,0.72)), url(${featuredPost.cover_image})` } : {}}
+            style={featuredPost.cover_image ? { backgroundImage: `linear-gradient(180deg, rgba(18,14,12,0.18), rgba(18,14,12,0.58)), url(${featuredPost.cover_image})` } : {}}
           >
             <div className="hero-meta">
               <CategoryBadge category={featuredPost.category} />

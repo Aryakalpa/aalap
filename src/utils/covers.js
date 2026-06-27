@@ -7,15 +7,15 @@ export const COVER_IMAGES = {
 }
 
 export const COVER_PRESETS = [
-  { id: 'paper-ink', label: 'Paper Ink', bg: '#f6f1e8', accent: '#a65a3a', soft: '#ead7cb', line: '#d4b9a7' },
-  { id: 'river-mist', label: 'River Mist', bg: '#e9eef2', accent: '#6b7a8f', soft: '#d7e0e8', line: '#b8c6d3' },
-  { id: 'terracotta', label: 'Terracotta', bg: '#f1e0d6', accent: '#b96e4b', soft: '#ebcfc0', line: '#d8ab92' },
-  { id: 'night-ink', label: 'Night Ink', bg: '#1a1715', accent: '#d0a06c', soft: '#2b2521', line: '#5c4737' },
-  { id: 'forest-cloth', label: 'Forest Cloth', bg: '#dde5dd', accent: '#556b5a', soft: '#cfdbcf', line: '#a9bca9' },
-  { id: 'gold-manuscript', label: 'Gold Manuscript', bg: '#f3ead6', accent: '#b38a3d', soft: '#eadfbe', line: '#d7c28c' },
-  { id: 'starry-night', label: '✨ Starry Night', bg: '#1a1a2e', accent: '#e8d5b7', soft: '#2d2d5a', line: '#4a4a8a', isImage: true },
-  { id: 'sunset', label: '🌅 Sunset', bg: '#ff7e5f', accent: '#feb47b', soft: '#ff9068', line: '#ffcb8e', isImage: true },
-  { id: 'meadow', label: '🌿 Meadow', bg: '#98d8aa', accent: '#f7f7dc', soft: '#c9e4ca', line: '#7bc88f', isImage: true },
+  { id: 'paper-ink', label: 'Paper Ink', bg: '#f6f1e8', accent: '#8c5639', soft: '#eee2d4', line: '#d7c3b0' },
+  { id: 'river-mist', label: 'River Mist', bg: '#e9eef2', accent: '#5f7289', soft: '#dee5ea', line: '#c2ced8' },
+  { id: 'terracotta', label: 'Terracotta', bg: '#efe0d7', accent: '#9e6547', soft: '#e8d2c5', line: '#d5b49f' },
+  { id: 'night-ink', label: 'Night Ink', bg: '#1b1816', accent: '#c49a67', soft: '#2a2420', line: '#584739' },
+  { id: 'forest-cloth', label: 'Forest Cloth', bg: '#dde4dd', accent: '#516554', soft: '#d3dbd3', line: '#afbeaf' },
+  { id: 'gold-manuscript', label: 'Gold Manuscript', bg: '#f1e7d2', accent: '#a98642', soft: '#e7dbb8', line: '#d5c18f' },
+  { id: 'starry-night', label: 'Starry Night', bg: '#1a1a2e', accent: '#e8d5b7', soft: '#2d2d5a', line: '#4a4a8a', isImage: true },
+  { id: 'sunset', label: 'Sunset', bg: '#ff7e5f', accent: '#feb47b', soft: '#ff9068', line: '#ffcb8e', isImage: true },
+  { id: 'meadow', label: 'Meadow', bg: '#98d8aa', accent: '#f7f7dc', soft: '#c9e4ca', line: '#7bc88f', isImage: true },
 ]
 
 const patternByCategory = (category = '', accent = '#a65a3a', line = '#d4b9a7') => {

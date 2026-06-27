@@ -76,14 +76,14 @@ export default function PostCard({ post, onUpdate }) {
   }
 
   return (
-    <Link to={`/post/${post.id}`} className="card fade-in" style={{ display: 'block', padding: 0, overflow: 'hidden' }}>
+    <Link to={`/post/${post.id}`} className="card fade-in post-card-shell" style={{ display: 'block', padding: 0, overflow: 'hidden' }}>
       {(post.cover_image || post.title) && (
-        <div style={{ width: '100%', aspectRatio: '16 / 9', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
+        <div className="post-card-cover">
           <CoverPreview src={post.cover_image} title={post.title} category={post.category} author={post.profiles?.display_name} alt="" />
         </div>
       )}
 
-      <div style={{ padding: '1.25rem' }}>
+      <div className="post-card-body" style={{ padding: '1.15rem 1.15rem 1.05rem' }}>
         <div className="post-author-line">
           <Avatar profile={post.profiles} size="md" clickable />
           <div style={{ flex: 1, minWidth: 0 }}>
