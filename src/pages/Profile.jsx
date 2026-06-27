@@ -86,7 +86,7 @@ export default function Profile() {
 
   return (
     <div className="page-shell fade-in">
-      <div className="panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
+      <div className="panel" style={{ padding: '1.5rem', marginBottom: '1.75rem', boxShadow: 'none' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
           <Avatar profile={profile} size="xl" />
           <div style={{ flex: 1, minWidth: '220px' }}>

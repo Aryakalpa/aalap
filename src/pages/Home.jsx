@@ -71,17 +71,17 @@ export default function Home() {
           </Link>
 
           <div className="hero-side">
-            <div className="panel card">
-              <h1 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Sparkles size={28} />
+            <div className="panel card" style={{ padding: '1.25rem' }}>
+              <h1 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '1.5rem' }}>
+                <Sparkles size={22} />
                 শেহতীয়া আলাপ
               </h1>
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <Link to="/write" className="btn btn-primary"><PenTool size={16} /> নতুন লিখনি আৰম্ভ কৰক</Link>
+                <Link to="/write" className="btn btn-secondary"><PenTool size={16} /> নতুন লিখনি আৰম্ভ কৰক</Link>
               </div>
             </div>
 
-            <div className="panel card">
+            <div className="panel card" style={{ padding: '1rem' }}>
               <div className="shelf-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
                 {categoryCounts.slice(0, 4).map(cat => (
                   <button key={cat.id} className="shelf-item" onClick={() => setFilter(cat.id)}>

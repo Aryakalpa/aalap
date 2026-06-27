@@ -122,7 +122,7 @@ export default function Write() {
       </div>
 
       <div className="writer-layout">
-        <div className="panel writer-canvas">
+        <div className="panel writer-canvas" style={{ boxShadow: 'none' }}>
           <div className="field-group">
             <label className="field-label">শিৰোনাম</label>
             <input type="text" placeholder="আপোনাৰ লিখনৰ শিৰোনাম..." value={title} onChange={(e) => setTitle(e.target.value)} style={{ fontSize: '2rem', fontWeight: '800', border: 'none', background: 'transparent', padding: '0.25rem 0', boxShadow: 'none' }} />

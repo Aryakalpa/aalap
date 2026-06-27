@@ -394,7 +394,7 @@ h4,
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .btn-secondary {
@@ -446,6 +446,14 @@ h4,
 .btn-icon:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
+}
+
+.hero-side .card,
+.writer-sidebar,
+.writer-canvas,
+.reader-toolbar,
+.editor-toolbar {
+  box-shadow: none;
 }
 
 input[type='text'],
@@ -922,6 +930,7 @@ textarea {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: none;
 }
 
 .playlist-header,
@@ -1053,7 +1062,8 @@ textarea {
   background: var(--surface-raised);
   border: 1px solid var(--border-color);
   border-radius: 24px;
-  padding: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1.4rem, 3.8vw, 2.65rem);
+  box-shadow: none;
 }
 
 .writer-layout {
