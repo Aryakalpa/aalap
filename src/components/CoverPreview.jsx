@@ -1,7 +1,7 @@
-import { buildCoverSvg } from '../utils/covers'
+import { getRandomCoverForPost } from '../utils/covers'
 
-export default function CoverPreview({ title, category, author, presetId, src, alt = '' }) {
-  const imageSrc = src || buildCoverSvg({ title, category, author, presetId })
+export default function CoverPreview({ title, category, author, presetId, src, alt = '', post }) {
+  const imageSrc = src || (post ? getRandomCoverForPost(post) : getRandomCoverForPost({ title, category, author, presetId }))
 
   return (
     <img

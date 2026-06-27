@@ -49,8 +49,8 @@ export default function Home() {
         <section className="editorial-hero editorial-hero-quiet">
           <Link
             to={`/post/${featuredPost.id}`}
-            className={`panel hero-feature ${featuredPost.cover_image ? 'has-image' : ''}`}
-            style={featuredPost.cover_image ? { backgroundImage: `linear-gradient(180deg, rgba(18,14,12,0.14), rgba(18,14,12,0.42)), url(${featuredPost.cover_image})` } : { background: 'var(--surface-raised)' }}
+            className="panel hero-feature has-image"
+            style={{ backgroundImage: `linear-gradient(180deg, rgba(18,14,12,0.14), rgba(18,14,12,0.42)), url(${featuredPost.cover_image || ''})` }}
           >
             <div className="hero-meta">
               <CategoryBadge category={featuredPost.category} />

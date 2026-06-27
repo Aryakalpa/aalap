@@ -77,9 +77,9 @@ export default function PostCard({ post, onUpdate }) {
 
   return (
     <Link to={`/post/${post.id}`} className="card fade-in post-card-shell" style={{ display: 'block', padding: 0, overflow: 'hidden' }}>
-      {(post.cover_image || post.title) && (
+      {post.title && (
         <div className="post-card-cover">
-          <CoverPreview src={post.cover_image} title={post.title} category={post.category} author={post.profiles?.display_name} alt="" />
+          <CoverPreview post={post} alt="" />
         </div>
       )}
 

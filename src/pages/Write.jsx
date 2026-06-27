@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { CATEGORIES, countWords, estimateReadingTime } from '../utils/helpers'
-import { PenTool, Image, CheckCircle, ChevronLeft, Save, AlignLeft, AlignCenter, AlignJustify, BookOpen } from 'lucide-react'
-import { buildCoverSvg, isGeneratedCover } from '../utils/covers'
+import { PenTool, CheckCircle, ChevronLeft, Save, AlignLeft, AlignCenter, AlignJustify, BookOpen } from 'lucide-react'
 import { fetchEditablePost, savePost } from '../services/write'
-import CoverSelector from '../components/write/CoverSelector'
 
 export default function Write() {
   const { id } = useParams()
@@ -20,8 +18,6 @@ export default function Write() {
   const [isDraft, setIsDraft] = useState(true)
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState(null)
-  const [coverMode, setCoverMode] = useState('preset')
-  const [coverPreset, setCoverPreset] = useState('paper-ink')
 
   useEffect(() => {
     if (!user) {
@@ -41,9 +37,6 @@ export default function Write() {
       setSeriesName(data.series_name || '')
       setAlignment(data.alignment || 'left')
       setIsDraft(!data.is_published)
-      if (!data.cover_image) setCoverMode('none')
-      else if (isGeneratedCover(data.cover_image)) setCoverMode('preset')
-      else setCoverMode('preset')
     }
   }
 
@@ -57,20 +50,12 @@ export default function Write() {
 
     setSaving(true)
     try {
-      const resolvedCoverImage =
-        coverMode === 'preset'
-          ? buildCoverSvg({
-              category: CATEGORIES.find((c) => c.id === category)?.label || category,
-              presetId: coverPreset,
-            })
-          : ''
-
       const postData = {
         title,
         body,
         category,
         series_name: seriesName,
-        cover_image: resolvedCoverImage,
+        cover_image: '',
         alignment,
         author_id: user.id,
         is_published: publish,
@@ -158,16 +143,6 @@ export default function Write() {
             <input type="text" placeholder="ধাৰাবাহিকৰ নাম লিখক..." value={seriesName} onChange={(e) => setSeriesName(e.target.value)} />
           </div>
 
-          <div className="field-group">
-            <label className="field-label"><Image size={14} style={{ marginRight: 6 }} />বেটুপাত</label>
-            <CoverSelector
-              coverMode={coverMode}
-              setCoverMode={setCoverMode}
-              coverPreset={coverPreset}
-              setCoverPreset={setCoverPreset}
-              category={category}
-            />
-          </div>
 
           <div className="field-group" style={{ marginBottom: 0 }}>
             <label className="field-label"><PenTool size={14} style={{ marginRight: 6 }} />লিখন কক্ষ</label>
