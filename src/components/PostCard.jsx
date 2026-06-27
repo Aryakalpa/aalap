@@ -130,15 +130,15 @@ export default function PostCard({ post, onUpdate }) {
       <div className="post-card-body immersive-post-body" style={{ padding: '1rem 1.15rem 1.05rem' }}>
         <p className={['poem', 'poetry', 'কবিতা'].includes(post.category?.toLowerCase()) ? 'post-excerpt poem-preview' : 'post-excerpt'}>{generateExcerpt(post.body || '', 220)}</p>
 
-        <div className="post-actions">
-          <div className="inline-stats">
-            <button className={`btn-ghost ${liked ? 'text-danger' : ''}`} onClick={handleLike}><Heart size={18} fill={liked ? 'currentColor' : 'none'} /> {likeCount}</button>
-            <span className="inline-stat"><MessageSquare size={18} /> {post.comments_count || 0}</span>
-            <span className="inline-stat"><BookOpen size={18} /> {post.views_count || 0}</span>
+        <div className="post-actions premium-post-actions">
+          <div className="inline-stats premium-inline-stats">
+            <button className={`btn-ghost premium-stat-btn ${liked ? 'text-danger active' : ''}`} onClick={handleLike}><Heart size={18} fill={liked ? 'currentColor' : 'none'} /> <span>{likeCount}</span></button>
+            <span className="inline-stat premium-inline-stat"><MessageSquare size={16} /> <span>{post.comments_count || 0}</span></span>
+            <span className="inline-stat premium-inline-stat"><BookOpen size={16} /> <span>{post.views_count || 0}</span></span>
           </div>
-          <div className="inline-actions">
-            <button className={`btn-ghost ${bookmarked ? 'text-accent-blue' : ''}`} onClick={handleBookmark} title="Save for later"><Bookmark size={18} fill={bookmarked ? 'currentColor' : 'none'} /></button>
-            <ShareButton title={post.title} postId={post.id} />
+          <div className="inline-actions premium-inline-actions">
+            <button className={`btn-ghost premium-icon-btn ${bookmarked ? 'text-accent-blue active' : ''}`} onClick={handleBookmark} title="Save for later"><Bookmark size={17} fill={bookmarked ? 'currentColor' : 'none'} /></button>
+            <div className="premium-share-wrap"><ShareButton title={post.title} postId={post.id} /></div>
           </div>
         </div>
       </div>
