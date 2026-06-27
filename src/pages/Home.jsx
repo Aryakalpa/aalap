@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { fetchPublishedPosts } from '../services/posts'
 import PostCard from '../components/PostCard'
-import { CATEGORIES } from '../utils/helpers'
+import { CATEGORIES, matchesCategory } from '../utils/helpers'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Sparkles, PenTool, ArrowRight } from 'lucide-react'
@@ -39,7 +39,7 @@ export default function Home() {
   const categoryCounts = useMemo(() => {
     return CATEGORIES.map(cat => ({
       ...cat,
-      count: posts.filter(p => [cat.id, ...(cat.aliases || [])].map(v => v.toLowerCase()).includes(p.category?.toLowerCase())).length,
+      count: posts.filter(p => matchesCategory(p.category, cat.id)).length,
     }))
   }, [posts])
 

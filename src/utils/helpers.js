@@ -71,6 +71,23 @@ export const formatNumber = (num) => {
   return num.toString()
 }
 
+
+export const normalizeCategoryId = (category = '') => {
+  const value = String(category || '').trim().toLowerCase()
+
+  if (['poetry', 'poem', 'কবিতা'].includes(value)) return 'poetry'
+  if (['story', 'golpo', 'গল্প'].includes(value)) return 'story'
+  if (['essay', 'article', 'প্ৰৱন্ধ'].includes(value)) return 'essay'
+  if (['misc', 'other', 'অন্যান্য'].includes(value)) return 'misc'
+
+  return value
+}
+
+export const matchesCategory = (postCategory, filterCategory) => {
+  if (!filterCategory || filterCategory === 'all') return true
+  return normalizeCategoryId(postCategory) === normalizeCategoryId(filterCategory)
+}
+
 export const CATEGORIES = [
   { id: 'poetry', label: 'কবিতা', aliases: ['poem', 'Poetry'] },
   { id: 'story', label: 'গল্প', aliases: ['Story', 'golpo'] },

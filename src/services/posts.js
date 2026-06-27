@@ -1,6 +1,7 @@
 import { supabase } from '../supabase'
 import { MAX_FEED_POSTS, MAX_SEARCH_RESULTS, MAX_TRENDING_POSTS } from '../constants/app'
 import { buildOrLikeQuery } from '../lib/query'
+import { matchesCategory } from '../utils/helpers'
 
 export const fetchPublishedPosts = async ({ categoryValues, limit = MAX_FEED_POSTS } = {}) => {
   let query = supabase
@@ -10,13 +11,15 @@ export const fetchPublishedPosts = async ({ categoryValues, limit = MAX_FEED_POS
     .order('created_at', { ascending: false })
     .limit(limit)
 
-  if (categoryValues?.length) {
-    query = query.in('category', categoryValues)
-  }
-
   const { data, error } = await query
   if (error) throw error
-  return data || []
+
+  const posts = data || []
+  if (categoryValues?.length) {
+    return posts.filter((post) => categoryValues.some((categoryValue) => matchesCategory(post.category, categoryValue)))
+  }
+
+  return posts
 }
 
 export const fetchTrendingPosts = async (startDate, limit = MAX_TRENDING_POSTS) => {
