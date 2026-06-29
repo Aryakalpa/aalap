@@ -1822,3 +1822,64 @@ textarea {
     margin-bottom: 0.7rem;
   }
 }
+
+/* Sitewide popover layering fixes: never clip menus inside rounded cards/toolbars */
+.card:has(.share-menu),
+.post-card-shell,
+.editorial-post-card,
+.reader-toolbar,
+.editor-toolbar {
+  overflow: visible !important;
+}
+
+.feed-list,
+.grid,
+.container,
+.container-sm,
+.page-shell,
+.reading-shell,
+.layout-content {
+  overflow: visible;
+}
+
+.share-menu {
+  isolation: isolate;
+  z-index: 5000;
+}
+
+.editorial-cover-shell {
+  overflow: hidden;
+  border-radius: 26px 26px 0 0;
+}
+
+.editorial-post-card {
+  isolation: isolate;
+}
+
+.editorial-post-card .editorial-overflow-wrap {
+  z-index: 60;
+}
+
+.editorial-action-menu {
+  z-index: 6000;
+  max-width: min(86vw, 280px);
+}
+
+.reader-toolbar .share-menu,
+.editor-toolbar .share-menu {
+  z-index: 7000;
+}
+
+@media (max-width: 640px) {
+  .editorial-action-menu {
+    right: -0.15rem;
+  }
+}
+
+.card:has(.share-menu),
+.editorial-post-card:has(.editorial-action-menu),
+.reader-toolbar:has(.share-menu),
+.editor-toolbar:has(.share-menu) {
+  position: relative;
+  z-index: 1000;
+}

@@ -122,7 +122,7 @@ export default function PostCard({ post, onUpdate }) {
   }
 
   return (
-    <Link to={`/post/${post.id}`} className="card fade-in post-card-shell editorial-post-card" style={{ display: 'block', padding: 0, overflow: 'hidden' }}>
+    <Link to={`/post/${post.id}`} className="card fade-in post-card-shell editorial-post-card" style={{ display: 'block', padding: 0 }}>
       {post.title && (
         <div className="post-card-cover editorial-cover-shell">
           <CoverPreview post={post} alt="" />
@@ -131,6 +131,9 @@ export default function PostCard({ post, onUpdate }) {
             <CategoryBadge category={post.category} size="sm" variant="overlay" />
             {post.series_name && <div className="series-tag editorial-series-tag"><BookOpen size={12} /> {post.series_name}</div>}
           </div>
+
+        </div>
+      )}
 
           <div ref={menuRef} className="editorial-overflow-wrap">
             <button
@@ -180,8 +183,6 @@ export default function PostCard({ post, onUpdate }) {
               </div>
             )}
           </div>
-        </div>
-      )}
 
       <div className="post-card-body editorial-post-body">
         <div className="editorial-title-block">
