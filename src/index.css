@@ -2279,3 +2279,110 @@ select,
     font-size: clamp(1.22rem, 6vw, 1.5rem);
   }
 }
+
+/* Post card v2: cover as useful context, not a decorative slab */
+.editorial-post-card .editorial-overflow-btn,
+.editorial-post-card .editorial-overflow-btn.btn-icon {
+  color: #15171d !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.74) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.editorial-post-card .editorial-overflow-btn svg,
+.editorial-post-card .editorial-overflow-btn.btn-icon svg {
+  color: #15171d !important;
+  stroke: #15171d !important;
+  opacity: 1 !important;
+  stroke-width: 2.45px;
+}
+
+.editorial-post-card .editorial-overflow-btn:hover,
+.editorial-post-card .editorial-overflow-btn:focus-visible {
+  color: #08090c !important;
+  background: #fff !important;
+  border-color: rgba(255, 255, 255, 0.96) !important;
+  transform: scale(1.035);
+}
+
+.editorial-post-card .editorial-overflow-btn:hover svg,
+.editorial-post-card .editorial-overflow-btn:focus-visible svg {
+  color: #08090c !important;
+  stroke: #08090c !important;
+}
+
+@media (min-width: 760px) {
+  .editorial-post-card {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) clamp(150px, 30%, 228px);
+    gap: 1.05rem;
+    align-items: stretch;
+    padding: 0.74rem !important;
+    min-height: 218px;
+  }
+
+  .editorial-cover-shell {
+    grid-column: 2;
+    grid-row: 1;
+    height: 100%;
+    min-height: 192px;
+    aspect-ratio: auto;
+    border-radius: 24px;
+  }
+
+  .editorial-post-body {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    padding: 0.28rem 0 0.18rem 0.2rem !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .editorial-title-block {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .editorial-author-strip {
+    margin-bottom: 0.74rem;
+  }
+
+  .editorial-post-title {
+    margin-bottom: 0.5rem;
+  }
+
+  .editorial-title-block .post-excerpt {
+    -webkit-line-clamp: 3;
+  }
+
+  .premium-post-actions {
+    margin-top: auto;
+    padding-top: 0.72rem;
+  }
+
+  .editorial-cover-badges {
+    left: 0.72rem;
+    right: 0.72rem;
+    bottom: 0.72rem;
+  }
+
+  .editorial-post-card .editorial-overflow-wrap {
+    top: 1rem;
+    right: 1rem;
+  }
+}
+
+@media (max-width: 759px) {
+  .editorial-cover-shell {
+    aspect-ratio: 2.05 / 1;
+  }
+
+  .editorial-cover-scrim {
+    background:
+      linear-gradient(180deg, rgba(7, 9, 13, 0.02) 0%, rgba(7, 9, 13, 0.16) 50%, rgba(7, 9, 13, 0.42) 100%),
+      radial-gradient(circle at 85% 10%, rgba(255, 255, 255, 0.12), transparent 28%);
+  }
+}
