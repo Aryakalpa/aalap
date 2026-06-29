@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { fetchPublishedPosts } from '../services/posts'
 import PostCard from '../components/PostCard'
-import { CATEGORIES, matchesCategory } from '../utils/helpers'
+import { CATEGORIES, generateExcerpt, generatePoetryPreview, isPoetryCategory, matchesCategory } from '../utils/helpers'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Sparkles, PenTool, ArrowRight } from 'lucide-react'
@@ -89,7 +89,7 @@ export default function Home() {
               <span>{featuredPost.profiles?.display_name || 'অতিথি'}</span>
             </div>
             <h2 className="hero-title">{featuredPost.title}</h2>
-            <p className="hero-excerpt">{featuredPost.body?.replace(/<[^>]*>/g, '').slice(0, 240)}...</p>
+            <p className={isPoetryCategory(featuredPost.category) ? 'hero-excerpt poem-preview' : 'hero-excerpt'}>{isPoetryCategory(featuredPost.category) ? generatePoetryPreview(featuredPost.body || '', 280, 7) : generateExcerpt(featuredPost.body || '', 240)}</p>
           </Link>
 
           <div className="hero-side">

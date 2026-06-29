@@ -2,37 +2,13 @@ import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { formatDate, estimateReadingTime, generateExcerpt, shareToWhatsApp, shareToTelegram, copyToClipboard } from '../utils/helpers'
+import { formatDate, estimateReadingTime, generateExcerpt, generatePoetryPreview, isPoetryCategory, shareToWhatsApp, shareToTelegram, copyToClipboard } from '../utils/helpers'
 import { Heart, MessageSquare, Bookmark, BookOpen, Clock, MoreVertical, Edit, Trash2, EyeOff, Eye, Copy, Check, MessageCircle } from 'lucide-react'
 import Avatar from './Avatar'
 import Badge from './Badge'
 import CategoryBadge from './CategoryBadge'
 import CoverPreview from './CoverPreview'
 import { getPostPath, getPostUrl } from '../utils/routes'
-
-const isPoetryCategory = (category = '') => ['poem', 'poetry', 'কবিতা'].includes(String(category || '').toLowerCase())
-
-const generatePoetryPreview = (content = '', maxLength = 260, maxLines = 7) => {
-  const withLineBreaks = String(content || '')
-    .replace(/<br\s*\/?\s*>/gi, '\n')
-    .replace(/<\/p>/gi, '\n')
-    .replace(/<\/div>/gi, '\n')
-    .replace(/<[^>]*>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-
-  const lines = withLineBreaks
-    .split('\n')
-    .map((line) => line.replace(/[ \t]+$/g, ''))
-    .filter((line, index, arr) => line.trim() || (index > 0 && index < arr.length - 1 && arr[index - 1].trim()))
-    .slice(0, maxLines)
-
-  const preview = lines.join('\n').trim()
-  if (preview.length <= maxLength) return preview
-  return `${preview.slice(0, maxLength).replace(/\s+$/g, '')}...`
-}
 
 export default function PostCard({ post, onUpdate }) {
   const { user } = useAuth()

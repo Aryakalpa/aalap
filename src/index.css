@@ -2416,3 +2416,10 @@ select,
   line-height: 1.82;
   text-align: inherit;
 }
+
+
+.hero-feature .poem-preview {
+  color: rgba(255,255,255,0.9);
+  white-space: pre-wrap;
+  line-height: 1.72;
+}

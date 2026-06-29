@@ -45,6 +45,30 @@ export const generateExcerpt = (content, maxLength = 200) => {
   return truncateText(plainText, maxLength)
 }
 
+export const isPoetryCategory = (category = '') => ['poem', 'poetry', 'কবিতা'].includes(String(category || '').toLowerCase())
+
+export const generatePoetryPreview = (content = '', maxLength = 260, maxLines = 7) => {
+  const withLineBreaks = String(content || '')
+    .replace(/<br\s*\/?\s*>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+
+  const lines = withLineBreaks
+    .split('\n')
+    .map((line) => line.replace(/[ \t]+$/g, ''))
+    .filter((line, index, arr) => line.trim() || (index > 0 && index < arr.length - 1 && arr[index - 1].trim()))
+    .slice(0, maxLines)
+
+  const preview = lines.join('\n').trim()
+  if (preview.length <= maxLength) return preview
+  return `${preview.slice(0, maxLength).replace(/\s+$/g, '')}...`
+}
+
 export const getBadgeLevel = (postCount) => {
   if (postCount >= 100) return { name: 'শব্দৰ যাদুকৰ', color: '#b38a3d', icon: '👑', tier: 'legendary' }
   if (postCount >= 50) return { name: 'প্ৰতিষ্ঠিত লেখক', color: '#8b8a87', icon: '⭐', tier: 'master' }
