@@ -1,9 +1,24 @@
 import { supabase } from '../supabase'
+import { isUuidLike, slugifyTitle } from '../utils/routes'
 
 export const fetchReaderPost = async (postId) => {
-  const { data, error } = await supabase.from('posts').select('*, profiles(*)').eq('id', postId).single()
+  if (isUuidLike(postId)) {
+    const { data, error } = await supabase.from('posts').select('*, profiles(*)').eq('id', postId).single()
+    if (error) throw error
+    return data
+  }
+
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*, profiles(*)')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+    .limit(200)
+
   if (error) throw error
-  return data
+  const matched = (data || []).find((post) => slugifyTitle(post.title) === postId)
+  if (!matched) throw new Error('Post not found')
+  return matched
 }
 
 export const fetchPostComments = async (postId) => {

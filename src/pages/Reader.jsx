@@ -47,14 +47,14 @@ export default function Reader() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const currentIndex = seriesPosts.findIndex((p) => p.id === id)
+  const currentIndex = seriesPosts.findIndex((p) => p.id === post?.id)
   const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : null
   const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : null
 
   const handleLike = async () => {
     if (!user) return alert('পছন্দ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
     try {
-      await toggleLike({ liked, userId: user.id, postId: id })
+      await toggleLike({ liked, userId: user.id, postId: post.id })
       setLiked(!liked)
       refreshPost(true)
     } catch (e) {
@@ -65,7 +65,7 @@ export default function Reader() {
   const handleBookmark = async () => {
     if (!user) return alert('সংৰক্ষণ কৰিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
     try {
-      await toggleBookmark({ bookmarked, userId: user.id, postId: id })
+      await toggleBookmark({ bookmarked, userId: user.id, postId: post.id })
       setBookmarked(!bookmarked)
     } catch (e) {
       console.error(e)
@@ -88,7 +88,7 @@ export default function Reader() {
     if (!newComment.trim()) return
 
     try {
-      await addComment({ postId: id, userId: user.id, body: newComment })
+      await addComment({ postId: post.id, userId: user.id, body: newComment })
       setNewComment('')
       refreshComments()
     } catch (error) {
@@ -174,7 +174,7 @@ export default function Reader() {
             </div>
             <div className="playlist-items-list">
               {seriesPosts.map((p, i) => (
-                <Link key={p.id} to={getPostPath(p)} className={`playlist-list-item ${p.id === id ? 'is-active' : ''}`}>
+                <Link key={p.id} to={getPostPath(p)} className={`playlist-list-item ${p.id === post.id ? 'is-active' : ''}`}>
                   <div className="playlist-item-rank">{i + 1}</div>
                   <div className="playlist-item-label">{p.title}</div>
                 </Link>

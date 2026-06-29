@@ -19,11 +19,19 @@ export default function useReaderData({ postId, user }) {
   const [bookmarked, setBookmarked] = useState(false)
   const [following, setFollowing] = useState(false)
 
+  const resolvedPostId = post?.id || postId
+
   const refreshPost = async (silent = false) => {
     if (!silent) setLoading(true)
     try {
       const data = await fetchReaderPost(postId)
       setPost(data)
+      try {
+        const commentData = await fetchPostComments(data.id)
+        setComments(commentData)
+      } catch (commentError) {
+        console.error('Error fetching comments:', commentError)
+      }
       return data
     } catch (error) {
       console.error('Error fetching post:', error)
@@ -36,7 +44,7 @@ export default function useReaderData({ postId, user }) {
 
   const refreshComments = async () => {
     try {
-      const data = await fetchPostComments(postId)
+      const data = await fetchPostComments(resolvedPostId)
       setComments(data)
     } catch (error) {
       console.error('Error fetching comments:', error)
@@ -45,7 +53,6 @@ export default function useReaderData({ postId, user }) {
 
   useEffect(() => {
     refreshPost()
-    refreshComments()
   }, [postId])
 
   useEffect(() => {
@@ -53,7 +60,7 @@ export default function useReaderData({ postId, user }) {
       if (!post) return
       try {
         const [similar, series] = await Promise.all([
-          fetchSimilarPostsByCategory({ category: post.category, postId }),
+          fetchSimilarPostsByCategory({ category: post.category, postId: post.id }),
           post.series_name ? fetchSeriesPostsByName({ seriesName: post.series_name, authorId: post.author_id }) : Promise.resolve([]),
         ])
         setSimilarPosts(similar)
@@ -70,8 +77,8 @@ export default function useReaderData({ postId, user }) {
       if (!user || !post) return
       try {
         const [likedState, bookmarkedState, followingState] = await Promise.all([
-          fetchLikeState({ userId: user.id, postId }),
-          fetchBookmarkState({ userId: user.id, postId }),
+          fetchLikeState({ userId: user.id, postId: resolvedPostId }),
+          fetchBookmarkState({ userId: user.id, postId: resolvedPostId }),
           fetchFollowState({ followerId: user.id, followingId: post.author_id }),
         ])
         setLiked(likedState)
@@ -82,7 +89,7 @@ export default function useReaderData({ postId, user }) {
       }
     }
     loadStates()
-  }, [user, post, postId])
+  }, [user, post, resolvedPostId])
 
   return {
     post,
