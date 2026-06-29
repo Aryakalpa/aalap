@@ -5,6 +5,7 @@ import { CATEGORIES, countWords, estimateReadingTime } from '../utils/helpers'
 import { PenTool, CheckCircle, ChevronLeft, Save, AlignLeft, AlignCenter, AlignJustify, BookOpen } from 'lucide-react'
 import { fetchEditablePost, savePost } from '../services/write'
 import LoadingState from '../components/ui/LoadingState'
+import { getPostPath } from '../utils/routes'
 
 export default function Write() {
   const { id } = useParams()
@@ -67,7 +68,7 @@ export default function Write() {
       const data = await savePost({ id, postData })
 
       if (publish) {
-        navigate(`/post/${data.id}`)
+        navigate(getPostPath(data))
       } else {
         setLastSaved(new Date())
         setIsDraft(true)

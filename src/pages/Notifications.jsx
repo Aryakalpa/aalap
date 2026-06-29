@@ -74,7 +74,7 @@ export default function Notifications() {
           {notifications.map(n => {
             const { icon, text } = getNotificationContent(n)
             return (
-              <Link key={n.id} to={n.post_id ? `/post/${n.post_id}` : `/profile/${n.actor_id}`} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: n.is_read ? 'var(--surface-raised)' : 'var(--bg-secondary)' }}>
+              <Link key={n.id} to={n.post_id ? getPostPath(n.post_id, n.posts?.title || '') : `/profile/${n.actor_id}`} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: n.is_read ? 'var(--surface-raised)' : 'var(--bg-secondary)' }}>
                 <div style={{ width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-tertiary)' }}>
                   {icon}
                 </div>

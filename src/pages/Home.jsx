@@ -9,28 +9,58 @@ import CategoryBadge from '../components/CategoryBadge'
 import EmptyState from '../components/ui/EmptyState'
 import LoadingState from '../components/ui/LoadingState'
 import { getRandomCoverForPost } from '../utils/covers'
+import { getPostPath } from '../utils/routes'
 
 export default function Home() {
   const { user } = useAuth()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [filter, setFilter] = useState('all')
 
   useEffect(() => {
-    fetchPosts()
+    let cancelled = false
+    fetchPosts({ cancelled: () => cancelled })
+    return () => { cancelled = true }
   }, [filter])
 
-  const fetchPosts = async () => {
-    setLoading(true)
+  useEffect(() => {
+    const refreshIfEmpty = () => {
+      if (document.visibilityState === 'visible' && !loading && posts.length === 0) fetchPosts({ silent: true })
+    }
+    window.addEventListener('focus', refreshIfEmpty)
+    document.addEventListener('visibilitychange', refreshIfEmpty)
+    return () => {
+      window.removeEventListener('focus', refreshIfEmpty)
+      document.removeEventListener('visibilitychange', refreshIfEmpty)
+    }
+  }, [loading, posts.length, filter])
+
+  const fetchPosts = async ({ silent = false, cancelled = () => false } = {}) => {
+    if (!silent) setLoading(true)
+    setError('')
+    const category = filter !== 'all' ? CATEGORIES.find(c => c.id === filter) : null
+    const possibleValues = category ? [category.id, ...(category.aliases || [])] : filter !== 'all' ? [filter] : undefined
+
     try {
-      const category = filter !== 'all' ? CATEGORIES.find(c => c.id === filter) : null
-      const possibleValues = category ? [category.id, ...(category.aliases || [])] : filter !== 'all' ? [filter] : undefined
-      const data = await fetchPublishedPosts({ categoryValues: possibleValues })
-      setPosts(data)
+      let data = []
+      let lastError = null
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+          data = await fetchPublishedPosts({ categoryValues: possibleValues })
+          if (data.length > 0 || filter !== 'all') break
+        } catch (err) {
+          lastError = err
+        }
+        if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 450 * (attempt + 1)))
+      }
+      if (lastError && data.length === 0) throw lastError
+      if (!cancelled()) setPosts(data)
     } catch (error) {
       console.error('Error fetching posts:', error)
+      if (!cancelled()) setError('লিখনিসমূহ লোড কৰিব পৰা নগল। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।')
     } finally {
-      setLoading(false)
+      if (!cancelled()) setLoading(false)
     }
   }
 
@@ -49,7 +79,7 @@ export default function Home() {
       {featuredPost && (
         <section className="editorial-hero editorial-hero-quiet">
           <Link
-            to={`/post/${featuredPost.id}`}
+            to={getPostPath(featuredPost)}
             className="panel hero-feature has-image"
             style={{ backgroundImage: `linear-gradient(180deg, rgba(18,14,12,0.14), rgba(18,14,12,0.42)), url(${getRandomCoverForPost(featuredPost)})` }}
           >
@@ -103,6 +133,13 @@ export default function Home() {
       <section>
         {loading ? (
           <LoadingState containerClassName="page-shell" />
+        ) : error ? (
+          <EmptyState
+            icon="⚠️"
+            title={error}
+            description="নেটৱৰ্ক বা চাৰ্ভাৰ ঠাণ্ডা আৰম্ভণিৰ বাবে এনে হ’ব পাৰে।"
+            action={<button className="btn btn-primary" style={{ marginTop: '1.25rem' }} onClick={() => fetchPosts()}>পুনৰ চেষ্টা কৰক</button>}
+          />
         ) : posts.length === 0 ? (
           <EmptyState
             icon="📚"

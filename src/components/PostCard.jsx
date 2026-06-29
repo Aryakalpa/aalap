@@ -8,6 +8,7 @@ import Avatar from './Avatar'
 import Badge from './Badge'
 import CategoryBadge from './CategoryBadge'
 import CoverPreview from './CoverPreview'
+import { getPostPath, getPostUrl } from '../utils/routes'
 
 export default function PostCard({ post, onUpdate }) {
   const { user } = useAuth()
@@ -75,7 +76,7 @@ export default function PostCard({ post, onUpdate }) {
     }
   }
 
-  const postUrl = typeof window !== 'undefined' ? `${window.location.origin}/post/${post.id}` : `/post/${post.id}`
+  const postUrl = getPostUrl(post)
 
   const closeMenu = () => setShowMenu(false)
 
@@ -122,7 +123,7 @@ export default function PostCard({ post, onUpdate }) {
   }
 
   return (
-    <Link to={`/post/${post.id}`} className="card fade-in post-card-shell editorial-post-card" style={{ display: 'block', padding: 0 }}>
+    <Link to={getPostPath(post)} className="card fade-in post-card-shell editorial-post-card" style={{ display: 'block', padding: 0 }}>
       {post.title && (
         <div className="post-card-cover editorial-cover-shell">
           <CoverPreview post={post} alt="" />

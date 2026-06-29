@@ -61,6 +61,7 @@ export default function App() {
                             <Route path="/settings" element={<Settings />} />
                             <Route path="/profile/:id" element={<Profile />} />
                             <Route path="/post/:id" element={<Reader />} />
+                            <Route path="/post/:id/:slug" element={<Reader />} />
                             <Route path="/search" element={<Search />} />
                             <Route path="/login" element={<Home />} />
                         </Routes>

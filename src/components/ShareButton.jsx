@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { Share2, Copy, Check, MessageCircle } from 'lucide-react'
 import { shareToWhatsApp, shareToTelegram, copyToClipboard } from '../utils/helpers'
+import { getPostUrl } from '../utils/routes'
 
 export default function ShareButton({ title, postId, direction = 'up' }) {
     const [open, setOpen] = useState(false)
     const [copied, setCopied] = useState(false)
     const menuRef = useRef(null)
 
-    const url = `${window.location.origin}/post/${postId}`
+    const url = getPostUrl(postId, title)
 
     useEffect(() => {
         const handleClickOutside = (e) => {

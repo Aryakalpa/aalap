@@ -11,6 +11,7 @@ import LoadingState from '../components/ui/LoadingState'
 import ReaderToolbar from '../components/reader/ReaderToolbar'
 import useReaderData from '../hooks/useReaderData'
 import { toggleLike, toggleBookmark, toggleFollow, addComment, updatePostPublishState, deletePostById } from '../services/reader'
+import { getPostPath } from '../utils/routes'
 
 export default function Reader() {
   const { id } = useParams()
@@ -168,12 +169,12 @@ export default function Reader() {
               <div className="playlist-progress-badge">{currentIndex + 1} / {seriesPosts.length}</div>
             </div>
             <div className="playlist-navigation-bar">
-              <button className="playlist-nav-button" onClick={() => navigate(`/post/${prevPost.id}`)} disabled={!prevPost}><BookOpen size={18} /> আগৰ খণ্ড</button>
-              <button className="playlist-nav-button" onClick={() => navigate(`/post/${nextPost.id}`)} disabled={!nextPost}>পৰৱৰ্তী খণ্ড <ChevronRight size={18} /></button>
+              <button className="playlist-nav-button" onClick={() => navigate(getPostPath(prevPost))} disabled={!prevPost}><BookOpen size={18} /> আগৰ খণ্ড</button>
+              <button className="playlist-nav-button" onClick={() => navigate(getPostPath(nextPost))} disabled={!nextPost}>পৰৱৰ্তী খণ্ড <ChevronRight size={18} /></button>
             </div>
             <div className="playlist-items-list">
               {seriesPosts.map((p, i) => (
-                <Link key={p.id} to={`/post/${p.id}`} className={`playlist-list-item ${p.id === id ? 'is-active' : ''}`}>
+                <Link key={p.id} to={getPostPath(p)} className={`playlist-list-item ${p.id === id ? 'is-active' : ''}`}>
                   <div className="playlist-item-rank">{i + 1}</div>
                   <div className="playlist-item-label">{p.title}</div>
                 </Link>
@@ -235,7 +236,7 @@ export default function Reader() {
           </div>
           <div className="feed-list">
             {similarPosts.map((p) => (
-              <Link key={p.id} to={`/post/${p.id}`} className="card" style={{ display: 'block', padding: 0, overflow: 'hidden' }}>
+              <Link key={p.id} to={getPostPath(p)} className="card" style={{ display: 'block', padding: 0, overflow: 'hidden' }}>
                 <div style={{ width: '100%', aspectRatio: '16 / 9', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
                   <CoverPreview src={p.cover_image} title={p.title} category={p.category} author={p.profiles?.display_name} alt="" />
                 </div>
