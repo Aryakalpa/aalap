@@ -93,14 +93,15 @@ export default function ShareQuoteModal({ isOpen, onClose, text = '', title = ''
     const fontSize = useMemo(() => {
         const length = content.length
         if (size.id === 'square') {
-            if (length > 260) return '1.18rem'
-            if (length > 150) return '1.42rem'
-            return '1.8rem'
+            if (length > 260) return '0.98rem'
+            if (length > 150) return '1.16rem'
+            return '1.42rem'
         }
-        if (length > 300) return '1.18rem'
-        if (length > 180) return '1.42rem'
-        if (length > 90) return '1.72rem'
-        return '2.08rem'
+        if (length > 320) return '0.96rem'
+        if (length > 220) return '1.08rem'
+        if (length > 130) return '1.24rem'
+        if (length > 70) return '1.42rem'
+        return '1.62rem'
     }, [content, size.id])
 
     useEffect(() => {
@@ -155,15 +156,27 @@ export default function ShareQuoteModal({ isOpen, onClose, text = '', title = ''
 
     const handleDownload = async (existingBlob = null) => {
         setLoading(true)
-        const blob = existingBlob || await generateBlob()
-        if (!blob) { setLoading(false); return }
+        try {
+            const blob = existingBlob || await generateBlob()
+            if (!blob) return
 
-        const link = document.createElement('a')
-        link.download = `aalap-card-${postId}-${size.id}.png`
-        link.href = URL.createObjectURL(blob)
-        link.click()
-        URL.revokeObjectURL(link.href)
-        setLoading(false)
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.download = `aalap-card-${postId}-${size.id}.png`
+            link.href = url
+            link.rel = 'noopener'
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+
+            // Mobile Safari can cancel downloads if the URL is revoked immediately.
+            setTimeout(() => URL.revokeObjectURL(url), 30000)
+        } catch (err) {
+            console.error('Download failed', err)
+            alert('ডাউনলোড কৰিব পৰা নগল। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।')
+        } finally {
+            setLoading(false)
+        }
     }
 
     const handleCopyLink = async () => {
@@ -255,6 +268,16 @@ export default function ShareQuoteModal({ isOpen, onClose, text = '', title = ''
                         <button className="btn-icon" onClick={onClose}><X size={18} /></button>
                     </div>
 
+                        <div className="share-card-actions" style={{ display: 'grid', gap: '0.65rem', marginTop: '0.25rem' }}>
+                            <button className="btn btn-primary" onClick={handleShare} disabled={loading} style={{ width: '100%' }}>
+                                <Share2 size={18} /> {loading ? 'Preparing...' : 'Share image'}
+                            </button>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+                                <button className="btn btn-secondary" onClick={() => handleDownload()} disabled={loading}><Download size={17} /> Download</button>
+                                <button className="btn btn-secondary" onClick={handleCopyLink}><Copy size={17} /> {copied ? <Check size={17} /> : 'Link'}</button>
+                            </div>
+                        </div>
+
                     <div style={{ display: 'grid', gap: '1rem' }}>
                         <div>
                             <div className="field-label">Card type</div>
@@ -308,16 +331,6 @@ export default function ShareQuoteModal({ isOpen, onClose, text = '', title = ''
                                         <small style={{ display: 'block', opacity: 0.7 }}>{item.hint}</small>
                                     </button>
                                 ))}
-                            </div>
-                        </div>
-
-                        <div className="share-card-actions" style={{ display: 'grid', gap: '0.65rem', marginTop: '0.25rem' }}>
-                            <button className="btn btn-primary" onClick={handleShare} disabled={loading} style={{ width: '100%' }}>
-                                <Share2 size={18} /> {loading ? 'Preparing...' : 'Share image'}
-                            </button>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
-                                <button className="btn btn-secondary" onClick={() => handleDownload()} disabled={loading}><Download size={17} /> Download</button>
-                                <button className="btn btn-secondary" onClick={handleCopyLink}><Copy size={17} /> {copied ? <Check size={17} /> : 'Link'}</button>
                             </div>
                         </div>
 
