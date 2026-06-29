@@ -5,7 +5,6 @@ import { formatDate, estimateReadingTime, generateExcerpt } from '../utils/helpe
 import { Heart, MessageSquare, Bookmark, Send, ChevronRight, BookOpen, List } from 'lucide-react'
 import Avatar from '../components/Avatar'
 import CategoryBadge from '../components/CategoryBadge'
-import ShareQuoteModal from '../components/ShareQuoteModal'
 import CoverPreview from '../components/CoverPreview'
 import EmptyState from '../components/ui/EmptyState'
 import LoadingState from '../components/ui/LoadingState'
@@ -35,8 +34,6 @@ export default function Reader() {
 
   const [newComment, setNewComment] = useState('')
   const [showMenu, setShowMenu] = useState(false)
-  const [showQuoteModal, setShowQuoteModal] = useState(false)
-  const [selectedQuote, setSelectedQuote] = useState('')
   const [fontSize, setFontSize] = useState(19)
 
   const menuRef = useRef(null)
@@ -98,12 +95,6 @@ export default function Reader() {
     }
   }
 
-  const openQuoteModal = () => {
-    const selection = window.getSelection().toString().trim()
-    if (selection) setSelectedQuote(selection)
-    else setSelectedQuote(generateExcerpt(post.body || '', 150))
-    setShowQuoteModal(true)
-  }
 
   if (loading) return <LoadingState padding="10rem" />
   if (!post) return <div className="container-sm" style={{ padding: '5rem', textAlign: 'center' }}><h2>বন্ধ কৰক, এই লিখনিটো বিচাৰি পোৱা নগ'ল।</h2><Link to="/" className="btn btn-primary">মূল পৃষ্ঠালৈ উভতি যাওক</Link></div>
@@ -114,7 +105,6 @@ export default function Reader() {
         navigate={navigate}
         fontSize={fontSize}
         setFontSize={setFontSize}
-        openQuoteModal={openQuoteModal}
         post={post}
         user={user}
         menuRef={menuRef}
@@ -260,7 +250,6 @@ export default function Reader() {
         </section>
       )}
 
-      <ShareQuoteModal isOpen={showQuoteModal} onClose={() => setShowQuoteModal(false)} text={selectedQuote} title={post.title} author={post.profiles?.display_name} postId={post.id} />
     </div>
   )
 }

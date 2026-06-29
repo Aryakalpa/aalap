@@ -1,11 +1,10 @@
-import { MoreVertical, Edit, Trash2, EyeOff, Eye, Image as ImageIcon, Minus, Plus, ChevronLeft } from 'lucide-react'
+import { MoreVertical, Edit, Trash2, EyeOff, Eye, Minus, Plus, ChevronLeft } from 'lucide-react'
 import ShareButton from '../ShareButton'
 
 export default function ReaderToolbar({
   navigate,
   fontSize,
   setFontSize,
-  openQuoteModal,
   post,
   user,
   menuRef,
@@ -30,7 +29,6 @@ export default function ReaderToolbar({
             </button>
           </div>
 
-          <button className="btn-ghost" onClick={openQuoteModal} title="Share as Card"><ImageIcon size={18} /> <span className="reader-card-label">Card</span></button>
           <ShareButton title={post.title} postId={post.id} direction="down" />
 
           {user && user.id === post.author_id && (
