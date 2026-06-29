@@ -2401,3 +2401,85 @@ select,
     display: none;
   }
 }
+
+/* Mobile share-card sheet: preview and actions visible without hunting/scrolling */
+@media (max-width: 720px) {
+  .modal-overlay:has(.share-card-modal) {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+  }
+
+  .share-card-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: min(92dvh, 780px) !important;
+    max-height: min(92dvh, 780px) !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    border-radius: 24px 24px 20px 20px !important;
+    overflow: hidden !important;
+  }
+
+  .share-card-preview-pane {
+    min-height: 0 !important;
+    padding: 0.7rem !important;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .share-card-preview-wrap {
+    width: min(38vw, 176px) !important;
+    max-width: 176px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22) !important;
+  }
+
+  .share-card-controls {
+    min-height: 0;
+    overflow-y: auto !important;
+    padding: 0.85rem !important;
+    padding-bottom: calc(0.85rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  .share-card-controls > div:first-child {
+    position: sticky;
+    top: -0.85rem;
+    z-index: 5;
+    margin: -0.85rem -0.85rem 0.75rem;
+    padding: 0.85rem;
+    background: var(--surface-elevated);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .share-card-actions {
+    position: sticky;
+    bottom: -0.85rem;
+    z-index: 6;
+    margin: 0.1rem -0.85rem -0.85rem !important;
+    padding: 0.75rem 0.85rem calc(0.75rem + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 78%, transparent), var(--surface-elevated) 28%);
+    border-top: 1px solid var(--border-color);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+  }
+
+  .share-card-controls textarea {
+    min-height: 88px;
+    max-height: 128px;
+  }
+
+  .share-card-controls .tab-btn {
+    padding: 0.68rem 0.55rem;
+    font-size: 0.86rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .share-card-preview-wrap {
+    width: min(34vw, 142px) !important;
+  }
+
+  .share-card-controls {
+    padding-inline: 0.7rem !important;
+  }
+}

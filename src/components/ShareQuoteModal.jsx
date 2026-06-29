@@ -193,8 +193,8 @@ export default function ShareQuoteModal({ isOpen, onClose, text = '', title = ''
                     background: 'var(--surface-elevated)',
                 }}
             >
-                <section style={{ padding: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-secondary)', minHeight: 0 }}>
-                    <div style={{ width: size.id === 'story' ? 'min(52vh, 330px)' : 'min(68vh, 430px)', maxWidth: '100%', boxShadow: '0 26px 70px rgba(0,0,0,0.24)', borderRadius: '24px', overflow: 'hidden' }}>
+                <section className="share-card-preview-pane" style={{ padding: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-secondary)', minHeight: 0 }}>
+                    <div className="share-card-preview-wrap" style={{ width: size.id === 'story' ? 'min(52vh, 330px)' : 'min(68vh, 430px)', maxWidth: '100%', boxShadow: '0 26px 70px rgba(0,0,0,0.24)', borderRadius: '24px', overflow: 'hidden' }}>
                         <div
                             ref={cardRef}
                             style={{
@@ -247,7 +247,7 @@ export default function ShareQuoteModal({ isOpen, onClose, text = '', title = ''
                     </div>
                 </section>
 
-                <aside style={{ padding: '1.1rem', overflowY: 'auto' }}>
+                <aside className="share-card-controls" style={{ padding: '1.1rem', overflowY: 'auto' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                         <h3 style={{ margin: 0, fontSize: '1.08rem', display: 'flex', alignItems: 'center', gap: '0.55rem', fontWeight: 800 }}>
                             <Sparkles size={18} /> Share as Card
@@ -270,7 +270,7 @@ export default function ShareQuoteModal({ isOpen, onClose, text = '', title = ''
                                 <textarea
                                     value={quoteText}
                                     onChange={(e) => setQuoteText(trimText(e.target.value))}
-                                    rows={6}
+                                    rows={5}
                                     placeholder="Select a quote from the reader or write a short excerpt..."
                                     style={{ resize: 'vertical', fontFamily: 'var(--font-serif)' }}
                                 />
@@ -311,7 +311,7 @@ export default function ShareQuoteModal({ isOpen, onClose, text = '', title = ''
                             </div>
                         </div>
 
-                        <div style={{ display: 'grid', gap: '0.65rem', marginTop: '0.25rem' }}>
+                        <div className="share-card-actions" style={{ display: 'grid', gap: '0.65rem', marginTop: '0.25rem' }}>
                             <button className="btn btn-primary" onClick={handleShare} disabled={loading} style={{ width: '100%' }}>
                                 <Share2 size={18} /> {loading ? 'Preparing...' : 'Share image'}
                             </button>
