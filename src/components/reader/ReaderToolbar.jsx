@@ -30,7 +30,7 @@ export default function ReaderToolbar({
             </button>
           </div>
 
-          <button className="btn-ghost" onClick={openQuoteModal} title="Create Quote Card"><ImageIcon size={18} /></button>
+          <button className="btn-ghost" onClick={openQuoteModal} title="Share as Card"><ImageIcon size={18} /> <span className="reader-card-label">Card</span></button>
           <ShareButton title={post.title} postId={post.id} direction="down" />
 
           {user && user.id === post.author_id && (

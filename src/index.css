@@ -2386,3 +2386,18 @@ select,
       radial-gradient(circle at 85% 10%, rgba(255, 255, 255, 0.12), transparent 28%);
   }
 }
+
+@media (max-width: 720px) {
+  .share-card-modal {
+    grid-template-columns: 1fr !important;
+    overflow-y: auto !important;
+  }
+
+  .share-card-modal > section {
+    min-height: auto !important;
+  }
+
+  .reader-card-label {
+    display: none;
+  }
+}
