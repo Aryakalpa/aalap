@@ -10,6 +10,30 @@ import CategoryBadge from './CategoryBadge'
 import CoverPreview from './CoverPreview'
 import { getPostPath, getPostUrl } from '../utils/routes'
 
+const isPoetryCategory = (category = '') => ['poem', 'poetry', 'কবিতা'].includes(String(category || '').toLowerCase())
+
+const generatePoetryPreview = (content = '', maxLength = 260, maxLines = 7) => {
+  const withLineBreaks = String(content || '')
+    .replace(/<br\s*\/?\s*>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+
+  const lines = withLineBreaks
+    .split('\n')
+    .map((line) => line.replace(/[ \t]+$/g, ''))
+    .filter((line, index, arr) => line.trim() || (index > 0 && index < arr.length - 1 && arr[index - 1].trim()))
+    .slice(0, maxLines)
+
+  const preview = lines.join('\n').trim()
+  if (preview.length <= maxLength) return preview
+  return `${preview.slice(0, maxLength).replace(/\s+$/g, '')}...`
+}
+
 export default function PostCard({ post, onUpdate }) {
   const { user } = useAuth()
   const [liked, setLiked] = useState(false)
@@ -202,7 +226,9 @@ export default function PostCard({ post, onUpdate }) {
             </div>
           </div>
           <h3 className="post-title editorial-post-title">{post.title}</h3>
-          <p className={['poem', 'poetry', 'কবিতা'].includes(post.category?.toLowerCase()) ? 'post-excerpt poem-preview' : 'post-excerpt'}>{generateExcerpt(post.body || '', 220)}</p>
+          <p className={isPoetryCategory(post.category) ? 'post-excerpt poem-preview' : 'post-excerpt'}>
+            {isPoetryCategory(post.category) ? generatePoetryPreview(post.body || '') : generateExcerpt(post.body || '', 220)}
+          </p>
         </div>
 
         <div className="post-actions premium-post-actions">

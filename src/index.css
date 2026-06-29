@@ -2408,3 +2408,11 @@ select,
     gap: 0.65rem;
   }
 }
+
+/* Preserve poetry structure in feed previews */
+.editorial-title-block .poem-preview,
+.poem-preview {
+  white-space: pre-wrap;
+  line-height: 1.82;
+  text-align: inherit;
+}
