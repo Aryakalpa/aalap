@@ -3,7 +3,7 @@ import { Share2, Copy, Check, MessageCircle } from 'lucide-react'
 import { shareToWhatsApp, shareToTelegram, copyToClipboard } from '../utils/helpers'
 import { getPostUrl } from '../utils/routes'
 
-export default function ShareButton({ title, postId, direction = 'up' }) {
+export default function ShareButton({ title, postId, direction = 'up', align = 'end' }) {
     const [open, setOpen] = useState(false)
     const [copied, setCopied] = useState(false)
     const menuRef = useRef(null)
@@ -55,6 +55,7 @@ export default function ShareButton({ title, postId, direction = 'up' }) {
     return (
         <div
             ref={menuRef}
+            className="share-button-wrap"
             style={{ position: 'relative' }}
             onClick={(e) => e.stopPropagation()}
         >
@@ -67,10 +68,12 @@ export default function ShareButton({ title, postId, direction = 'up' }) {
             </button>
 
             {open && (
-                <div className="share-menu fade-in" style={{
+                <div className="share-menu fade-in share-button-menu" style={{
                     zIndex: 1100,
                     bottom: direction === 'up' ? 'calc(100% + 12px)' : 'auto',
-                    top: direction === 'down' ? 'calc(100% + 12px)' : 'auto'
+                    top: direction === 'down' ? 'calc(100% + 12px)' : 'auto',
+                    right: align === 'end' ? 0 : 'auto',
+                    left: align === 'start' ? 0 : 'auto'
                 }}>
                     <div className="share-menu-item" onClick={handleWhatsApp}>
                         <MessageCircle size={18} style={{ color: '#25D366' }} />
