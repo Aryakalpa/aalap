@@ -1,6 +1,19 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 const ThemeContext = createContext()
+const STORAGE_KEY = 'theme'
+const THEMES = ['system', 'light', 'dark']
+
+const getSystemTheme = () => {
+    if (typeof window === 'undefined') return 'light'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+const normalizeTheme = (value) => {
+    if (THEMES.includes(value)) return value
+    // Legacy cleanup: paper used to be a global app theme. Keep app UI intentional.
+    return 'system'
+}
 
 export const useTheme = () => {
     const context = useContext(ThemeContext)
@@ -9,26 +22,54 @@ export const useTheme = () => {
 }
 
 export const ThemeProvider = ({ children }) => {
-    const [theme, setTheme] = useState(() => {
-        const saved = localStorage.getItem('theme')
-        return saved || 'light'
+    const [theme, setThemeState] = useState(() => {
+        if (typeof window === 'undefined') return 'system'
+        return normalizeTheme(localStorage.getItem(STORAGE_KEY) || 'system')
     })
+    const [systemTheme, setSystemTheme] = useState(getSystemTheme)
+
+    const resolvedTheme = theme === 'system' ? systemTheme : theme
 
     useEffect(() => {
-        localStorage.setItem('theme', theme)
-        document.documentElement.setAttribute('data-theme', theme)
-    }, [theme])
+        const media = window.matchMedia('(prefers-color-scheme: dark)')
+        const handleChange = () => setSystemTheme(media.matches ? 'dark' : 'light')
+        handleChange()
+        media.addEventListener?.('change', handleChange)
+        media.addListener?.(handleChange)
+        return () => {
+            media.removeEventListener?.('change', handleChange)
+            media.removeListener?.(handleChange)
+        }
+    }, [])
+
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEY, theme)
+        document.documentElement.setAttribute('data-theme', resolvedTheme)
+        document.documentElement.style.colorScheme = resolvedTheme
+    }, [theme, resolvedTheme])
+
+    const setTheme = (nextTheme) => setThemeState(normalizeTheme(nextTheme))
 
     const toggleTheme = () => {
-        setTheme(prev => {
-            if (prev === 'light') return 'dark'
-            if (prev === 'dark') return 'paper'
-            return 'light'
+        setThemeState((prev) => {
+            const current = normalizeTheme(prev)
+            if (current === 'dark') return 'light'
+            return 'dark'
         })
     }
 
+    const value = useMemo(() => ({
+        theme,
+        themePreference: theme,
+        resolvedTheme,
+        systemTheme,
+        setTheme,
+        toggleTheme,
+        themes: THEMES,
+    }), [theme, resolvedTheme, systemTheme])
+
     return (
-        <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+        <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
     )

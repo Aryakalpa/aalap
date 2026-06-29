@@ -3,14 +3,16 @@ import logo from '../logo/namelogo.png'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { supabase } from '../supabase'
-import { useState, useEffect } from 'react'
-import { Home, TrendingUp, PenTool, Bell, User, Search, Moon, Sun, LogOut } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Home, TrendingUp, PenTool, Bell, User, Search, Moon, Sun, LogOut, Monitor } from 'lucide-react'
 
 export default function Layout({ children }) {
   const { user, signInWithGoogle, signOut } = useAuth()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, resolvedTheme, setTheme } = useTheme()
   const location = useLocation()
   const [unreadCount, setUnreadCount] = useState(0)
+  const [showThemeMenu, setShowThemeMenu] = useState(false)
+  const themeMenuRef = useRef(null)
 
   useEffect(() => {
     if (user) {
@@ -31,6 +33,14 @@ export default function Layout({ children }) {
       return () => subscription.unsubscribe()
     }
   }, [user])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target)) setShowThemeMenu(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const fetchUnreadCount = async () => {
     const { count } = await supabase
@@ -67,9 +77,33 @@ export default function Layout({ children }) {
               <Search size={20} />
             </Link>
 
-            <button className="btn-icon" onClick={toggleTheme}>
-              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-            </button>
+            <div ref={themeMenuRef} className="theme-menu-wrap">
+              <button
+                className="btn-icon"
+                onClick={() => setShowThemeMenu((open) => !open)}
+                title="Appearance"
+                aria-label="Appearance"
+                aria-expanded={showThemeMenu}
+              >
+                {resolvedTheme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+              </button>
+              {showThemeMenu && (
+                <div className="share-menu fade-in theme-menu">
+                  <button className={`theme-menu-item ${theme === 'system' ? 'active' : ''}`} onClick={() => { setTheme('system'); setShowThemeMenu(false) }}>
+                    <Monitor size={17} />
+                    <span>System</span>
+                  </button>
+                  <button className={`theme-menu-item ${theme === 'light' ? 'active' : ''}`} onClick={() => { setTheme('light'); setShowThemeMenu(false) }}>
+                    <Sun size={17} />
+                    <span>Light</span>
+                  </button>
+                  <button className={`theme-menu-item ${theme === 'dark' ? 'active' : ''}`} onClick={() => { setTheme('dark'); setShowThemeMenu(false) }}>
+                    <Moon size={17} />
+                    <span>Dark</span>
+                  </button>
+                </div>
+              )}
+            </div>
 
             {user ? (
               <button className="btn-icon" onClick={signOut} title="Log Out">
