@@ -4,11 +4,12 @@ import { useAuth } from '../contexts/AuthContext'
 import { CATEGORIES, countWords, estimateReadingTime } from '../utils/helpers'
 import { PenTool, CheckCircle, ChevronLeft, Save, AlignLeft, AlignCenter, AlignJustify, BookOpen } from 'lucide-react'
 import { fetchEditablePost, savePost } from '../services/write'
+import LoadingState from '../components/ui/LoadingState'
 
 export default function Write() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
 
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
@@ -20,13 +21,14 @@ export default function Write() {
   const [lastSaved, setLastSaved] = useState(null)
 
   useEffect(() => {
+    if (authLoading) return
     if (!user) {
       alert('লিখিবলৈ অনুগ্ৰহ কৰি লগ ইন কৰক।')
       navigate('/')
       return
     }
     if (id) fetchPost()
-  }, [id, user])
+  }, [id, user, authLoading])
 
   const fetchPost = async () => {
     const data = await fetchEditablePost({ postId: id, authorId: user.id })
@@ -78,6 +80,9 @@ export default function Write() {
       setSaving(false)
     }
   }
+
+  if (authLoading) return <LoadingState padding="10rem" />
+  if (!user) return null
 
   return (
     <div className="page-shell fade-in">

@@ -18,11 +18,31 @@ const Search = lazy(() => import('./pages/Search'))
 
 
 export default function App() {
-    // Force refresh for mobile users on new version
+    // Force refresh for users on new version and recover from stale lazy chunks after deploys.
     useEffect(() => {
         if (localStorage.getItem('aalap_version') !== APP_VERSION) {
             localStorage.setItem('aalap_version', APP_VERSION)
             window.location.reload()
+            return
+        }
+
+        const recoverFromChunkError = (message = '') => {
+            const text = String(message)
+            const isChunkError = text.includes('Failed to fetch dynamically imported module')
+                || text.includes('Importing a module script failed')
+                || text.includes('ChunkLoadError')
+            if (!isChunkError || sessionStorage.getItem('aalap_chunk_recovered') === APP_VERSION) return
+            sessionStorage.setItem('aalap_chunk_recovered', APP_VERSION)
+            window.location.reload()
+        }
+
+        const onError = (event) => recoverFromChunkError(event?.message || event?.error?.message)
+        const onUnhandledRejection = (event) => recoverFromChunkError(event?.reason?.message || event?.reason)
+        window.addEventListener('error', onError)
+        window.addEventListener('unhandledrejection', onUnhandledRejection)
+        return () => {
+            window.removeEventListener('error', onError)
+            window.removeEventListener('unhandledrejection', onUnhandledRejection)
         }
     }, [])
 
