@@ -7,8 +7,10 @@ import useDebouncedValue from '../hooks/useDebouncedValue'
 import { SEARCH_DEBOUNCE_MS } from '../constants/app'
 import { searchPosts } from '../services/posts'
 import { searchProfiles } from '../services/profiles'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Search() {
+  const { loading: authLoading } = useAuth()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState({ posts: [], profiles: [] })
   const [loading, setLoading] = useState(false)
@@ -16,9 +18,9 @@ export default function Search() {
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS)
 
   useEffect(() => {
-    if (debouncedQuery.trim().length > 1) handleSearch(debouncedQuery)
+    if (!authLoading && debouncedQuery.trim().length > 1) handleSearch(debouncedQuery)
     else setResults({ posts: [], profiles: [] })
-  }, [debouncedQuery])
+  }, [debouncedQuery, authLoading])
 
   const handleSearch = async (searchTerm) => {
     setLoading(true)

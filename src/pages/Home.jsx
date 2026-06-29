@@ -12,21 +12,22 @@ import { getRandomCoverForPost } from '../utils/covers'
 import { getPostPath } from '../utils/routes'
 
 export default function Home() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('all')
 
   useEffect(() => {
+    if (authLoading) return
     let cancelled = false
     fetchPosts({ cancelled: () => cancelled })
     return () => { cancelled = true }
-  }, [filter])
+  }, [filter, authLoading])
 
   useEffect(() => {
     const refreshIfEmpty = () => {
-      if (document.visibilityState === 'visible' && !loading && posts.length === 0) fetchPosts({ silent: true })
+      if (!authLoading && document.visibilityState === 'visible' && !loading && posts.length === 0) fetchPosts({ silent: true })
     }
     window.addEventListener('focus', refreshIfEmpty)
     document.addEventListener('visibilitychange', refreshIfEmpty)
@@ -34,7 +35,7 @@ export default function Home() {
       window.removeEventListener('focus', refreshIfEmpty)
       document.removeEventListener('visibilitychange', refreshIfEmpty)
     }
-  }, [loading, posts.length, filter])
+  }, [authLoading, loading, posts.length, filter])
 
   const fetchPosts = async ({ silent = false, cancelled = () => false } = {}) => {
     if (!silent) setLoading(true)
@@ -131,7 +132,7 @@ export default function Home() {
       </section>
 
       <section>
-        {loading ? (
+        {authLoading || loading ? (
           <LoadingState containerClassName="page-shell" />
         ) : error ? (
           <EmptyState

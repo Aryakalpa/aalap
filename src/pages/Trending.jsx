@@ -4,15 +4,17 @@ import PostCard from '../components/PostCard'
 import { TrendingUp } from 'lucide-react'
 import EmptyState from '../components/ui/EmptyState'
 import LoadingState from '../components/ui/LoadingState'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Trending() {
+  const { loading: authLoading } = useAuth()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [timeframe, setTimeframe] = useState('week')
 
   useEffect(() => {
-    fetchTrendingPosts()
-  }, [timeframe])
+    if (!authLoading) fetchTrendingPosts()
+  }, [timeframe, authLoading])
 
   const fetchTrendingPosts = async () => {
     setLoading(true)
@@ -48,7 +50,7 @@ export default function Trending() {
         <button className={`tab-btn ${timeframe === 'month' ? 'active' : ''}`} onClick={() => setTimeframe('month')}>এই মাহৰ</button>
       </div>
 
-      {loading ? (
+      {authLoading || loading ? (
         <LoadingState containerClassName="page-shell" />
       ) : posts.length === 0 ? (
         <EmptyState
